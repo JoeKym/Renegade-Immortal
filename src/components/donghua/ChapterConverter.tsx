@@ -60,6 +60,7 @@ export const ChapterConverter = () => {
         episodes: `${epS}–${epE}`,
         chapters: `${chS}–${chE}`,
         arc,
+      }))
     );
     setSearched(true);
   };
