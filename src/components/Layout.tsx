@@ -241,7 +241,7 @@ export function Layout({ children }: { children: ReactNode }) {
               </a>
             </p>
             <div className="mt-6 flex justify-center">
-              <a href="//www.dmca.com/Protection/Status.aspx?ID=1aab0c2c-bc16-402b-880c-35e903a38a2c" title="DMCA.com Protection Status" className="dmca-badge">
+              <a href="https://www.dmca.com/r/kz43k2l" title="DMCA.com Protection Status" className="dmca-badge" target="_blank" rel="noopener noreferrer">
                 <img src="https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=1aab0c2c-bc16-402b-880c-35e903a38a2c" alt="DMCA.com Protection Status" />
               </a>
             </div>
