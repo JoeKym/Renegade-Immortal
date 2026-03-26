@@ -240,6 +240,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 JoeKym Labs™
               </a>
             </p>
+            <div className="mt-6 flex justify-center">
+              <a href="//www.dmca.com/Protection/Status.aspx?ID=1aab0c2c-bc16-402b-880c-35e903a38a2c" title="DMCA.com Protection Status" className="dmca-badge">
+                <img src="https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=1aab0c2c-bc16-402b-880c-35e903a38a2c" alt="DMCA.com Protection Status" />
+              </a>
+            </div>
           </div>
         </div>
       </footer>
