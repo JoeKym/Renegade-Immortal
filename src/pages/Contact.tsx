@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import { Mail, Send, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,16 +55,10 @@ export default function Contact() {
 
   return (
     <Layout>
+      <PageHero title="Contact Us" subtitle="We'd love to hear from you" />
+
       <div className="py-20 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <Mail className="h-7 w-7 text-primary" />
-            <div>
-              <h1 className="text-3xl font-heading font-bold text-foreground">Contact Us</h1>
-              <p className="text-muted-foreground font-body text-sm">We'd love to hear from you</p>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="gradient-card border border-border rounded-lg p-6">
               <h2 className="font-heading text-lg text-foreground mb-4 flex items-center gap-2">

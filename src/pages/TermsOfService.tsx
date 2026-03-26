@@ -1,20 +1,16 @@
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import { ScrollText } from "lucide-react";
 
 export default function TermsOfService() {
   return (
     <Layout>
+      <PageHero title="Terms of Service" subtitle="Last updated: March 8, 2026" />
+
       <div className="py-20 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <ScrollText className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-heading font-bold text-foreground">Terms of Service</h1>
-          </div>
-
           <div className="gradient-card border border-border rounded-lg p-8 space-y-6 font-body text-foreground/85 text-sm leading-relaxed">
-            <p className="text-muted-foreground text-xs">Last updated: March 8, 2026</p>
-
             <section>
               <h2 className="font-heading text-lg text-foreground mb-2">1. Acceptance of Terms</h2>
               <p>By accessing and using Renegade Immortal (仙逆), you agree to be bound by these Terms of Service. If you do not agree, please do not use the site.</p>

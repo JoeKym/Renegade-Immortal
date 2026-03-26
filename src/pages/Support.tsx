@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import { HelpCircle, MessageCircle, Shield, BookOpen, Users, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -33,16 +34,10 @@ const faqItems = [
 export default function Support() {
   return (
     <Layout>
+      <PageHero title="Support" subtitle="Get help and find answers" />
+
       <div className="py-20 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <HelpCircle className="h-7 w-7 text-primary" />
-            <div>
-              <h1 className="text-3xl font-heading font-bold text-foreground">Support</h1>
-              <p className="text-muted-foreground font-body text-sm">Get help and find answers</p>
-            </div>
-          </div>
-
           {/* Quick links */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <Link to="/contact" className="gradient-card border border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">

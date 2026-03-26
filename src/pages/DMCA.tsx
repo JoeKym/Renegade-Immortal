@@ -1,15 +1,13 @@
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { Mail, Shield } from "lucide-react";
 
 export default function DMCA() {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-4xl pt-24">
-        <div className="flex items-center gap-3 mb-8">
-          <Shield className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-heading tracking-wider">DMCA Policy & Takedown Notice</h1>
-        </div>
-        
+      <PageHero title="DMCA Policy & Takedown Notice" subtitle="Copyright guidelines and takedown requests" />
+
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="prose prose-invert max-w-none font-body text-muted-foreground space-y-6">
           <p>
             We respect the intellectual property rights of others and expect our users to do the same. In accordance with the Digital Millennium Copyright Act of 1998, we will respond expeditiously to claims of copyright infringement committed using our website that are reported to our Designated Copyright Agent, identified below.

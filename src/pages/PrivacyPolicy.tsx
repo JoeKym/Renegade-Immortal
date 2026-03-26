@@ -1,20 +1,16 @@
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import { Shield } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (
     <Layout>
+      <PageHero title="Privacy Policy" subtitle="Last updated: March 8, 2026" />
+
       <div className="py-20 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <Shield className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-heading font-bold text-foreground">Privacy Policy</h1>
-          </div>
-
           <div className="gradient-card border border-border rounded-lg p-8 space-y-6 font-body text-foreground/85 text-sm leading-relaxed">
-            <p className="text-muted-foreground text-xs">Last updated: March 8, 2026</p>
-
             <section>
               <h2 className="font-heading text-lg text-foreground mb-2">1. Information We Collect</h2>
               <p>When you create an account, we collect your email address, display name, and optional profile information (bio, avatar, reading progress). We also collect usage data such as page views and session information to improve the site experience.</p>

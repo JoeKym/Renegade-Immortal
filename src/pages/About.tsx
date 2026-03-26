@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import {
   BookOpen, Users, Tv, Play, Globe, Scroll, Star, Heart,
@@ -32,27 +33,12 @@ const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
 export default function About() {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-16 max-w-5xl">
+      <PageHero 
+        title="Renegade Immortal Wiki" 
+        subtitle="The most complete fan-made encyclopedia for Er Gen's Renegade Immortal (仙逆) — covering the original novel, the donghua adaptation, characters, lore, and more."
+      />
 
-        {/* Hero */}
-        <motion.div
-          className="text-center mb-20"
-          initial="hidden"
-          animate="show"
-          variants={{ show: { transition: { staggerChildren: 0.1 } } }}
-        >
-          <motion.p variants={fadeUp} className="text-primary font-heading tracking-[0.3em] text-sm mb-3 uppercase">
-            仙逆 · Xian Ni
-          </motion.p>
-          <motion.h1 variants={fadeUp} className="font-heading text-4xl md:text-6xl text-foreground mb-5 tracking-wide">
-            Renegade Immortal Wiki
-          </motion.h1>
-          <motion.p variants={fadeUp} className="text-muted-foreground font-body text-lg max-w-2xl mx-auto leading-relaxed">
-            The most complete fan-made encyclopedia for Er Gen's{" "}
-            <em>Renegade Immortal (仙逆)</em> — covering the original novel, the
-            donghua adaptation, characters, lore, and more.
-          </motion.p>
-        </motion.div>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
 
         {/* About the Show */}
         <motion.section
