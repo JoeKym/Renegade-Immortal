@@ -280,13 +280,38 @@ export default function GroupMessages() {
 
   const handleCreateGroup = async () => {
     if (!newGroupName.trim() || !user) return;
-    const { data, error } = await supabase.from("group_chats" as any).insert({ name: newGroupName.trim(), description: newGroupDesc.trim(), created_by: user.id } as any).select().single();
+    
+    // Generate UUIDclient-side to bypass Supabase .select() RLS snapshot bug
+    const newGroupId = crypto.randomUUID();
+    const newGroup = {
+      id: newGroupId,
+      name: newGroupName.trim(),
+      description: newGroupDesc.trim(),
+      created_by: user.id,
+    };
+
+    const { error } = await supabase.from("group_chats" as any).insert(newGroup as any);
+    
     if (error) { 
       console.error("Create group error:", error);
       toast.error(`Failed to create group: ${error.message || 'Unknown error'}`); 
       return; 
     }
-    setGroups(prev => [data as any, ...prev]); setActiveGroup((data as any).id); setCreateGroupOpen(false); setNewGroupName(""); setNewGroupDesc(""); toast.success("Group created!");
+    
+    // Optimistically update the UI without needing .select()
+    const addedGroup = {
+      ...newGroup,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      avatar_url: null
+    };
+
+    setGroups(prev => [addedGroup as any, ...prev]); 
+    setActiveGroup(newGroupId); 
+    setCreateGroupOpen(false); 
+    setNewGroupName(""); 
+    setNewGroupDesc(""); 
+    toast.success("Group created!");
   };
 
   const handleSend = async (e: React.FormEvent) => {
