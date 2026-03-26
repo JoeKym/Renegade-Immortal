@@ -37,135 +37,136 @@ interface Result {
 }
 
 export const ChapterConverter = () => {
-  const [mode, setMode] = useState<Mode>("chapter");
-  const [input, setInput] = useState("");
-  const [results, setResults] = useState<Result[]>([]);
-  const [searched, setSearched] = useState(false);
-
-  const handleSearch = () => {
-    const num = parseInt(input);
-    if (isNaN(num) || num < 1) {
-      setResults([]);
-      setSearched(true);
-      return;
-    }
-
-    const found = episodeMap.filter(([epS, epE, chS, chE]) => {
-      if (mode === "chapter") return num >= chS && num <= chE;
-      return num >= epS && num <= epE;
-    });
-
-    setResults(
-      found.map(([epS, epE, chS, chE, arc]) => ({
-        episodes: `${epS}–${epE}`,
-        chapters: `${chS}–${chE}`,
-        arc,
-      }))
-    );
-    setSearched(true);
-  };
+  const [chapterInput, setChapterInput] = useState("");
+  const [episodeInput, setEpisodeInput] = useState("");
+  const [chapterFiltered, setChapterFiltered] = useState<Result[]>([]);
+  const [episodeFiltered, setEpisodeFiltered] = useState<Result[]>([]);
 
   useEffect(() => {
-    if (input.trim()) {
-      handleSearch();
+    const num = parseInt(chapterInput);
+    if (!isNaN(num) && num > 0) {
+      setChapterFiltered(
+        episodeMap
+          .filter(([, , chS, chE]) => num >= chS && num <= chE)
+          .map(([epS, epE, chS, chE, arc]) => ({ episodes: `${epS}–${epE}`, chapters: `${chS}–${chE}`, arc }))
+      );
     } else {
-      setResults([]);
-      setSearched(false);
+      setChapterFiltered([]);
     }
-  }, [input, mode]);
+  }, [chapterInput]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSearch();
-  };
+  useEffect(() => {
+    const num = parseInt(episodeInput);
+    if (!isNaN(num) && num > 0) {
+      setEpisodeFiltered(
+        episodeMap
+          .filter(([epS, epE]) => num >= epS && num <= epE)
+          .map(([epS, epE, chS, chE, arc]) => ({ episodes: `${epS}–${epE}`, chapters: `${chS}–${chE}`, arc }))
+      );
+    } else {
+      setEpisodeFiltered([]);
+    }
+  }, [episodeInput]);
 
   return (
-    <div className="gradient-card border border-border rounded-lg p-6 mb-12">
-      <h3 className="font-heading text-lg text-primary tracking-wider mb-2 flex items-center gap-2">
-        <ArrowRightLeft className="w-4 h-4" /> Chapter ↔ Episode Converter
-      </h3>
-      <p className="text-xs font-body text-muted-foreground mb-5">
-        Look up which episodes adapt a specific novel chapter, or which chapters an episode covers.
-      </p>
+    <div className="mb-12">
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Chapter to Episode */}
+        <div className="gradient-card border border-border rounded-lg p-6">
+          <h3 className="font-heading text-lg text-primary tracking-wider mb-2 flex items-center gap-2">
+            <BookOpen className="w-4 h-4" /> Chapter → Episode
+          </h3>
+          <p className="text-xs font-body text-muted-foreground mb-5">
+            Look up which episodes adapt a specific novel chapter.
+          </p>
 
-      {/* Mode Toggle */}
-      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit mb-4">
-        {[
-          { key: "chapter" as Mode, icon: BookOpen, label: "Chapter → Episode" },
-          { key: "episode" as Mode, icon: Tv, label: "Episode → Chapter" },
-        ].map((m) => (
-          <button
-            key={m.key}
-            onClick={() => { setMode(m.key); setResults([]); setSearched(false); setInput(""); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading tracking-wider transition-colors ${
-              mode === m.key
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <m.icon className="w-3 h-3" />
-            {m.label}
-          </button>
-        ))}
-      </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="number"
+              min={1}
+              value={chapterInput}
+              onChange={(e) => setChapterInput(e.target.value)}
+              placeholder="Enter chapter number (e.g. 450)"
+              className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-colors"
+            />
+          </div>
 
-      {/* Search Input */}
-      <div className="flex gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="number"
-            min={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={mode === "chapter" ? "Enter chapter number (e.g. 450)" : "Enter episode number (e.g. 75)"}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-colors"
-          />
+          <AnimatePresence mode="wait">
+            {chapterInput.trim() && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {chapterFiltered.length > 0 ? (
+                  <div className="space-y-2">
+                    {chapterFiltered.map((r, i) => (
+                      <div key={i} className="flex flex-col gap-1 p-3 rounded-lg border border-border bg-muted/20">
+                        <div className="flex items-center gap-1.5"><Tv className="w-3.5 h-3.5 text-primary" /><span className="text-sm font-heading tracking-wider">Episodes {r.episodes}</span></div>
+                        <span className="text-xs text-muted-foreground font-body">Arc: {r.arc} ({r.chapters})</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center border border-border border-dashed rounded-lg bg-muted/10">
+                    <p className="text-sm font-body text-muted-foreground">No matching episodes found</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Episode to Chapter */}
+        <div className="gradient-card border border-border rounded-lg p-6">
+          <h3 className="font-heading text-lg text-primary tracking-wider mb-2 flex items-center gap-2">
+            <Tv className="w-4 h-4" /> Episode → Chapter
+          </h3>
+          <p className="text-xs font-body text-muted-foreground mb-5">
+            Look up which chapters an episode covers.
+          </p>
+
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="number"
+              min={1}
+              value={episodeInput}
+              onChange={(e) => setEpisodeInput(e.target.value)}
+              placeholder="Enter episode number (e.g. 75)"
+              className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-colors"
+            />
+          </div>
+
+          <AnimatePresence mode="wait">
+            {episodeInput.trim() && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {episodeFiltered.length > 0 ? (
+                  <div className="space-y-2">
+                    {episodeFiltered.map((r, i) => (
+                      <div key={i} className="flex flex-col gap-1 p-3 rounded-lg border border-border bg-muted/20">
+                        <div className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-primary" /><span className="text-sm font-heading tracking-wider">Chapters {r.chapters}</span></div>
+                        <span className="text-xs text-muted-foreground font-body">Arc: {r.arc} (Eps {r.episodes})</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center border border-border border-dashed rounded-lg bg-muted/10">
+                    <p className="text-sm font-body text-muted-foreground">No matching chapters found</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-
-      {/* Results */}
-      <AnimatePresence mode="wait">
-        {searched && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-          >
-            {results.length > 0 ? (
-              <div className="space-y-2">
-                {results.map((r, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3 rounded-lg border border-border bg-muted/20"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <Tv className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-sm font-heading text-foreground tracking-wider">Ep {r.episodes}</span>
-                    </div>
-                    <span className="text-muted-foreground text-xs">↔</span>
-                    <div className="flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-sm font-heading text-foreground tracking-wider">Ch {r.chapters}</span>
-                    </div>
-                    <span className="text-xs font-body px-2 py-0.5 rounded-full border border-primary/20 text-primary/80 bg-primary/5 ml-auto">
-                      {r.arc}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-muted-foreground font-body">
-                  No match found. {mode === "chapter" ? "Try a chapter between 1–2100." : "Try an episode between 1–300."}
-                </p>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <p className="text-xs text-muted-foreground font-body mt-4 flex items-center gap-1 border-t border-border/50 pt-3">
         <Info className="w-3 h-3 shrink-0" /> Mappings are approximate (~5–7 chapters per episode). Actual pacing varies by arc.
       </p>
