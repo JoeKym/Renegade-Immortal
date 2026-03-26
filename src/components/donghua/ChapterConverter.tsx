@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, BookOpen, Tv, ArrowRightLeft, Info } from "lucide-react";
 
@@ -60,10 +60,18 @@ export const ChapterConverter = () => {
         episodes: `${epS}–${epE}`,
         chapters: `${chS}–${chE}`,
         arc,
-      }))
     );
     setSearched(true);
   };
+
+  useEffect(() => {
+    if (input.trim()) {
+      handleSearch();
+    } else {
+      setResults([]);
+      setSearched(false);
+    }
+  }, [input, mode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSearch();
@@ -113,12 +121,6 @@ export const ChapterConverter = () => {
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-colors"
           />
         </div>
-        <button
-          onClick={handleSearch}
-          className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground font-heading text-xs tracking-wider hover:bg-primary/90 transition-colors shrink-0"
-        >
-          Look Up
-        </button>
       </div>
 
       {/* Results */}

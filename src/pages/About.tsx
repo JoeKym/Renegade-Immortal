@@ -23,7 +23,7 @@ const features = [
 
 const stats = [
   { value: "4", label: "Streaming Servers" },
-  { value: "180+", label: "Episodes Covered" },
+  { value: "129+", label: "Episodes Covered" },
   { value: "100+", label: "Characters Documented" },
   { value: "1", label: "Epic Story" },
 ];
@@ -34,7 +34,7 @@ export default function About() {
   return (
     <Layout>
       <PageHero 
-        title="Renegade Immortal Wiki" 
+        title="About - Renegade Immortal Wiki" 
         subtitle="The most complete fan-made encyclopedia for Er Gen's Renegade Immortal (仙逆) — covering the original novel, the donghua adaptation, characters, lore, and more."
       />
 

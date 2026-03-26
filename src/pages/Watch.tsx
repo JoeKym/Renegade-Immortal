@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import {
   Play, Search, Loader2, Star, Calendar, ChevronLeft, ChevronRight,
-  Tv, Clock, List, Grid, Volume2
+  Tv, Clock, List, Grid, Volume2, Eye, PlaySquare
 } from "lucide-react";
 import { VideoPlayer } from "@/components/watch/VideoPlayer";
 
@@ -78,7 +78,21 @@ export default function WatchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
+  const [lastWatched, setLastWatched] = useState<number | null>(null);
   const episodeListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const historyStr = localStorage.getItem("renegade_watch_history");
+      if (historyStr) setWatchHistory(JSON.parse(historyStr));
+      
+      const lastWatchedStr = localStorage.getItem("renegade_last_watched");
+      if (lastWatchedStr) setLastWatched(Number(lastWatchedStr));
+    } catch (e) {
+      console.warn("Failed to load local watch history");
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -228,6 +242,14 @@ export default function WatchPage() {
   const handleEpisodeSelect = (num: number) => {
     setSelectedEpisode(num);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    setWatchHistory(prev => {
+      const next = { ...prev, [num]: true };
+      localStorage.setItem("renegade_watch_history", JSON.stringify(next));
+      return next;
+    });
+    setLastWatched(num);
+    localStorage.setItem("renegade_last_watched", num.toString());
   };
 
   const handlePrev = () => {
@@ -420,12 +442,22 @@ export default function WatchPage() {
                           Choose any of the {releasedCount} released episodes from the list
                         </p>
                       </div>
-                      <button
-                        onClick={() => handleEpisodeSelect(1)}
-                        className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-heading tracking-wider hover:bg-primary/90 transition-colors"
-                      >
-                        Start from Episode 1
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={() => handleEpisodeSelect(1)}
+                          className="px-6 py-2.5 bg-muted/60 text-foreground hover:bg-muted rounded-lg text-sm font-heading tracking-wider transition-colors border border-border"
+                        >
+                          Start from Episode 1
+                        </button>
+                        {lastWatched && (
+                          <button
+                            onClick={() => handleEpisodeSelect(lastWatched)}
+                            className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-heading tracking-wider hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <PlaySquare size={16} /> Continue Ep {lastWatched}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -488,7 +520,12 @@ export default function WatchPage() {
                                 : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted border-transparent hover:border-border"
                             }`}
                           >
-                            {ep.number}
+                            <div className="flex flex-col items-center justify-center gap-1">
+                              <span>{ep.number}</span>
+                              {watchHistory[ep.number] && (
+                                <Eye size={10} className="text-primary/70 absolute top-1.5 right-1.5" />
+                              )}
+                            </div>
                           </motion.button>
                         ))}
                       </div>
@@ -519,14 +556,19 @@ export default function WatchPage() {
                                 <Play size={14} className="text-muted-foreground" />
                               </div>
                             )}
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-heading tracking-wide text-inherit">
-                                {selectedEpisode === ep.number && (
-                                  <span className="text-primary mr-1">▶</span>
-                                )}
-                                Episode {ep.number}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground font-body truncate">{ep.arc}</p>
+                            <div className="min-w-0 flex-1 flex justify-between items-center">
+                              <div>
+                                <p className="text-xs font-heading tracking-wide text-inherit flex items-center gap-1.5">
+                                  {selectedEpisode === ep.number && (
+                                    <span className="text-primary">▶</span>
+                                  )}
+                                  Episode {ep.number}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground font-body truncate">{ep.arc}</p>
+                              </div>
+                              {watchHistory[ep.number] && (
+                                <Eye size={12} className="text-primary/60 flex-shrink-0" />
+                              )}
                             </div>
                           </motion.button>
                         ))}

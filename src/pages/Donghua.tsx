@@ -275,7 +275,7 @@ const DonghuaPage = () => {
             <div className="grid sm:grid-cols-2 gap-3">
               {[
                 { label: "Read the Novel", sub: "WuxiaWorld", url: "https://www.wuxiaworld.com/novel/renegade-immortal" },
-                { label: "Watch Donghua", sub: "Tencent Video / WeTV", url: "#" },
+                { label: "Watch Donghua", sub: "Tencent Video / WeTV", url: "https://wetv.vip/en/play/rc7u2e4d0p736v7" },
                 { label: "Fan Community", sub: "Reddit r/Donghua", url: "https://www.reddit.com/r/Donghua" },
                 { label: "Wiki", sub: "Xian Ni Fandom Wiki", url: "https://xian-ni.fandom.com/wiki/Xian_Ni_Wiki" },
               ].map((link) => (

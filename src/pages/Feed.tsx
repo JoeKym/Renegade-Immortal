@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { TrendingUp, MessageSquare, Users, Clock, Heart, ArrowRight, Bookmark } from "lucide-react";
+import { TrendingUp, MessageSquare, Users, Clock, Heart, ArrowRight, Bookmark, Trash2 } from "lucide-react";
 import { PostActions } from "@/components/PostActions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -294,6 +294,15 @@ export default function Feed() {
                             <Clock size={9} /> {timeAgo(post.created_at)}
                           </span>
                         </div>
+                        {user?.id === post.user_id && (
+                          <button
+                            onClick={() => handleDeletePost(post.id)}
+                            className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors ml-auto flex-shrink-0"
+                            title="Delete Post"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                       <p className="text-sm font-body text-foreground/85 whitespace-pre-wrap leading-relaxed">
                         {post.content}

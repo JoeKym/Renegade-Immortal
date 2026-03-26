@@ -281,7 +281,11 @@ export default function GroupMessages() {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim() || !user) return;
     const { data, error } = await supabase.from("group_chats" as any).insert({ name: newGroupName.trim(), description: newGroupDesc.trim(), created_by: user.id } as any).select().single();
-    if (error) { toast.error("Failed to create group"); return; }
+    if (error) { 
+      console.error("Create group error:", error);
+      toast.error(`Failed to create group: ${error.message || 'Unknown error'}`); 
+      return; 
+    }
     setGroups(prev => [data as any, ...prev]); setActiveGroup((data as any).id); setCreateGroupOpen(false); setNewGroupName(""); setNewGroupDesc(""); toast.success("Group created!");
   };
 

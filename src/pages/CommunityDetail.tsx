@@ -359,7 +359,7 @@ export default function CommunityDetail() {
   const handleDeleteCommunity = async () => {
     if (!user || !id || !community) return;
     if (!window.confirm(`Permanently delete "${community.name}"? This cannot be undone. All members, posts and messages will be lost.`)) return;
-    const { error } = await supabase.from("communities").update({ is_active: false }).eq("id", id);
+    const { error } = await supabase.from("communities").delete().eq("id", id);
     if (error) { toast.error("Failed to delete community"); return; }
     toast.success("Community deleted.");
     navigate("/communities");
