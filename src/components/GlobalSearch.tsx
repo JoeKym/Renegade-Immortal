@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Fuse from "fuse.js";
 import { searchableData, type SearchResult } from "@/data/searchData";
+import { useSearchTracking } from "@/services/searchTracking";
 
 const fuse = new Fuse(searchableData, {
   keys: [
@@ -23,17 +24,48 @@ interface GlobalSearchProps {
 export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const { trackSearchQuery, trackResultClick } = useSearchTracking();
+  const trackedQueries = useRef<Set<string>>(new Set());
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
     return fuse.search(query).slice(0, 12).map((r) => r.item);
   }, [query]);
 
-  const handleSelect = (result: SearchResult) => {
+  // Track search query (debounced - only track when results change and query is stable)
+  const handleQueryChange = useCallback((newQuery: string) => {
+    setQuery(newQuery);
+    
+    // Track the search if we have results and haven't tracked this exact query yet
+    if (newQuery.trim().length >= 2) {
+      const searchResults = fuse.search(newQuery).slice(0, 12);
+      const normalizedQuery = newQuery.toLowerCase().trim();
+      
+      if (searchResults.length > 0 && !trackedQueries.current.has(normalizedQuery)) {
+        trackedQueries.current.add(normalizedQuery);
+        trackSearchQuery(normalizedQuery, searchResults.length, "global");
+      }
+    }
+  }, [trackSearchQuery]);
+
+  const handleSelect = useCallback((result: SearchResult, index: number) => {
+    // Track the click
+    trackResultClick(
+      query,
+      {
+        title: result.title,
+        path: result.path,
+        category: result.category,
+      },
+      index + 1,
+      results.length,
+      "suggestion_click"
+    );
+    
     navigate(result.path);
     setQuery("");
     onClose();
-  };
+  }, [navigate, onClose, query, results.length, trackResultClick]);
 
   return (
     <AnimatePresence>
@@ -57,7 +89,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
               <input
                 autoFocus
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Search characters, daos, artifacts, locations..."
                 className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-body text-lg"
               />
@@ -70,7 +102,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 {results.map((result, i) => (
                   <button
                     key={i}
-                    onClick={() => handleSelect(result)}
+                    onClick={() => handleSelect(result, i)}
                     className="w-full flex items-start gap-3 p-3 rounded-md hover:bg-muted transition-colors text-left"
                   >
                     <span className="text-xs font-heading text-primary uppercase tracking-wider mt-0.5 shrink-0">

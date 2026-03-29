@@ -41,6 +41,7 @@ import News from "./pages/News";
 import Watch from "./pages/Watch";
 import About from "./pages/About";
 import DMCA from "./pages/DMCA";
+import SearchAnalytics from "./pages/SearchAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const App = () => (
               <Route path="/watch" element={<Watch />} />
               <Route path="/about" element={<About />} />
               <Route path="/dmca" element={<DMCA />} />
+              <Route path="/admin/search-analytics" element={<SearchAnalytics />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
