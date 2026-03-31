@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { motion } from "framer-motion";
-import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star } from "lucide-react";
+import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -1413,6 +1413,13 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = "/admin/search-analytics"}
+                className="gap-2"
+              >
+                <BarChart3 size={16} /> Search Analytics
+              </Button>
               <Button
                 variant={maintenanceMode ? "destructive" : "outline"}
                 onClick={handleToggleMaintenance}

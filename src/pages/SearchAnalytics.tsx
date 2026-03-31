@@ -31,7 +31,7 @@ interface ConversionRate {
 }
 
 export default function SearchAnalytics() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [popularSearches, setPopularSearches] = useState<PopularSearch[]>([]);
   const [trendingItems, setTrendingItems] = useState<TrendingItem[]>([]);
@@ -39,6 +39,9 @@ export default function SearchAnalytics() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for auth to load before checking
+    if (loading) return;
+    
     if (!user) {
       navigate("/login");
       return;
@@ -51,7 +54,7 @@ export default function SearchAnalytics() {
     }
 
     loadAnalytics();
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   const loadAnalytics = async () => {
     setIsLoading(true);
