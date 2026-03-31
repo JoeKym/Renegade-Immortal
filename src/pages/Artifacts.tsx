@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Search, Sword, Wand2 } from "lucide-react";
@@ -41,8 +41,18 @@ const types = ["All", "artifact", "technique"];
 const typeLabels: Record<string, string> = { All: "All Items", artifact: "Artifacts", technique: "Techniques" };
 
 const ArtifactsPage = () => {
-  const [search, setSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  const queryItem = searchParams.get("q");
+  
+  const [search, setSearch] = useState(queryItem || "");
   const [typeFilter, setTypeFilter] = useState("All");
+
+  // Auto-search from URL query param on mount
+  useEffect(() => {
+    if (queryItem) {
+      setSearch(queryItem);
+    }
+  }, [queryItem]);
 
   const filtered = useMemo(() => {
     return items.filter((item) => {

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Search, ChevronDown, Heart } from "lucide-react";
@@ -29,12 +29,23 @@ function getInitials(name: string) {
 }
 
 const CharactersPage = () => {
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryChar = searchParams.get("q");
+  
+  const [search, setSearch] = useState(queryChar || "");
   const [race, setRace] = useState("All Races");
   const [alignment, setAlignment] = useState("All Roles");
-  const [expandedChar, setExpandedChar] = useState<string | null>(null);
+  const [expandedChar, setExpandedChar] = useState<string | null>(queryChar || null);
   const { user, profile, refreshProfile } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
+
+  // Auto-expand character from URL query param on mount
+  useEffect(() => {
+    if (queryChar) {
+      setSearch(queryChar);
+      setExpandedChar(queryChar);
+    }
+  }, [queryChar]);
 
   useEffect(() => {
     if (profile?.favorite_characters) {
@@ -404,7 +415,7 @@ function CharacterCard({
                     {char.techniques.map((t) => (
                       <Link
                         key={t}
-                        to="/artifacts"
+                        to={`/artifacts?q=${encodeURIComponent(t)}`}
                         className="text-xs font-body px-2 py-0.5 rounded border border-[hsl(var(--jade))]/30 text-[hsl(var(--jade))] hover:bg-[hsl(var(--jade))]/10 transition-colors"
                       >
                         {t}
@@ -422,7 +433,7 @@ function CharacterCard({
                     {char.artifacts.map((a) => (
                       <Link
                         key={a}
-                        to="/artifacts"
+                        to={`/artifacts?q=${encodeURIComponent(a)}`}
                         className="text-xs font-body px-2 py-0.5 rounded border border-[hsl(var(--crimson))]/30 text-[hsl(var(--crimson))] hover:bg-[hsl(var(--crimson))]/10 transition-colors"
                       >
                         {a}

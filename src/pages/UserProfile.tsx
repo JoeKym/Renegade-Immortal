@@ -258,7 +258,7 @@ export default function UserProfile() {
                     return (
                       <Link
                         key={name}
-                        to="/characters"
+                        to={`/characters?q=${encodeURIComponent(name)}`}
                         className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1.5 hover:bg-primary/20 transition-colors"
                       >
                         {char?.image && (

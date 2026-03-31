@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { MapPin } from "lucide-react";
@@ -80,6 +82,28 @@ const locations: Location[] = [
 const regions = ["All", "Mortal Realm", "Planet Suzaku", "Star System", "Beyond Mortal Worlds", "Primordial Space", "Higher Plane", "Supreme Realm"];
 
 const LocationsPage = () => {
+  const [searchParams] = useSearchParams();
+  const queryLoc = searchParams.get("q");
+  const locationRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Auto-scroll to location from URL query param
+  useEffect(() => {
+    if (queryLoc) {
+      const decodedQuery = decodeURIComponent(queryLoc.replace(/\+/g, " "));
+      const matchingLoc = locations.find(loc => 
+        loc.name.toLowerCase() === decodedQuery.toLowerCase()
+      );
+      if (matchingLoc && locationRefs.current[matchingLoc.name]) {
+        setTimeout(() => {
+          locationRefs.current[matchingLoc.name]?.scrollIntoView({ 
+            behavior: "smooth", 
+            block: "center" 
+          });
+        }, 500);
+      }
+    }
+  }, [queryLoc]);
+
   return (
     <Layout>
       <PageHero title="World & Locations" subtitle="Key locations across realms, planets, and dimensions in Renegade Immortal" />
@@ -98,11 +122,16 @@ const LocationsPage = () => {
             {locations.map((loc, i) => (
               <motion.div
                 key={loc.name}
+                ref={(el) => { locationRefs.current[loc.name] = el; }}
                 initial={{ y: 20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="gradient-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors"
+                className={`gradient-card border rounded-lg p-6 hover:border-primary/30 transition-colors ${
+                  queryLoc && decodeURIComponent(queryLoc.replace(/\+/g, " ")).toLowerCase() === loc.name.toLowerCase()
+                    ? "border-primary ring-1 ring-primary/50"
+                    : "border-border"
+                }`}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <MapPin size={18} className="text-primary mt-0.5 shrink-0" />

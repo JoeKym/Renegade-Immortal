@@ -6,17 +6,17 @@ export interface SearchResult {
 }
 
 export const searchableData: SearchResult[] = [
-  // Characters
-  { title: "Wang Lin", category: "Character", description: "The central protagonist who rises from mortal to transcendent being", path: "/characters" },
-  { title: "Tu Si", category: "Character", description: "Supreme being of the Ancient God lineage", path: "/characters" },
-  { title: "Tou Sen", category: "Character", description: "Legendary Ancient Demon with god-origin hybrid essence", path: "/characters" },
-  { title: "Ta Jia", category: "Character", description: "Master of the Ancient Devil ways", path: "/characters" },
-  { title: "All-Seer", category: "Character", description: "Mysterious transcendent oracle with fate vision", path: "/characters" },
-  { title: "Li Muwan", category: "Character", description: "Wang Lin's most important emotional anchor", path: "/characters" },
-  { title: "Mu Bingmei", category: "Character", description: "Cold, prideful, and powerfully skilled cultivator", path: "/characters" },
-  { title: "Situ Nan", category: "Character", description: "Chaotic mentor and rogue cultivator", path: "/characters" },
-  { title: "Qing Shui", category: "Character", description: "Tragic powerhouse with heavy karmic weight", path: "/characters" },
-  { title: "Su Ming", category: "Character", description: "Cross-novel essential for multiverse connections", path: "/characters" },
+  // Characters - with query params for direct navigation
+  { title: "Wang Lin", category: "Character", description: "The central protagonist who rises from mortal to transcendent being", path: "/characters?q=Wang+Lin" },
+  { title: "Tu Si", category: "Character", description: "Supreme being of the Ancient God lineage", path: "/characters?q=Tu+Si" },
+  { title: "Tou Sen", category: "Character", description: "Legendary Ancient Demon with god-origin hybrid essence", path: "/characters?q=Tou+Sen" },
+  { title: "Ta Jia", category: "Character", description: "Master of the Ancient Devil ways", path: "/characters?q=Ta+Jia" },
+  { title: "All-Seer", category: "Character", description: "Mysterious transcendent oracle with fate vision", path: "/characters?q=All-Seer" },
+  { title: "Li Muwan", category: "Character", description: "Wang Lin's most important emotional anchor", path: "/characters?q=Li+Muwan" },
+  { title: "Mu Bingmei", category: "Character", description: "Cold, prideful, and powerfully skilled cultivator", path: "/characters?q=Mu+Bingmei" },
+  { title: "Situ Nan", category: "Character", description: "Chaotic mentor and rogue cultivator", path: "/characters?q=Situ+Nan" },
+  { title: "Qing Shui", category: "Character", description: "Tragic powerhouse with heavy karmic weight", path: "/characters?q=Qing+Shui" },
+  { title: "Su Ming", category: "Character", description: "Cross-novel essential for multiverse connections", path: "/characters?q=Su+Ming" },
 
   // Daos
   { title: "Dao of the Underworld", category: "Dao", description: "Wang Lin's first forged Dao — born from desperation", path: "/daos" },
@@ -54,26 +54,26 @@ export const searchableData: SearchResult[] = [
   // Donghua
   { title: "Donghua Adaptation", category: "Donghua", description: "Chinese anime series — Episode 129 and counting", path: "/donghua" },
 
-  // Artifacts & Techniques
-  { title: "Heaven Rending Sword", category: "Artifact", description: "Ancient weapon capable of slicing through dimensions", path: "/artifacts" },
-  { title: "Soul Flag", category: "Artifact", description: "Wang Lin's soul-binding treasure for capturing spirits", path: "/artifacts" },
-  { title: "Ancient God Leather Armor", category: "Artifact", description: "Armor forged from Ancient God remains", path: "/artifacts" },
-  { title: "Restriction Flag", category: "Artifact", description: "Array-type treasure for sealing and binding", path: "/artifacts" },
-  { title: "God Slaying Spear", category: "Artifact", description: "Legendary weapon forged to kill Ancient Gods", path: "/artifacts" },
-  { title: "Call the Wind", category: "Technique", description: "One of Wang Lin's early signature techniques", path: "/artifacts" },
-  { title: "Finger of Death", category: "Technique", description: "Underworld Dao-derived killing technique", path: "/artifacts" },
-  { title: "Life & Death Domain", category: "Technique", description: "Domain technique from Life/Death Dao mastery", path: "/artifacts" },
-  { title: "Karmic Severance", category: "Technique", description: "Cuts karmic ties to weaken enemies", path: "/artifacts" },
-  { title: "Stop", category: "Technique", description: "Wang Lin's time-stopping space/time technique", path: "/artifacts" },
+  // Artifacts & Techniques - with query params
+  { title: "Heaven Rending Sword", category: "Artifact", description: "Ancient weapon capable of slicing through dimensions", path: "/artifacts?q=Heaven+Rending+Sword" },
+  { title: "Soul Flag", category: "Artifact", description: "Wang Lin's soul-binding treasure for capturing spirits", path: "/artifacts?q=Soul+Flag" },
+  { title: "Ancient God Leather Armor", category: "Artifact", description: "Armor forged from Ancient God remains", path: "/artifacts?q=Ancient+God+Leather+Armor" },
+  { title: "Restriction Flag", category: "Artifact", description: "Array-type treasure for sealing and binding", path: "/artifacts?q=Restriction+Flag" },
+  { title: "God Slaying Spear", category: "Artifact", description: "Legendary weapon forged to kill Ancient Gods", path: "/artifacts?q=God+Slaying+Spear" },
+  { title: "Call the Wind", category: "Technique", description: "One of Wang Lin's early signature techniques", path: "/artifacts?q=Call+the+Wind" },
+  { title: "Finger of Death", category: "Technique", description: "Underworld Dao-derived killing technique", path: "/artifacts?q=Finger+of+Death" },
+  { title: "Life & Death Domain", category: "Technique", description: "Domain technique from Life/Death Dao mastery", path: "/artifacts?q=Life+%26+Death+Domain" },
+  { title: "Karmic Severance", category: "Technique", description: "Cuts karmic ties to weaken enemies", path: "/artifacts?q=Karmic+Severance" },
+  { title: "Stop", category: "Technique", description: "Wang Lin's time-stopping space/time technique", path: "/artifacts?q=Stop" },
 
-  // Locations
-  { title: "Planet Suzaku", category: "Location", description: "Wang Lin's home planet and starting point", path: "/locations" },
-  { title: "Heng Yue Sect", category: "Location", description: "Wang Lin's first sect and cultivation home", path: "/locations" },
-  { title: "Suzaku Star", category: "Location", description: "Major cultivation world in the Suzaku system", path: "/locations" },
-  { title: "Outer Realm", category: "Location", description: "Vast space beyond the mortal cultivation planets", path: "/locations" },
-  { title: "Ancient God Territory", category: "Location", description: "The ancestral domain of the Ancient Gods", path: "/locations" },
-  { title: "Celestial Realm", category: "Location", description: "Higher plane where transcendent beings reside", path: "/locations" },
-  { title: "Allheaven", category: "Location", description: "The supreme realm governing all heavens", path: "/locations" },
+  // Locations - with query params
+  { title: "Planet Suzaku", category: "Location", description: "Wang Lin's home planet and starting point", path: "/locations?q=Planet+Suzaku" },
+  { title: "Heng Yue Sect", category: "Location", description: "Wang Lin's first sect and cultivation home", path: "/locations?q=Heng+Yue+Sect" },
+  { title: "Suzaku Star", category: "Location", description: "Major cultivation world in the Suzaku system", path: "/locations?q=Suzaku+Star" },
+  { title: "Outer Realm", category: "Location", description: "Vast space beyond the mortal cultivation planets", path: "/locations?q=Outer+Realm" },
+  { title: "Ancient God Territory", category: "Location", description: "The ancestral domain of the Ancient Gods", path: "/locations?q=Ancient+God+Territory" },
+  { title: "Celestial Realm", category: "Location", description: "Higher plane where transcendent beings reside", path: "/locations?q=Celestial+Realm" },
+  { title: "Allheaven", category: "Location", description: "The supreme realm governing all heavens", path: "/locations?q=Allheaven" },
 
   // Guide
   { title: "Beginner Guide", category: "Guide", description: "Start here — introduction to Renegade Immortal", path: "/guide" },
