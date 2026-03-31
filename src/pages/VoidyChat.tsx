@@ -176,6 +176,60 @@ export default function Voidy() {
     }
   };
 
+  // AI auto-rename: generates a title based on conversation topic after 4 messages
+  const autoRenameConversation = useCallback(async (conversationId: string, msgs: Msg[]) => {
+    if (msgs.length < 4 || msgs.length > 6) return; // Only rename after 2-3 exchanges, then stop
+    
+    // Check if title is still default (indicates not manually renamed yet)
+    const conv = conversations.find(c => c.id === conversationId);
+    if (!conv || (conv.title !== "New Chat" && !conv.title.startsWith("Asked about") && !conv.title.startsWith("New Chat"))) return;
+
+    try {
+      const prompt = `Based on this conversation, generate a very short, concise title (2-4 words max) that summarizes the main topic. Just return the title, nothing else.
+
+User: ${msgs[0]?.content?.slice(0, 100) || ""}
+Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader,
+        },
+        body: JSON.stringify({ 
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 20,
+        }),
+      });
+
+      if (!resp.ok) return;
+      
+      const data = await resp.json();
+      const generatedTitle = data.choices?.[0]?.message?.content?.trim()
+        ?.replace(/^["']|["']$/g, "") // Remove quotes
+        ?.replace(/\.$/, "") // Remove trailing period
+        ?.slice(0, 40); // Max 40 chars
+
+      if (generatedTitle && generatedTitle.length > 2) {
+        // Update via API
+        const updateResp = await fetch(`${HISTORY_URL}?action=update`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader,
+          },
+          body: JSON.stringify({ id: conversationId, title: generatedTitle }),
+        });
+
+        if (updateResp.ok) {
+          setConversations((prev) => prev.map((c) => (c.id === conversationId ? { ...c, title: generatedTitle } : c)));
+        }
+      }
+    } catch (e) {
+      console.error("Auto-rename failed:", e);
+    }
+  }, [authHeader, conversations]);
+
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -291,12 +345,17 @@ export default function Voidy() {
                 return [...prev, { role: "assistant", content: updated }];
               });
             }
-          } catch { }
+          } catch { /* ignore parse errors */ }
         }
       }
 
       if (conversationId && assistantSoFar) {
         await saveMessage(conversationId, "assistant", assistantSoFar);
+        // Trigger auto-rename after 2 exchanges (4 messages total)
+        const updatedMsgs = [...allMessages, { role: "assistant", content: assistantSoFar }];
+        if (updatedMsgs.length >= 4 && updatedMsgs.length <= 6) {
+          autoRenameConversation(conversationId, updatedMsgs);
+        }
       }
     } catch (e: any) {
       toast.error(e.message || "Failed to get response");

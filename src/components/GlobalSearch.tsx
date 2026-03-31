@@ -12,8 +12,13 @@ const fuse = new Fuse(searchableData, {
     { name: "category", weight: 1 },
     { name: "description", weight: 0.8 },
   ],
-  threshold: 0.3,
+  threshold: 0.4,
   includeScore: true,
+  ignoreLocation: true,
+  minMatchCharLength: 2,
+  isCaseSensitive: false,
+  findAllMatches: true,
+  useExtendedSearch: true,
 });
 
 interface GlobalSearchProps {

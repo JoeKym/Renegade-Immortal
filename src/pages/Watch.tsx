@@ -344,8 +344,8 @@ export default function WatchPage() {
                 {formatTimeUntil(aniData.nextAiringEpisode.timeUntilAiring)}
               </span>
               {" "}·{" "}
-              {new Date(aniData.nextAiringEpisode.airingAt * 1000).toLocaleDateString("en-US", {
-                weekday: "short", month: "short", day: "numeric",
+              {new Date(aniData.nextAiringEpisode.airingAt * 1000).toLocaleString("en-US", {
+                weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
               })}
             </span>
           </div>
