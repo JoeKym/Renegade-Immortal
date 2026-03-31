@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Layout } from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Send, Bot, Trash2, Download, Plus, MessageSquare, ChevronLeft, MoreVertical, Edit2 } from "lucide-react";
@@ -35,7 +35,7 @@ const suggestions = [
 ];
 
 export default function Voidy() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -46,6 +46,10 @@ export default function Voidy() {
   const [editTitle, setEditTitle] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  const authHeader = useMemo(() => {
+    return session?.access_token ? `Bearer ${session.access_token}` : "";
+  }, [session]);
 
   useEffect(() => {
     if (user) loadConversations();
@@ -58,7 +62,7 @@ export default function Voidy() {
   const loadConversations = async () => {
     try {
       const resp = await fetch(`${HISTORY_URL}?action=list`, {
-        headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { Authorization: authHeader },
       });
       if (!resp.ok) throw new Error("Failed to load conversations");
       const data = await resp.json();
@@ -71,7 +75,7 @@ export default function Voidy() {
   const loadMessages = async (conversationId: string) => {
     try {
       const resp = await fetch(`${HISTORY_URL}?action=messages&conversation_id=${conversationId}`, {
-        headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { Authorization: authHeader },
       });
       if (!resp.ok) throw new Error("Failed to load messages");
       const data = await resp.json();
@@ -92,7 +96,7 @@ export default function Voidy() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: authHeader,
         },
         body: JSON.stringify({ title: "New Chat" }),
       });
@@ -118,7 +122,7 @@ export default function Voidy() {
     try {
       const resp = await fetch(`${HISTORY_URL}?action=delete&id=${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { Authorization: authHeader },
       });
       if (!resp.ok) throw new Error("Failed to delete");
       setConversations((prev) => prev.filter((c) => c.id !== id));
@@ -142,7 +146,7 @@ export default function Voidy() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: authHeader,
         },
         body: JSON.stringify({ id, title: editTitle.trim() }),
       });
@@ -162,7 +166,7 @@ export default function Voidy() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: authHeader,
         },
         body: JSON.stringify({ conversation_id: conversationId, role, content }),
       });
@@ -181,7 +185,7 @@ export default function Voidy() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: authHeader,
           },
           body: JSON.stringify({ title: text.slice(0, 50) + (text.length > 50 ? "..." : "") }),
         });
@@ -211,7 +215,7 @@ export default function Voidy() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: authHeader,
         },
         body: JSON.stringify({ messages: allMessages }),
       });
