@@ -1166,5 +1166,77 @@ ALTER TABLE public.news ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
 DROP POLICY IF EXISTS "Service functions can insert notifications" ON public.notifications;
 
 -- ============================================================================
+-- VOIDY CONVERSATION HISTORY
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.voidy_conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL DEFAULT 'New Chat',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+ALTER TABLE public.voidy_conversations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own Voidy conversations" ON public.voidy_conversations;
+CREATE POLICY "Users can view their own Voidy conversations" ON public.voidy_conversations FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own Voidy conversations" ON public.voidy_conversations;
+CREATE POLICY "Users can insert their own Voidy conversations" ON public.voidy_conversations FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own Voidy conversations" ON public.voidy_conversations;
+CREATE POLICY "Users can update their own Voidy conversations" ON public.voidy_conversations FOR UPDATE
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own Voidy conversations" ON public.voidy_conversations;
+CREATE POLICY "Users can delete their own Voidy conversations" ON public.voidy_conversations FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS public.voidy_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES public.voidy_conversations(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+ALTER TABLE public.voidy_messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view messages in their conversations" ON public.voidy_messages;
+CREATE POLICY "Users can view messages in their conversations" ON public.voidy_messages FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.voidy_conversations WHERE id = conversation_id AND user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can insert messages to their conversations" ON public.voidy_messages;
+CREATE POLICY "Users can insert messages to their conversations" ON public.voidy_messages FOR INSERT
+  WITH CHECK (EXISTS (SELECT 1 FROM public.voidy_conversations WHERE id = conversation_id AND user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can delete messages in their conversations" ON public.voidy_messages;
+CREATE POLICY "Users can delete messages in their conversations" ON public.voidy_messages FOR DELETE
+  USING (EXISTS (SELECT 1 FROM public.voidy_conversations WHERE id = conversation_id AND user_id = auth.uid()));
+
+-- Index for performance
+DROP INDEX IF EXISTS idx_voidy_conversations_user_id;
+CREATE INDEX idx_voidy_conversations_user_id ON public.voidy_conversations(user_id);
+
+DROP INDEX IF EXISTS idx_voidy_messages_conversation_id;
+CREATE INDEX idx_voidy_messages_conversation_id ON public.voidy_messages(conversation_id);
+
+-- Function to update conversation timestamp
+CREATE OR REPLACE FUNCTION public.update_voidy_conversation_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.voidy_conversations SET updated_at = now() WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_voidy_message_insert ON public.voidy_messages;
+CREATE TRIGGER on_voidy_message_insert AFTER INSERT ON public.voidy_messages
+  FOR EACH ROW EXECUTE FUNCTION public.update_voidy_conversation_timestamp();
+
+-- ============================================================================
 -- END OF COMPLETE COMBINED MIGRATIONS
 -- ============================================================================
