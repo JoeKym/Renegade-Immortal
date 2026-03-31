@@ -12,8 +12,8 @@ serve(async (req) => {
 
   try {
     const { content, user_id } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY not configured");
 
     const systemPrompt = `You are a content moderation AI. Analyze the given text and determine if it contains hateful, abusive, threatening, or severely inappropriate content.
             
@@ -29,34 +29,27 @@ Respond ONLY with a JSON object (no markdown):
 - "moderate": hateful/abusive language that warrants a warning or suspension
 - "severe": extreme hate speech, threats of violence, or highly dangerous content that warrants a ban`;
 
-    // Call Gemini to check content
-    const aiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }],
-          },
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: `Analyze this comment: "${content}"` }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 256,
-          },
-        }),
-      }
-    );
+    // Call Groq to check content
+    const aiResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Analyze this comment: "${content}"` },
+        ],
+        temperature: 0.1,
+        max_tokens: 256,
+        response_format: { type: "json_object" },
+      }),
+    });
 
     if (!aiResponse.ok) {
-      console.error("Gemini API error:", aiResponse.status);
+      console.error("Groq API error:", aiResponse.status);
       // On AI failure, allow content through (fail-open for availability)
       return new Response(JSON.stringify({ allowed: true, severity: "none" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -64,7 +57,7 @@ Respond ONLY with a JSON object (no markdown):
     }
 
     const aiData = await aiResponse.json();
-    const aiText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const aiText = aiData.choices?.[0]?.message?.content || "";
     
     // Parse AI response
     let moderation = { is_hateful: false, severity: "none", reason: "" };
