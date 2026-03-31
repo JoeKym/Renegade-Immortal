@@ -198,8 +198,8 @@ CREATE POLICY "Admins can update appeals" ON public.appeals FOR UPDATE TO authen
 CREATE POLICY "Admins can delete appeals" ON public.appeals FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
 ALTER PUBLICATION supabase_realtime ADD TABLE public.appeals;
 
--- 8. seed_admin.sql (replace with your admin user ID)
--- INSERT INTO public.user_roles (user_id, role) VALUES ('YOUR-USER-ID-HERE', 'admin') ON CONFLICT DO NOTHING;
+-- 8. seed_admin.sql (Admin user: mail.jkyme@gmail.com)
+INSERT INTO public.user_roles (user_id, role) VALUES ('fe0d506b-4e3a-4346-b4d3-5c7026eb234f', 'admin') ON CONFLICT DO NOTHING;
 
 -- 9. visitor_policies.sql (fixes)
 DROP POLICY IF EXISTS "Anyone can register as visitor" ON public.active_visitors;
