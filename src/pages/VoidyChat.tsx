@@ -32,6 +32,7 @@ const suggestions = [
   "Tell me about Li Muwan",
   "What are the Ancient Gods?",
   "Summarize the novel's plot",
+  "What is Diety Transformation Stage?"
 ];
 
 export default function Voidy() {
