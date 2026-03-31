@@ -85,6 +85,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.active_visitors;
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT,
   display_name TEXT NOT NULL DEFAULT 'Cultivator',
   avatar_url TEXT,
   bio TEXT DEFAULT '',
@@ -124,6 +125,32 @@ $$ LANGUAGE plpgsql SET search_path = public;
 DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- ============================================================================
+-- 2.5 AVATARS STORAGE BUCKET
+-- ============================================================================
+
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "Users can upload own avatar" ON storage.objects;
+CREATE POLICY "Users can upload own avatar"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+DROP POLICY IF EXISTS "Users can update own avatar" ON storage.objects;
+CREATE POLICY "Users can update own avatar"
+ON storage.objects FOR UPDATE TO authenticated
+USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+DROP POLICY IF EXISTS "Users can delete own avatar" ON storage.objects;
+CREATE POLICY "Users can delete own avatar"
+ON storage.objects FOR DELETE TO authenticated
+USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+DROP POLICY IF EXISTS "Avatars are publicly accessible" ON storage.objects;
+CREATE POLICY "Avatars are publicly accessible"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'avatars');
 
 DO $$
 BEGIN
@@ -1017,6 +1044,7 @@ CREATE TABLE IF NOT EXISTS public.pinned_group_messages (
 ALTER TABLE public.pinned_dm_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pinned_group_messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Conversation members view DM pins" ON public.pinned_dm_messages;
 CREATE POLICY "Conversation members view DM pins" ON public.pinned_dm_messages FOR SELECT USING (is_conversation_member(auth.uid(), conversation_id));
 DROP POLICY IF EXISTS "Conversation members pin DM" ON public.pinned_dm_messages;
 CREATE POLICY "Conversation members pin DM" ON public.pinned_dm_messages FOR INSERT WITH CHECK (auth.uid() = pinned_by AND is_conversation_member(auth.uid(), conversation_id));
