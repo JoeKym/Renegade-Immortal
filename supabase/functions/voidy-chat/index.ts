@@ -81,23 +81,26 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, but I couldn't generate a response at this time.";
 
-    // Return in OpenAI-compatible format for the frontend
-    return new Response(
-      JSON.stringify({
-        choices: [
-          {
-            message: {
-              role: "assistant",
-              content: content,
-            },
+    // Return in OpenAI streaming format for the frontend
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        // Send the content as a streaming chunk
+        const chunk = {
+          choices: [{
+            delta: { content: content },
             index: 0,
-          },
-        ],
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+          }],
+        };
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
   } catch (e) {
     console.error("voidy-chat error:", e);
     return new Response(
