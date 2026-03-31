@@ -36,7 +36,7 @@ import Support from "./pages/Support";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
-import Voidy from "./pages/Voidy";
+import Voidy from "./pages/VoidyChat";
 import News from "./pages/News";
 import Watch from "./pages/Watch";
 import About from "./pages/About";
