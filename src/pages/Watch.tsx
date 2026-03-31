@@ -21,6 +21,7 @@ interface AniListData {
   genres: string[];
   streamingEpisodes: { title: string; thumbnail: string; url: string; site: string }[] | null;
   studios: { nodes: { name: string }[] };
+  trailer?: { id: string; site: string } | null;
 }
 
 // Query multiple Xian Ni entries and pick the best metadata
@@ -41,6 +42,7 @@ const ANILIST_QUERY = `
         genres
         studios { nodes { name } }
         streamingEpisodes { title thumbnail url site }
+        trailer { id site }
       }
     }
   }
@@ -221,11 +223,17 @@ export default function WatchPage() {
 
   const allEpisodes = useMemo(() => {
     if (releasedCount === 0) return [];
+    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium;
     return Array.from({ length: releasedCount }, (_, i) => {
       const num = i + 1;
-      return { number: num, arc: getArcForEpisode(num), thumbnail: thumbnailMap.get(num) };
+      return {
+        number: num,
+        arc: getArcForEpisode(num),
+        thumbnail: thumbnailMap.get(num) || fallbackThumbnail,
+        description: `${getArcForEpisode(num)} - Episode ${num}`
+      };
     });
-  }, [releasedCount, thumbnailMap]);
+  }, [releasedCount, thumbnailMap, aniData]);
 
   const filtered = useMemo(() => {
     if (!search) return allEpisodes;
@@ -506,7 +514,7 @@ export default function WatchPage() {
                 <div ref={episodeListRef} className="overflow-y-auto flex-1 p-3">
                   <AnimatePresence mode="popLayout">
                     {viewMode === "grid" ? (
-                      <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-1.5">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filtered.map((ep) => (
                           <motion.button
                             key={ep.number}
@@ -514,17 +522,36 @@ export default function WatchPage() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             onClick={() => handleEpisodeSelect(ep.number)}
-                            className={`relative rounded-md py-2 text-xs font-body transition-all border ${
+                            className={`group relative rounded-lg overflow-hidden border transition-all text-left ${
                               selectedEpisode === ep.number
-                                ? "bg-primary text-primary-foreground border-primary shadow-md"
-                                : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted border-transparent hover:border-border"
+                                ? "ring-2 ring-primary border-primary"
+                                : "border-border hover:border-primary/50"
                             }`}
                           >
-                            <div className="flex flex-col items-center justify-center gap-1">
-                              <span>{ep.number}</span>
+                            {/* Thumbnail */}
+                            <div className="aspect-video bg-muted relative overflow-hidden">
+                              <img
+                                src={ep.thumbnail}
+                                alt={`Episode ${ep.number}`}
+                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-primary/90 flex items-center justify-center">
+                                  <Play size={14} className="text-primary-foreground ml-0.5" />
+                                </div>
+                              </div>
+                              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 text-[10px] font-body">
+                                EP {ep.number}
+                              </span>
                               {watchHistory[ep.number] && (
-                                <Eye size={10} className="text-primary/70 absolute top-1.5 right-1.5" />
+                                <Eye size={12} className="absolute top-1 right-1 text-primary" />
                               )}
+                            </div>
+                            {/* Info */}
+                            <div className="p-1.5">
+                              <p className="text-[10px] font-body text-foreground truncate">{ep.arc}</p>
+                              <p className="text-[9px] text-muted-foreground line-clamp-1">{ep.description}</p>
                             </div>
                           </motion.button>
                         ))}
@@ -556,19 +583,20 @@ export default function WatchPage() {
                                 <Play size={14} className="text-muted-foreground" />
                               </div>
                             )}
-                            <div className="min-w-0 flex-1 flex justify-between items-center">
-                              <div>
+                            <div className="min-w-0 flex-1 flex flex-col">
+                              <div className="flex justify-between items-center">
                                 <p className="text-xs font-heading tracking-wide text-inherit flex items-center gap-1.5">
                                   {selectedEpisode === ep.number && (
                                     <span className="text-primary">▶</span>
                                   )}
                                   Episode {ep.number}
                                 </p>
-                                <p className="text-[10px] text-muted-foreground font-body truncate">{ep.arc}</p>
+                                {watchHistory[ep.number] && (
+                                  <Eye size={12} className="text-primary/60 flex-shrink-0" />
+                                )}
                               </div>
-                              {watchHistory[ep.number] && (
-                                <Eye size={12} className="text-primary/60 flex-shrink-0" />
-                              )}
+                              <p className="text-[10px] text-muted-foreground font-body truncate">{ep.arc}</p>
+                              <p className="text-[9px] text-muted-foreground/70 font-body line-clamp-1">{ep.description}</p>
                             </div>
                           </motion.button>
                         ))}
