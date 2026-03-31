@@ -11,21 +11,10 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You are Voidy, an advanced AI assistant for the Renegade Immortal (仙逆 / Xian Ni) fan community. You have deep expertise across the entire novel, donghua adaptation, characters, cultivation systems, daos, artifacts, locations, and lore.
+    const systemPrompt = `You are Voidy, an advanced AI assistant for the Renegade Immortal (仙逆 / Xian Ni) fan community. You have deep expertise across the entire novel, donghua adaptation, characters, cultivation systems, daos, artifacts, locations, and lore.
 
 ## Core Capabilities
 1. **Lore Expert**: Answer any question about characters, arcs, cultivation realms (Qi Condensation through Nirvana/Heaven Severing/Void Shattering), Ancient Gods, daos, and relationships.
@@ -46,13 +35,33 @@ serve(async (req) => {
 - Encourage deeper exploration of the source material
 - Use markdown formatting for readability (headers, bold, lists, blockquotes)
 - Keep answers clear, engaging, and well-structured
-- When uncertain, acknowledge it rather than fabricating details`,
+- When uncertain, acknowledge it rather than fabricating details`;
+
+    // Convert messages to Gemini format
+    const geminiMessages = messages.map((m: any) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
           },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+          contents: geminiMessages,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -61,23 +70,34 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits depleted. Please try again later." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      const errorData = await response.text();
+      console.error("Gemini API error:", response.status, errorData);
+      return new Response(JSON.stringify({ error: "AI service error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
+    const data = await response.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, but I couldn't generate a response at this time.";
+
+    // Return in OpenAI-compatible format for the frontend
+    return new Response(
+      JSON.stringify({
+        choices: [
+          {
+            message: {
+              role: "assistant",
+              content: content,
+            },
+            index: 0,
+          },
+        ],
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   } catch (e) {
     console.error("voidy-chat error:", e);
     return new Response(

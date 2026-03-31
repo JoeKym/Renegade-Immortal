@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "og-image.jpg"],
       manifest: {
-        name: "Renegade Immortal Lore Wiki",
+        name: "Renegade Immortal Lore & Wiki",
         short_name: "Renegade Immortal",
         description: "The ultimate fan wiki for Renegade Immortal (仙逆) — explore characters, cultivation systems, artifacts, locations, and the donghua adaptation.",
         theme_color: "#1a1a2e",
