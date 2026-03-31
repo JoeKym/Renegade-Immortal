@@ -12,22 +12,10 @@ serve(async (req) => {
 
   try {
     const { content, user_id } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
-    // Call AI to check content
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          {
-            role: "system",
-            content: `You are a content moderation AI. Analyze the given text and determine if it contains hateful, abusive, threatening, or severely inappropriate content.
+    const systemPrompt = `You are a content moderation AI. Analyze the given text and determine if it contains hateful, abusive, threatening, or severely inappropriate content.
             
 Respond ONLY with a JSON object (no markdown):
 {
@@ -39,15 +27,36 @@ Respond ONLY with a JSON object (no markdown):
 - "none": clean content
 - "mild": slightly rude but acceptable
 - "moderate": hateful/abusive language that warrants a warning or suspension
-- "severe": extreme hate speech, threats of violence, or highly dangerous content that warrants a ban`,
+- "severe": extreme hate speech, threats of violence, or highly dangerous content that warrants a ban`;
+
+    // Call Gemini to check content
+    const aiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
           },
-          { role: "user", content: `Analyze this comment: "${content}"` },
-        ],
-      }),
-    });
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `Analyze this comment: "${content}"` }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 256,
+          },
+        }),
+      }
+    );
 
     if (!aiResponse.ok) {
-      console.error("AI gateway error:", aiResponse.status);
+      console.error("Gemini API error:", aiResponse.status);
       // On AI failure, allow content through (fail-open for availability)
       return new Response(JSON.stringify({ allowed: true, severity: "none" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -55,7 +64,7 @@ Respond ONLY with a JSON object (no markdown):
     }
 
     const aiData = await aiResponse.json();
-    const aiText = aiData.choices?.[0]?.message?.content || "";
+    const aiText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
     
     // Parse AI response
     let moderation = { is_hateful: false, severity: "none", reason: "" };
