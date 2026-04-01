@@ -181,10 +181,10 @@ export default function Voidy() {
     }
   };
 
-  // AI auto-rename: generates a title based on conversation topic after 2 exchanges
+  // AI auto-rename: generates a title based on first question+answer (2 messages)
   const autoRenameConversation = useCallback(async (conversationId: string, msgs: Msg[]) => {
-    // Trigger after exactly 4 messages (2 exchanges) - not before, not after
-    if (msgs.length !== 4) return;
+    // Trigger after exactly 2 messages (1st user question + AI response)
+    if (msgs.length !== 2) return;
     
     // Only rename if still has default title
     const conv = conversations.find(c => c.id === conversationId);
@@ -192,8 +192,8 @@ export default function Voidy() {
 
     try {
       // Build conversation summary for AI to analyze
-      const conversationText = msgs.map((m, i) => 
-        `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content.slice(0, 150)}`
+      const conversationText = msgs.map((m) => 
+        `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content.slice(0, 200)}`
       ).join('\n\n');
       
       const prompt = `Based on this conversation, generate a very short, concise title (2-4 words max) summarizing the main topic. Be specific (e.g., "Wang Lin Backstory", "Cultivation Realms", "Ancient Gods Explained"). Return ONLY the title, no quotes, no explanation.
@@ -360,10 +360,10 @@ ${conversationText}`;
 
       if (conversationId && assistantSoFar) {
         await saveMessage(conversationId, "assistant", assistantSoFar);
-        // Trigger auto-rename after exactly 4 messages (2 exchanges)
+        // Trigger auto-rename after first question+answer (2 messages)
         const assistantMsg = { role: "assistant" as const, content: assistantSoFar };
         const updatedMsgs: Msg[] = [...allMessages, assistantMsg];
-        if (updatedMsgs.length === 4) {
+        if (updatedMsgs.length === 2) {
           autoRenameConversation(conversationId, updatedMsgs);
         }
       }
