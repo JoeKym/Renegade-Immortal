@@ -176,19 +176,24 @@ export default function Voidy() {
     }
   };
 
-  // AI auto-rename: generates a title based on conversation topic after 4 messages
+  // AI auto-rename: generates a title based on conversation topic after 2 exchanges
   const autoRenameConversation = useCallback(async (conversationId: string, msgs: Msg[]) => {
-    if (msgs.length < 4 || msgs.length > 6) return; // Only rename after 2-3 exchanges, then stop
+    // Trigger after exactly 4 messages (2 exchanges) - not before, not after
+    if (msgs.length !== 4) return;
     
-    // Check if title is still default (indicates not manually renamed yet)
+    // Only rename if still has default title
     const conv = conversations.find(c => c.id === conversationId);
-    if (!conv || (conv.title !== "New Chat" && !conv.title.startsWith("Asked about") && !conv.title.startsWith("New Chat"))) return;
+    if (!conv || conv.title !== "New Chat") return;
 
     try {
-      const prompt = `Based on this conversation, generate a very short, concise title (2-4 words max) that summarizes the main topic. Just return the title, nothing else.
+      // Build conversation summary for AI to analyze
+      const conversationText = msgs.map((m, i) => 
+        `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content.slice(0, 150)}`
+      ).join('\n\n');
+      
+      const prompt = `Based on this conversation, generate a very short, concise title (2-4 words max) summarizing the main topic. Be specific (e.g., "Wang Lin Backstory", "Cultivation Realms", "Ancient Gods Explained"). Return ONLY the title, no quotes, no explanation.
 
-User: ${msgs[0]?.content?.slice(0, 100) || ""}
-Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
+${conversationText}`;
 
       const resp = await fetch(CHAT_URL, {
         method: "POST",
@@ -198,7 +203,6 @@ Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
         },
         body: JSON.stringify({ 
           messages: [{ role: "user", content: prompt }],
-          max_tokens: 20,
         }),
       });
 
@@ -206,12 +210,11 @@ Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
       
       const data = await resp.json();
       const generatedTitle = data.choices?.[0]?.message?.content?.trim()
-        ?.replace(/^["']|["']$/g, "") // Remove quotes
-        ?.replace(/\.$/, "") // Remove trailing period
-        ?.slice(0, 40); // Max 40 chars
+        ?.replace(/^["']|["']$/g, "")
+        ?.replace(/\.$/, "")
+        ?.slice(0, 40);
 
       if (generatedTitle && generatedTitle.length > 2) {
-        // Update via API
         const updateResp = await fetch(`${HISTORY_URL}?action=update`, {
           method: "PATCH",
           headers: {
@@ -223,6 +226,7 @@ Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
 
         if (updateResp.ok) {
           setConversations((prev) => prev.map((c) => (c.id === conversationId ? { ...c, title: generatedTitle } : c)));
+          toast.success(`Chat renamed to: ${generatedTitle}`);
         }
       }
     } catch (e) {
@@ -242,7 +246,7 @@ Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
             "Content-Type": "application/json",
             Authorization: authHeader,
           },
-          body: JSON.stringify({ title: text.slice(0, 50) + (text.length > 50 ? "..." : "") }),
+          body: JSON.stringify({ title: "New Chat" }),
         });
         if (resp.ok) {
           const data = await resp.json();
@@ -351,9 +355,10 @@ Assistant: ${msgs[1]?.content?.slice(0, 100) || ""}`;
 
       if (conversationId && assistantSoFar) {
         await saveMessage(conversationId, "assistant", assistantSoFar);
-        // Trigger auto-rename after 2 exchanges (4 messages total)
-        const updatedMsgs = [...allMessages, { role: "assistant", content: assistantSoFar }];
-        if (updatedMsgs.length >= 4 && updatedMsgs.length <= 6) {
+        // Trigger auto-rename after exactly 4 messages (2 exchanges)
+        const assistantMsg = { role: "assistant" as const, content: assistantSoFar };
+        const updatedMsgs: Msg[] = [...allMessages, assistantMsg];
+        if (updatedMsgs.length === 4) {
           autoRenameConversation(conversationId, updatedMsgs);
         }
       }
