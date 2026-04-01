@@ -125,7 +125,11 @@ export default function Voidy() {
         method: "DELETE",
         headers: { Authorization: authHeader },
       });
-      if (!resp.ok) throw new Error("Failed to delete");
+      if (!resp.ok) {
+        const errText = await resp.text();
+        console.error("Delete failed:", resp.status, errText);
+        throw new Error(`Failed to delete: ${resp.status}`);
+      }
       setConversations((prev) => prev.filter((c) => c.id !== id));
       if (activeConversationId === id) {
         setActiveConversationId(null);
@@ -133,6 +137,7 @@ export default function Voidy() {
       }
       toast.success("Conversation deleted");
     } catch (e) {
+      console.error("Delete error:", e);
       toast.error("Failed to delete conversation");
     }
   };
