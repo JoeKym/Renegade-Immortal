@@ -106,9 +106,9 @@ export default function WatchPage() {
       const nextAiring = aniData.nextAiringEpisode;
       if (!nextAiring) return;
       
-      // Use the corrected Sunday release time (subtract 1 day from AniList Monday time)
-      const sundayAiringAt = (nextAiring.airingAt - 86400) * 1000;
-      const timeUntil = Math.max(0, Math.floor((sundayAiringAt - now) / 1000));
+      // Use the airingAt directly - our synthesized time is already correct (Sunday 3 AM UTC)
+      const airingAt = nextAiring.airingAt * 1000;
+      const timeUntil = Math.max(0, Math.floor((airingAt - now) / 1000));
       setCountdown(formatTimeUntil(timeUntil));
     };
     
@@ -172,46 +172,39 @@ export default function WatchPage() {
         } catch (_) { /* Jikan failure is non-fatal */ }
 
         // Calculate expected current released episodes based on known Sunday releases
-        // Episodes release every Sunday at ~3:00 AM UTC
+        // Episodes release every Sunday at ~3:00 AM UTC (earliest release time)
         const now = Date.now();
-        const SUNDAY_RELEASE_HOUR = 3; // 3 AM UTC
+        const RELEASE_HOUR_UTC = 3; // 3 AM UTC
         
-        // Find the most recent Sunday at 3 AM UTC
-        const getLastSunday3AM = (date: Date) => {
-          const d = new Date(date);
-          d.setUTCMinutes(0, 0, 0);
-          // Go back to last Sunday
-          const day = d.getUTCDay(); // 0 = Sunday
-          const diff = day === 0 ? 0 : day;
-          d.setUTCDate(d.getUTCDate() - diff);
-          d.setUTCHours(SUNDAY_RELEASE_HOUR);
-          return d.getTime();
-        };
-        
-        // Episode 131 released on March 9, 2026 (Sunday)
+        // Episode 131 released on March 9, 2026 (Sunday) at 3 AM UTC
         const EP_131_RELEASE = new Date("2026-03-09T03:00:00Z").getTime();
-        const lastSunday3AM = getLastSunday3AM(new Date(now));
+        const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
         
-        // Calculate weeks since episode 131
-        const weeksSince131 = Math.floor((lastSunday3AM - EP_131_RELEASE) / (7 * 24 * 60 * 60 * 1000));
-        const KNOWN_RELEASED = 131 + Math.max(0, weeksSince131);
+        // Calculate how many weeks have passed since episode 131
+        const weeksSince131 = Math.floor((now - EP_131_RELEASE) / ONE_WEEK);
         
-        // Calculate next Sunday 3 AM
-        const nextSunday = new Date(lastSunday3AM);
-        if (now >= lastSunday3AM + 7 * 24 * 60 * 60 * 1000) {
-          // We're past this week's release, next is next Sunday
-          nextSunday.setUTCDate(nextSunday.getUTCDate() + 7);
-        } else if (now < lastSunday3AM) {
-          // We calculated previous Sunday, this Sunday is coming
+        // Calculate the release time for the most recent episode
+        const mostRecentReleaseTime = EP_131_RELEASE + (weeksSince131 * ONE_WEEK);
+        
+        // If we've passed this week's release time, that episode is out
+        // Otherwise, the last episode is the previous one
+        let KNOWN_RELEASED: number;
+        let nextReleaseTime: number;
+        
+        if (now >= mostRecentReleaseTime) {
+          // This week's episode has been released
+          KNOWN_RELEASED = 131 + weeksSince131;
+          nextReleaseTime = mostRecentReleaseTime + ONE_WEEK;
         } else {
-          // We're between release time and next Sunday
-          nextSunday.setUTCDate(nextSunday.getUTCDate() + 7);
+          // This week's episode hasn't released yet
+          KNOWN_RELEASED = 131 + weeksSince131 - 1;
+          nextReleaseTime = mostRecentReleaseTime;
         }
         
         const synthesizedNextAiring = {
-          airingAt: Math.floor(nextSunday.getTime() / 1000),
+          airingAt: Math.floor(nextReleaseTime / 1000),
           episode: KNOWN_RELEASED + 1,
-          timeUntilAiring: Math.max(0, Math.floor((nextSunday.getTime() - now) / 1000))
+          timeUntilAiring: Math.max(0, Math.floor((nextReleaseTime - now) / 1000))
         };
 
         // Jikan sometimes over-counts by including unreleased future episodes (e.g., 180).
@@ -221,12 +214,28 @@ export default function WatchPage() {
           ? apiMax
           : KNOWN_RELEASED;
 
+        // Determine best nextAiringEpisode data
+        // If AniList has data but it's outdated (episode number < our calculated next), use synthesized
+        let bestNextAiring = primary.nextAiringEpisode ?? jikanNextAiring ?? synthesizedNextAiring;
+        
+        if (primary.nextAiringEpisode) {
+          // If AniList is showing an episode number that's already released according to our calc,
+          // or if it's more than 2 episodes ahead (indicating bad data), use synthesized
+          const aniEpisodeNum = primary.nextAiringEpisode.episode;
+          const synthesizedEpisodeNum = synthesizedNextAiring.episode;
+          
+          // AniList episode is behind or way ahead - trust our calculation
+          if (aniEpisodeNum < synthesizedEpisodeNum || aniEpisodeNum > synthesizedEpisodeNum + 2) {
+            bestNextAiring = synthesizedNextAiring;
+          }
+          // Otherwise trust AniList's timing
+        }
+
         setAniData({
           ...primary,
           episodes: bestTotal,
           streamingEpisodes: allStreamingEps.length > 0 ? allStreamingEps : primary.streamingEpisodes,
-          // Keep nextAiringEpisode from AniList if the show is currently airing, else synthesize
-          nextAiringEpisode: primary.nextAiringEpisode ?? jikanNextAiring ?? synthesizedNextAiring,
+          nextAiringEpisode: bestNextAiring,
         });
       } catch (e) {
         console.error("Data fetch failed:", e);
@@ -389,12 +398,12 @@ export default function WatchPage() {
             <span className="text-xs font-body text-muted-foreground">
               Episode {aniData.nextAiringEpisode.episode} airs in{" "}
               <span className="text-primary font-semibold">
-                {countdown || formatTimeUntil(Math.max(0, aniData.nextAiringEpisode.timeUntilAiring - 86400))}
+                {countdown || formatTimeUntil(Math.max(0, aniData.nextAiringEpisode.timeUntilAiring))}
               </span>
               {" "}·{" "}
               {(() => {
-                const sundayAiringAt = (aniData.nextAiringEpisode.airingAt - 86400) * 1000;
-                const date = new Date(sundayAiringAt);
+                const airingAt = aniData.nextAiringEpisode.airingAt * 1000;
+                const date = new Date(airingAt);
                 return date.toLocaleString("en-US", {
                   weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
                 });

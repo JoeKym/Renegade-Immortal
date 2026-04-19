@@ -15,23 +15,38 @@ interface Server {
 const SERVERS: Server[] = [
   {
     name: "luciferdonghua",
-    label: "Lucifer Donghua",
+    label: "LuciferDonghua",
     directUrl: (ep) => `https://luciferdonghua.org/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
   },
   {
-    name: "luciferdonghua-alt",
-    label: "Lucifer Donghua (Alt)",
-    directUrl: (ep) => `https://luciferdonghua.org/renegade-immortal-xian-ni-episode-${ep}-english-subtitles/`,
+    name: "luciferdonghua-in",
+    label: "LuciferDonghua.in",
+    directUrl: (ep) => `https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${ep}-lucifer-donghua/`,
   },
   {
     name: "donghuastream",
     label: "DonghuaStream",
-    directUrl: (ep) => `https://donghuastream.org/episode/renegade-immortal-episode-${ep}/`,
+    directUrl: (ep) => `https://donghuastream.org/renegade-immortal-episode-${ep}-multiple-subtitles/`,
   },
   {
     name: "anime4i",
     label: "Anime4i",
     directUrl: (ep) => `https://anime4i.com/renegade-immortal-xian-ni-episode-${ep}-english-subtitles`,
+  },
+  {
+    name: "evasub",
+    label: "EvaSub",
+    directUrl: (ep) => `http://evasub.com/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+  },
+  {
+    name: "animecube",
+    label: "Anime Cube",
+    directUrl: (ep) => `https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${ep}`,
+  },
+  {
+    name: "myanime",
+    label: "MyAnime",
+    directUrl: (ep) => `https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${ep}-english-sub/`,
   },
 ];
 
@@ -281,20 +296,36 @@ export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
                 </a>
               ))}
               <a
-                href={`https://gogoanime3.co/xian-ni-episode-${episode}`}
+                href={`https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${episode}-lucifer-donghua/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
               >
-                <ExternalLink size={10} /> Gogoanime
+                <ExternalLink size={10} /> LuciferDonghua.in
               </a>
               <a
-                href={`https://hianime.to/watch/xian-ni`}
+                href={`http://evasub.com/renegade-immortal-xian-ni-episode-${episode}-english-sub/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
               >
-                <ExternalLink size={10} /> HiAnime
+                <ExternalLink size={10} /> EvaSub
+              </a>
+              <a
+                href={`https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${episode}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
+              >
+                <ExternalLink size={10} /> Anime Cube
+              </a>
+              <a
+                href={`https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${episode}-english-sub/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
+              >
+                <ExternalLink size={10} /> MyAnime.live
               </a>
             </div>
           </motion.div>

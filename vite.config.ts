@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: false, // Disable auto-generated registerSW.js - we handle registration in main.tsx
       includeAssets: ["favicon.ico", "og-image.jpg"],
       manifest: {
         name: "Renegade Immortal Lore & Wiki",
@@ -49,6 +50,8 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
