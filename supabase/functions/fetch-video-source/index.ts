@@ -86,6 +86,48 @@ const servers: ServerConfig[] = [
       return iframeMatch?.[1] || null;
     },
   },
+  {
+    name: 'luciferdonghua-in',
+    label: 'LuciferDonghua.in',
+    getPageUrl: (ep) => `https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${ep}-lucifer-donghua/`,
+    extractEmbed: (html) => {
+      // Similar to luciferdonghua - look for Dailymotion or iframe embeds
+      const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
+      if (dmMatch) return dmMatch[1];
+      const dmEmbed = html.match(/dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/i);
+      if (dmEmbed) return `https://geo.dailymotion.com/player.html?video=${dmEmbed[1]}`;
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed|video)[^"']*)["']/i);
+      if (iframeMatch) return iframeMatch[1];
+      return null;
+    },
+  },
+  {
+    name: 'evasub',
+    label: 'EvaSub',
+    getPageUrl: (ep) => `http://evasub.com/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
+  },
+  {
+    name: 'animecube',
+    label: 'Anime Cube',
+    getPageUrl: (ep) => `https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${ep}`,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
+  },
+  {
+    name: 'myanime',
+    label: 'MyAnime',
+    getPageUrl: (ep) => `https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${ep}-english-sub/`,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
+  },
 ];
 
 Deno.serve(async (req) => {

@@ -295,38 +295,6 @@ export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
                   {srv.label}
                 </a>
               ))}
-              <a
-                href={`https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${episode}-lucifer-donghua/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
-              >
-                <ExternalLink size={10} /> LuciferDonghua.in
-              </a>
-              <a
-                href={`http://evasub.com/renegade-immortal-xian-ni-episode-${episode}-english-sub/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
-              >
-                <ExternalLink size={10} /> EvaSub
-              </a>
-              <a
-                href={`https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${episode}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
-              >
-                <ExternalLink size={10} /> Anime Cube
-              </a>
-              <a
-                href={`https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${episode}-english-sub/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
-              >
-                <ExternalLink size={10} /> MyAnime.live
-              </a>
             </div>
           </motion.div>
         )}
