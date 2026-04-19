@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Check } from "lucide-react";
 import { useT } from "@/contexts/TranslationContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function LanguageSelector() {
   const { language, setLanguage, currentLanguage, supportedLanguages, isRTL } = useT();
@@ -14,16 +15,21 @@ export function LanguageSelector() {
 
   return (
     <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors text-xs font-medium"
-        aria-label="Select language"
-        dir={isRTL ? "rtl" : "ltr"}
-      >
-        <Globe size={14} className="text-muted-foreground" />
-        <span className="hidden sm:inline">{currentLanguage.flag}</span>
-        <span className="uppercase">{language}</span>
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Select language"
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            <span className="text-lg leading-none">{currentLanguage.flag}</span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="text-xs">
+          Language: {currentLanguage.name}
+        </TooltipContent>
+      </Tooltip>
 
       <AnimatePresence>
         {isOpen && (
@@ -33,11 +39,11 @@ export function LanguageSelector() {
               onClick={() => setIsOpen(false)}
             />
             <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+              initial={{ opacity: 0, x: 8, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-1 z-50 min-w-[160px] max-h-[300px] overflow-y-auto rounded-lg bg-popover border border-border shadow-lg"
+              className="absolute right-full top-0 mr-2 z-50 min-w-[160px] max-h-[300px] overflow-y-auto rounded-lg bg-popover border border-border shadow-lg"
               dir={isRTL ? "rtl" : "ltr"}
             >
               <div className="p-1">

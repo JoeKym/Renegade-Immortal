@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
-import { User, LogOut, Settings } from "lucide-react";
+import { User } from "lucide-react";
 
 export function UserMenu() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
 
   if (!user) {
     return (
@@ -17,31 +17,28 @@ export function UserMenu() {
     );
   }
 
-  const profileLink = (profile as any)?.username ? `/u/${(profile as any).username}` : "/profile";
+  const profileWithMeta = profile as { username?: string; avatar_url?: string } | null;
+  const profileLink = profileWithMeta?.username ? `/u/${profileWithMeta.username}` : "/profile";
+  const avatarUrl = profileWithMeta?.avatar_url;
+  const displayName = profile?.display_name || "Profile";
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Link
-        to={profileLink}
-        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-muted-foreground hover:text-primary transition-colors text-xs font-heading tracking-wider"
-      >
-        <User size={14} />
-        <span className="hidden sm:inline max-w-[80px] truncate">{profile?.display_name || "Profile"}</span>
-      </Link>
-      <Link
-        to="/settings"
-        className="p-1.5 rounded-md text-muted-foreground hover:text-primary transition-colors"
-        title="Settings"
-      >
-        <Settings size={14} />
-      </Link>
-      <button
-        onClick={signOut}
-        className="p-1.5 rounded-md text-muted-foreground hover:text-secondary transition-colors"
-        title="Sign Out"
-      >
-        <LogOut size={14} />
-      </button>
-    </div>
+    <Link
+      to={profileLink}
+      className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-border hover:border-primary/50 transition-colors"
+      title={displayName}
+    >
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt={displayName}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-muted flex items-center justify-center">
+          <User size={16} className="text-muted-foreground" />
+        </div>
+      )}
+    </Link>
   );
 }

@@ -5,7 +5,7 @@ import { Layout } from "@/components/Layout";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, BookOpen, Heart, Link2, Save, Camera, Loader2, Search, X, Star } from "lucide-react";
+import { User, BookOpen, Heart, Link2, Save, Camera, Loader2, Search, X, Star, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { characters } from "@/data/charactersData";
 
@@ -24,7 +24,7 @@ const readingOptions = [
 ];
 
 export default function ProfilePage() {
-  const { user, profile, refreshProfile, loading } = useAuth();
+  const { user, profile, refreshProfile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -165,7 +165,25 @@ export default function ProfilePage() {
       <div className="py-20 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-heading text-3xl text-primary text-center mb-2 tracking-wider">Cultivator Profile</h1>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="font-heading text-3xl text-primary text-center tracking-wider flex-1">Cultivator Profile</h1>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/settings")}
+                  className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                  title="Settings"
+                >
+                  <Settings size={18} />
+                </button>
+                <button
+                  onClick={signOut}
+                  className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground font-body text-center mb-8">Customize your identity in the sect</p>
 
             <div className="space-y-6">

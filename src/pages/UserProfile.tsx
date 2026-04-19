@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { User, BookOpen, Link2, Calendar, Pencil, UserPlus, UserCheck, Users, MessageCircle, Heart } from "lucide-react";
+import { User, BookOpen, Link2, Calendar, Pencil, UserPlus, UserCheck, Users, MessageCircle, Heart, Settings, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RoleBadge } from "@/pages/Members";
@@ -26,7 +26,7 @@ interface PublicProfile {
 
 export default function UserProfile() {
   const { username } = useParams<{ username: string }>();
-  const { user, profile: myProfile } = useAuth();
+  const { user, profile: myProfile, signOut } = useAuth();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [role, setRole] = useState<string>("user");
   const [loading, setLoading] = useState(true);
@@ -186,13 +186,29 @@ export default function UserProfile() {
 
               <div className="absolute top-4 right-4 flex items-center gap-1">
                 {isOwnProfile && (
-                  <Link
-                    to="/profile"
-                    className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
-                    title="Edit profile"
-                  >
-                    <Pencil size={16} />
-                  </Link>
+                  <>
+                    <Link
+                      to="/profile"
+                      className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
+                      title="Edit profile"
+                    >
+                      <Pencil size={16} />
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
+                      title="Settings"
+                    >
+                      <Settings size={16} />
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      title="Sign Out"
+                    >
+                      <LogOut size={16} />
+                    </button>
+                  </>
                 )}
                 {!isOwnProfile && user && (
                   <>

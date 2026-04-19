@@ -3,6 +3,7 @@ import { FeedbackReviews } from "./FeedbackReviews";
 import { useLocation, Link } from "react-router-dom";
 import { Navbar } from "./Navbar";
 import { NotificationBell } from "./NotificationBell";
+import { LanguageSelector } from "./LanguageSelector";
 import { VisitorCounter } from "./VisitorCounter";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -138,8 +139,11 @@ export function Layout({ children }: { children: ReactNode }) {
         <main className="pt-[60px] relative z-10">{children}</main>
       )}
 
-      {/* Floating Notification Bell */}
+      {/* Floating icons - Language, Admin, Notifications */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2">
+        <div className="bg-card/90 backdrop-blur-lg border border-border rounded-full p-1 shadow-lg shadow-primary/10">
+          <LanguageSelector />
+        </div>
         {isAdmin && (
           <Tooltip>
             <TooltipTrigger asChild>
