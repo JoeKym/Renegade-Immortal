@@ -20,9 +20,6 @@ const translations: Record<string, Record<string, string>> = {
 
     // World section
     "world.daos": "Daos",
-    "world.cultivation": "Cultivation",
-    "world.artifacts": "Artifacts",
-    "world.locations": "Locations",
     "world.multiverse": "Multiverse",
 
     // Common
@@ -1386,6 +1383,213 @@ const translations: Record<string, Record<string, string>> = {
     "error.no_connection": "कोई कनेक्शन नहीं",
     "error.try_again": "कृपया पुनः प्रयास करें",
   },
+
+  sw: {
+    // Navigation
+    "nav.home": "Nyumbani",
+    "nav.guide": "Mwongozo",
+    "nav.characters": "Wahusika",
+    "nav.world": "Dunia",
+    "nav.more": "Zaidi",
+    "nav.community": "Jumuiya",
+    "nav.feed": "Mabadiliko",
+    "nav.voidy": "Voidy",
+    "nav.messages": "Ujumbe",
+    "nav.groups": "Vikundi",
+    "nav.watch": "Tazama",
+    "nav.ai_chat": "Chat AI",
+    "nav.news": "Habari",
+
+    // World section
+    "world.daos": "Daos",
+    "world.multiverse": "Multiverse",
+
+    // Common
+    "common.search": "Tafuta",
+    "common.loading": "Inapakia...",
+    "common.error": "Hitilafu",
+    "common.retry": "Jaribu tena",
+    "common.save": "Hifadhi",
+    "common.cancel": "Ghairi",
+    "common.delete": "Futa",
+    "common.edit": "Hariri",
+    "common.close": "Funga",
+    "common.open": "Fungua",
+    "common.view": "Tazama",
+    "common.read_more": "Soma Zaidi",
+    "common.show_less": "Onyesha Kidogo",
+    "common.prev": "Iliyopita",
+    "common.next": "Inayofuata",
+    "common.unknown": "Haijulikani",
+    "common.all": "Zote",
+    "common.none": "Hakuna",
+    "common.filter": "Chuja",
+    "common.sort": "Panga",
+    "common.newest": "Mpya zaidi",
+    "common.oldest": "Zamani zaidi",
+    "common.messages": "Ujumbe",
+    "common.groups": "Vikundi",
+
+    // Watch Page
+    "watch.now_playing": "INACHEZA SASA",
+    "watch.episodes": "Vipindi",
+    "watch.episode": "Kipindi",
+    "watch.season": "Msimu",
+    "watch.servers": "Seva",
+    "watch.sources": "Vyanzo",
+    "watch.show_sources": "Onyesha Viungo vya Vyanzo",
+    "watch.hide_sources": "Ficha Viungo vya Vyanzo",
+    "watch.watch_on": "Tazama kwenye tovuti za chanzo:",
+    "watch.next_episode": "Kipindi kinachofuata",
+    "watch.released": "Imetolewa",
+    "watch.unknown_release": "Tarehe ya kutolewa haijulikani",
+    "watch.episode_count": "Vipindi {count}",
+    "watch.airing": "Inaendelea",
+    "watch.completed": "Imekamilika",
+    "watch.rating": "Kiwango",
+    "watch.duration": "Muda",
+    "watch.studio": "Studio",
+    "watch.genres": "Aina",
+    "watch.donghua": "Donghua",
+
+    // AI Chat
+    "chat.new_conversation": "Mazungumzo Mapya",
+    "chat.conversations": "Mazungumzo",
+    "chat.no_conversations": "Bado hakuna mazungumzo",
+    "chat.message_placeholder": "Andika ujumbe wako...",
+    "chat.send": "Tuma",
+    "chat.thinking": "Inafikiria...",
+    "chat.welcome": "Nauliza lolote kuhusu Renegade Immortal!",
+    "chat.delete_confirm": "Futa mazungumzo haya?",
+    "chat.rename": "Badili Jina",
+    "chat.created": "Imeundwa",
+    "chat.updated": "Imesasishwa",
+
+    // Feed
+    "feed.write_something": "Andika kitu...",
+    "feed.post": "Chapisha",
+    "feed.like": "Penda",
+    "feed.comment": "Toa maoni",
+    "feed.share": "Sambaza",
+    "feed.delete_post": "Futa Chapisho",
+
+    // Community
+    "community.members": "Wanachama",
+    "community.online": "Wako Mtandaoni",
+    "community.join": "Jiunge na Jumuiya",
+    "community.leave": "Ondoka Jumuiya",
+
+    // Characters
+    "characters.title": "Wahusika",
+    "characters.search": "Tafuta wahusika...",
+    "characters.filter": "Chuja",
+    "characters.sort": "Panga",
+    "characters.all": "Wote",
+    "characters.protagonists": "Wahusika Wakuu",
+    "characters.antagonists": "Wapingaji",
+    "characters.supporting": "Wahusika Wasaidizi",
+    "characters.cultivators": "Wafuasi",
+    "characters.gods": "Miungu",
+    "characters.demons": "Mashetani",
+
+    // World
+    "world.title": "Dunia",
+    "world.realms": "Nchi",
+    "world.daos_title": "Daos",
+    "world.cultivation_system": "Mfumo wa Kuendeleza",
+    "world.artifacts_title": "Vifaa",
+    "world.locations_title": "Maeneo",
+
+    // Guide
+    "guide.title": "Mwongozo",
+    "guide.beginners": "Mwongozo kwa Wanaoanza",
+    "guide.cultivation": "Mwongozo wa Kuendeleza",
+    "guide.timeline": "Mstari wa Muda",
+    "guide.faq": "Maswali Yanayoulizwa Mara kwa Mara",
+
+    // Errors
+    "error.generic": "Kuna hitilafu imetokea",
+    "error.not_found": "Ukurasa haujapatikana",
+    "error.no_connection": "Hakuna muunganiko",
+    "error.try_again": "Tafadhali jaribu tena",
+
+    // Auth
+    "auth.login": "Ingia",
+    "auth.signup": "Jisajili",
+    "auth.logout": "Toka",
+    "auth.email": "Barua pepe",
+    "auth.password": "Nenosiri",
+    "auth.forgot_password": "Umesahau Nenosiri?",
+    "auth.reset_password": "Weka upya Nenosiri",
+    "auth.send_reset": "Tuma Kiungo cha Kuweka upya",
+    "auth.no_account": "Huna akaunti?",
+    "auth.has_account": "Una akaunti tayari?",
+    "auth.create_account": "Unda Akaunti",
+    "auth.confirm_password": "Thibitisha Nenosiri",
+    "auth.username": "Jina la mtumiaji",
+    "auth.display_name": "Jina la Kuonyesha",
+    "auth.bio": "Wasifu",
+    "auth.or_continue_with": "Au endelea na",
+
+    // Profile
+    "profile.title": "Wasifu",
+    "profile.edit": "Hariri Wasifu",
+    "profile.save_changes": "Hifadhi Mabadiliko",
+    "profile.avatar": "Picha",
+    "profile.favorites": "Vipendwa",
+    "profile.reading_progress": "Maendeleo ya Kusoma",
+    "profile.social_links": "Viungo vya Kijamii",
+    "profile.followers": "Wafuasi",
+    "profile.following": "Unafuatilia",
+    "profile.follow": "Fuatilia",
+    "profile.unfollow": "Acha Kufuatilia",
+    "profile.message": "Ujumbe",
+    "profile.not_found": "Mtumiaji hajapatikana",
+
+    // Settings
+    "settings.title": "Mipangilio",
+    "settings.account": "Akaunti",
+    "settings.appearance": "Muonekano",
+    "settings.notifications": "Arifa",
+    "settings.privacy": "Faragha",
+    "settings.language": "Lugha",
+    "settings.theme": "Mandhari",
+    "settings.dark_mode": "Hali ya Giza",
+    "settings.light_mode": "Hali ya Mwanga",
+    "settings.system": "Mfumo",
+    "settings.delete_account": "Futa Akaunti",
+    "settings.change_password": "Badili Nenosiri",
+
+    // Home
+    "home.welcome": "Karibu kwenye Renegade Immortal",
+    "home.description": "Hifadhi ya maarifa ya wasifu",
+    "home.explore": "Chunguza",
+    "home.latest": "Mpya zaidi",
+
+    // About
+    "about.title": "Kuhusu",
+    "about.description": "Kuhusu mradi huu",
+
+    // Guide
+    "guide.title": "Mwongozo",
+
+    // Contact
+    "contact.title": "Wasiliana",
+    "contact.send": "Tuma Ujumbe",
+    "contact.name": "Jina",
+    "contact.message": "Ujumbe",
+
+    // Footer
+    "footer.about": "Kuhusu",
+    "footer.privacy": "Sera ya Faragha",
+    "footer.terms": "Masharti ya Matumizi",
+    "footer.support": "Msaada",
+    "footer.contact": "Wasiliana",
+    "footer.dmca": "DMCA",
+    "footer.community": "Jumuiya",
+    "footer.created_by": "Imeundwa na",
+    "footer.all_rights": "Haki zote zimehifadhiwa",
+  },
 };
 
 // Supported languages
@@ -1401,6 +1605,7 @@ export const supportedLanguages = [
   { code: "ko", name: "한국어", flag: "🇰🇷" },
   { code: "ru", name: "Русский", flag: "🇷🇺" },
   { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
+  { code: "sw", name: "Kiswahili", flag: "🇰🇪" },
 ];
 
 // Detect browser language

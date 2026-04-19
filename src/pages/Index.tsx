@@ -12,6 +12,7 @@ import heroBg from "@/assets/hero-bg.jpg";
 import wangLinImg from "@/assets/wang-lin.jpg";
 
 const quotes = [
+  { text: "I Wang Lin will never bow to the Heavens or pay respect to any Ghost or God, I only bow to my parents and pay respect to Situ Nan.", attr: "Wang Lin's Sheer WillPower" },
   { text: "I will not be a slave to fate. I will forge my own Dao.", attr: "Wang Lin's Resolve" },
   { text: "The Ancient God, Demon, and Devil are but steps on my path.", attr: "Wang Lin's Ascension" },
   { text: "Heaven-defying means nothing if it doesn't transcend all.", attr: "Wang Lin's Philosophy" },
@@ -115,13 +116,13 @@ const Index = () => {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {[
                   { label: "Name", value: "Wang Lin (王林)" },
-                  { label: "Alias", value: "Xu Mu, Lu Yuncong, The Ancestor" },
+                  { label: "Alias", value: "Tie Zhu, Ma Liang,Lü Zihao, Ceng Niu, Xu Mu, The Ancestor" },
                   { label: "Cultivation Realm", value: "Third Step — Transcendent" },
                   { label: "Dao", value: "Underworld, Slaughter, Life/Death, Karma, True/False, Space/Time" },
                   { label: "Affiliation / Sect", value: "Heng Yue Sect → Tian Yun Sect → Heaven-Defying Alliance" },
                   { label: "Master", value: "Situ Nan" },
-                  { label: "Disciples", value: "Thirteen, Qing Shui" },
-                  { label: "Enemies", value: "Teng Huayuan, Ling Tianhou, All-Seer" },
+                  { label: "Disciples", value: "Thirteen, Zhou Ru" },
+                  { label: "Enemies", value: "Teng Huayuan, Liu Mei(Mu Bingmei), Ling Tianhou, All-Seer" },
                   { label: "First Appearance", value: "Chapter 1 — Planet Suzaku" },
                   { label: "Status", value: "Alive — Transcendent" },
                 ].map((item) => (

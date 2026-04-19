@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,8 +21,18 @@ export default function SignupPage() {
       toast.error("Password must be at least 6 characters");
       return;
     }
+    if (!username.trim()) {
+      toast.error("Username is required");
+      return;
+    }
+    // Validate username format (alphanumeric, underscore, hyphen only)
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      toast.error("Username can only contain letters, numbers, underscores, and hyphens");
+      return;
+    }
+
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -29,13 +40,29 @@ export default function SignupPage() {
         emailRedirectTo: window.location.origin,
       },
     });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Check your email to confirm your account!");
-      navigate("/login");
+
+    if (signUpError) {
+      toast.error(signUpError.message);
+      setLoading(false);
+      return;
     }
+
+    // Update profile with username
+    if (authData?.user) {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ username: username.trim().toLowerCase() })
+        .eq("user_id", authData.user.id);
+
+      if (profileError) {
+        toast.error("Account created but failed to set username");
+      } else {
+        toast.success("Account created! Please check your email to confirm.");
+      }
+    }
+
+    setLoading(false);
+    navigate("/login");
   };
 
   return (
@@ -59,6 +86,18 @@ export default function SignupPage() {
                 className="w-full bg-muted/50 border border-border rounded px-3 py-2 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                 placeholder="Wang Lin"
               />
+            </div>
+            <div>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.username")} *</label>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 20))}
+                className="w-full bg-muted/50 border border-border rounded px-3 py-2 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                placeholder="your-username"
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">Required. Letters, numbers, underscores, hyphens only.</p>
             </div>
             <div>
               <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.email")}</label>

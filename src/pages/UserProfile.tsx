@@ -13,6 +13,41 @@ import { ShareMenu } from "@/components/ShareMenu";
 import { characters } from "@/data/charactersData";
 import { useT } from "@/contexts/TranslationContext";
 
+// Social SVG Icons
+import DiscordIcon from "@/assets/socials/discord.svg";
+import EmailIcon from "@/assets/socials/email.svg";
+import FacebookIcon from "@/assets/socials/facebook.svg";
+import GithubIcon from "@/assets/socials/github.svg";
+import InstagramIcon from "@/assets/socials/instagram.svg";
+import LinkedinIcon from "@/assets/socials/linkedin.svg";
+import LinktreeIcon from "@/assets/socials/linktree.svg";
+import PinterestIcon from "@/assets/socials/pinterest.svg";
+import RedditIcon from "@/assets/socials/reddit.svg";
+import SpotifyIcon from "@/assets/socials/spotify.svg";
+import TiktokIcon from "@/assets/socials/tiktok.svg";
+import TwitchIcon from "@/assets/socials/twitch.svg";
+import TwitterIcon from "@/assets/socials/twitter.svg";
+import WhatsappIcon from "@/assets/socials/whatsapp.svg";
+import YoutubeIcon from "@/assets/socials/youtube.svg";
+
+const socialIconMap: Record<string, string> = {
+  discord: DiscordIcon,
+  email: EmailIcon,
+  facebook: FacebookIcon,
+  github: GithubIcon,
+  instagram: InstagramIcon,
+  linkedin: LinkedinIcon,
+  linktree: LinktreeIcon,
+  pinterest: PinterestIcon,
+  reddit: RedditIcon,
+  spotify: SpotifyIcon,
+  tiktok: TiktokIcon,
+  twitch: TwitchIcon,
+  twitter: TwitterIcon,
+  whatsapp: WhatsappIcon,
+  youtube: YoutubeIcon,
+};
+
 interface PublicProfile {
   user_id: string;
   display_name: string;
@@ -303,30 +338,32 @@ export default function UserProfile() {
             {/* Social Links */}
             {hasSocials && (
               <div className="gradient-card border border-border rounded-lg p-6">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <Link2 size={18} className="text-primary" />
                   <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Social Links</h2>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-3">
                   {Object.entries(socialLinks).map(([platform, handle]) => {
                     if (!handle || !handle.trim()) return null;
                     const url = getSocialUrl(platform, handle);
+                    const iconSrc = socialIconMap[platform.toLowerCase()];
+                    if (!url || !iconSrc) return null;
                     return (
-                      <div key={platform} className="flex items-center gap-2">
-                        <span className="text-xs font-heading text-muted-foreground w-16 capitalize">{platform}</span>
-                        {url ? (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-body text-primary hover:text-primary/80 hover:underline transition-colors"
-                          >
-                            {handle}
-                          </a>
-                        ) : (
-                          <span className="text-sm font-body text-foreground">{handle}</span>
-                        )}
-                      </div>
+                      <a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50 border border-border hover:bg-primary/10 hover:border-primary/30 transition-all"
+                        title={`${platform}: ${handle}`}
+                      >
+                        <img
+                          src={iconSrc}
+                          alt={platform}
+                          className="w-5 h-5 object-contain"
+                          style={{ filter: "var(--social-icon-filter, none)" }}
+                        />
+                      </a>
                     );
                   })}
                 </div>

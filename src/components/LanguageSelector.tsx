@@ -19,15 +19,15 @@ export function LanguageSelector() {
         <TooltipTrigger asChild>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-primary transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50 border border-border text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/30 transition-all"
             aria-label="Select language"
             dir={isRTL ? "rtl" : "ltr"}
           >
-            <span className="text-lg leading-none">{currentLanguage.flag}</span>
+            <Globe size={18} />
           </button>
         </TooltipTrigger>
         <TooltipContent side="left" className="text-xs">
-          Language: {currentLanguage.name}
+          {currentLanguage.name}
         </TooltipContent>
       </Tooltip>
 

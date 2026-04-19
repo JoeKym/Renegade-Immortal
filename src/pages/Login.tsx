@@ -16,14 +16,59 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+
+    // Try login with email first
+    let loginEmail = email;
+
+    // If not an email format, try to find user by username
+    if (!email.includes("@")) {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("username", email)
+        .single();
+
+      if (profileError || !profileData) {
+        toast.error("Username not found");
+        setLoading(false);
+        return;
+      }
+
+      // Get email from auth using user_id
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.user_id);
+      if (userError || !userData?.user?.email) {
+        toast.error("Could not find user email");
+        setLoading(false);
+        return;
+      }
+      loginEmail = userData.user.email;
+    }
+
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+
     if (error) {
       toast.error(error.message);
-    } else {
-      toast.success("Welcome back, Cultivator!");
-      navigate("/");
+    } else if (authData?.user) {
+      // Fetch user profile for welcome message and username check
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("user_id", authData.user.id)
+        .single();
+
+      const displayName = profile?.display_name || profile?.username || "Cultivator";
+      toast.success(`Welcome back, ${displayName}!`);
+
+      // Redirect to profile if username is not set
+      if (!profile?.username) {
+        toast.info("Please set up your username in your profile");
+        navigate("/profile");
+      } else {
+        navigate("/");
+      }
     }
+
+    setLoading(false);
   };
 
   return (
@@ -39,14 +84,14 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.email")}</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.email")} / {t("auth.username")}</label>
               <input
-                type="email"
+                type="text"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-muted/50 border border-border rounded px-3 py-2 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                placeholder="cultivator@example.com"
+                placeholder="email@example.com or username"
               />
             </div>
             <div>
@@ -57,7 +102,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-muted/50 border border-border rounded px-3 py-2 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                placeholder="••••••••"
+                placeholder="********"
               />
             </div>
             <button
