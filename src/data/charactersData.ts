@@ -41,6 +41,9 @@ export interface Character {
   nicknames?: string[];
   titles?: string[];
   sect?: string;
+  sectsLed?: string[];
+  planetaryAuthority?: string[];
+  nationalRoles?: string[];
   master?: string;
   disciples?: string[];
   enemies?: string[];
@@ -53,6 +56,7 @@ export interface Character {
   cultivationRealm?: string;
   dao?: string[];
   image?: string;
+  quotes?: string[];
 }
 
 export const characters: Character[] = [
@@ -67,7 +71,27 @@ export const characters: Character[] = [
     alias: "Ma Liang (possessed War Shrine disciple), Ceng Niu (Luotian/Yunhai Star Domain medicine gardens), Xu Mu (Master Demon, Magic Armor), Lü Zihao (Sea of Devils), Tie Zhu (childhood nickname), Qing Mu, Na Du (regional infiltrations)",
     nicknames: ["Master Demon (魔头)", "Pockmarked Wang (王麻子)", "Black Hearted King", "The Herald of Death / Calamity Star (煞星)", "White-Haired Empyrean"],
     titles: ["The God", "Master Demon Xu Mu", "Magic Armor Xu Mu"],
-    sect: "Heng Yue Sect (former), Cloud Sky Sect, Soul Refining Sect, Rain Celestial Realm",
+    sect: "Heng Yue Sect (former), Cloud Sky Sect, Soul Refining Sect, Rain Celestial Realm, Origin Sect, Fighting Evil Sect, Four Divine Sect",
+    sectsLed: [
+      "Soul Refining Sect — Sect Master (transformed from dying sect to powerful force on Planet Suzaku)",
+      "Cloud Sky Sect — Sect Master on Planet Suzaku",
+      "Origin Sect — Ancestor in Allheaven Star System",
+      "Fighting Evil Sect — Master (took control by force)",
+      "Four Divine Sect / Vermilion Bird Divine Sect — Holy Emperor & Supreme Leader (Azure Dragon, Black Tortoise, White Tiger, Vermilion Bird branches)",
+      "Seven Dao Sect — Founded New Seven Color Sect from ruins after breaking Immortal Astral Continent laws"
+    ],
+    planetaryAuthority: [
+      "Planet Suzaku (Zhuque) — Guardian and ultimate authority/protector",
+      "Planet Ran Yun — Supreme Ancestor",
+      "Planet Qing Lin — Master",
+      "The Sealed Realm — Lord of the Sealed Realm (supreme leader of entire star system)"
+    ],
+    nationalRoles: [
+      "Country of Zhao — Ancestor (birthplace, sealed with powerful formations for protection)",
+      "Great Wang Dynasty — Founder and backing force (established by reincarnated cousin Wang Zhuo)",
+      "Fallen Land — Young Emperor",
+      "Ancient Dao — Guardian (cited in later stages, never formally acknowledged)"
+    ],
     master: "Situ Nan (unofficial), Ancient God Tu Si (inheritance), Qing Lin",
     disciples: ["13th Boy", "Thirteen", "Zhou Ru", "Xie Qing"],
     enemies: ["Teng Huayuan (Teng Clan)", "All-Seer/Tian Yunzi", "Liu Mei (early)", "Tuo Sen", "Ling Tianhou", "Seven Colored Sovereign", "Heaven itself"],
@@ -80,6 +104,59 @@ export const characters: Character[] = [
     cultivationRealm: "Fourth Step / Transcendence",
     dao: ["Life/Death", "Karma", "True/False", "Dream", "Reincarnation", "Thunder", "Fire", "Water", "Earth", "Wood", "Metal", "Slaughter", "Restriction", "Absolute Beginning", "Absolute End"],
     image: wangLinImg,
+    quotes: [
+      "I, Wang Lin, will pay back ten times the grievances I have suffered!",
+      "Heaven will not give me a way, I will find my own way!",
+      "My life is not in heaven, but in myself!",
+      "If heaven is not fair, I will defy heaven!",
+      "If fate does not allow, I will break fate!",
+      "What can heaven do to me?",
+      "Whether it is the past, present, or future, there is only one Wang Lin!",
+      "The time has not come, let it grow; once the time comes, it will surely fulfill its destiny!",
+      "The dao does not exist in heaven, but in the human heart!",
+      "I have my own dao!",
+      "Life and death is a circle, endless and never-ending!",
+      "What is heaven? Heaven is a shackle, a prison!",
+      "The heavens deceive all living beings!",
+      "Cultivation, what is it for?",
+      "Those who block my path, die!",
+      "I would rather be a renegade than a heavenly dog!",
+      "Life and death is but a moment, a lifetime is but a breath!",
+      "My dao is not in heaven, not in fate, but in my own heart!",
+      "The heavens change, and so does my heart!",
+      "Even if I die, I will die standing!",
+      "This life, I will not be mediocre!",
+      "The heavens have no eyes, but I have eyes!",
+      "Even if the sky falls, I will hold it up with my own hands!",
+      "I will not kneel to heaven, nor will I kneel to fate!",
+      "If heaven wants me to die, I will destroy heaven!",
+      "All living beings are ants, but I am not an ant!",
+      "My life is up to me, not to heaven!",
+      "Fate is unfair, I will break fate!",
+      "Heaven and earth are not benevolent, treating all things as straw dogs; I am not benevolent, treating heaven and earth as enemies!",
+      "Those who harm my loved ones, I will kill their whole family!",
+      "Life and death, reincarnation, only the heart is eternal!",
+      "The dao is not far away, it is in the heart!",
+      "I am a renegade, not a heavenly slave!",
+      "Even if I die nine times, I will not regret!",
+      "If the road ahead is blocked, I will open it with my own hands!",
+      "The heavens are high, but I am higher!",
+      "I would rather die standing than live kneeling!",
+      "Those who are good to me, I will repay a hundred times; those who harm me, I will kill without mercy!",
+      "The heavens are heartless, I am more heartless than the heavens!",
+      "My dao, no one can change!",
+      "I will defy heaven and change my fate!",
+      "The heavens cannot cover my eyes, the earth cannot bury my heart!",
+      "I want the heavens to know, even if I die, I will die standing!",
+      "Life and death are predestined, but I do not believe in fate!",
+      "I will not kneel to the heavens, nor will I kneel to the earth!",
+      "Those who offend me, even if they are far away, will be punished!",
+      "I want to walk my own path, even if it is a path of no return!",
+      "The heavens are not benevolent, I will defy the heavens!",
+      "If fate is not fair, I will break fate!",
+      "My life is not in the hands of heaven, but in my own hands!",
+      "I am the only one who can decide my own destiny!"
+    ]
   },
 
   // ── FAMILY ──

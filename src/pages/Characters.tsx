@@ -385,6 +385,45 @@ function CharacterCard({
               {char.titles && char.titles.length > 0 && (
                 <ProfileField label="Titles" value={char.titles.join(" • ")} />
               )}
+              {char.sectsLed && char.sectsLed.length > 0 && (
+                <div>
+                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Sects Led</span>
+                  <ul className="mt-1 space-y-1">
+                    {char.sectsLed.map((s) => (
+                      <li key={s} className="text-xs text-foreground/70 font-body flex items-start gap-2">
+                        <span className="w-1 h-1 rounded-full bg-primary mt-1.5 shrink-0" />
+                        <span>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {char.planetaryAuthority && char.planetaryAuthority.length > 0 && (
+                <div>
+                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Planetary Authority</span>
+                  <ul className="mt-1 space-y-1">
+                    {char.planetaryAuthority.map((p) => (
+                      <li key={p} className="text-xs text-foreground/70 font-body flex items-start gap-2">
+                        <span className="w-1 h-1 rounded-full bg-jade mt-1.5 shrink-0" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {char.nationalRoles && char.nationalRoles.length > 0 && (
+                <div>
+                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">National & Regional Roles</span>
+                  <ul className="mt-1 space-y-1">
+                    {char.nationalRoles.map((n) => (
+                      <li key={n} className="text-xs text-foreground/70 font-body flex items-start gap-2">
+                        <span className="w-1 h-1 rounded-full bg-crimson mt-1.5 shrink-0" />
+                        <span>{n}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {char.bloodline && (
                 <ProfileField label="Bloodline" value={char.bloodline} />
               )}
@@ -470,6 +509,23 @@ function CharacterCard({
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+              {char.quotes && char.quotes.length > 0 && (
+                <div>
+                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
+                    Notable Quotes
+                  </span>
+                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-2">
+                    {char.quotes.slice(0, 5).map((q, i) => (
+                      <p key={i} className="text-xs text-foreground/60 font-body italic border-l-2 border-primary/30 pl-2">
+                        "{q}"
+                      </p>
+                    ))}
+                    {char.quotes.length > 5 && (
+                      <p className="text-xs text-muted-foreground font-body">+ {char.quotes.length - 5} more quotes...</p>
+                    )}
+                  </div>
                 </div>
               )}
 
