@@ -379,6 +379,12 @@ function CharacterCard({
                 {char.description}
               </p>
               {char.alias && <ProfileField label="Alias" value={char.alias} />}
+              {char.nicknames && char.nicknames.length > 0 && (
+                <ProfileField label="Nicknames" value={char.nicknames.join(" • ")} />
+              )}
+              {char.titles && char.titles.length > 0 && (
+                <ProfileField label="Titles" value={char.titles.join(" • ")} />
+              )}
               {char.bloodline && (
                 <ProfileField label="Bloodline" value={char.bloodline} />
               )}

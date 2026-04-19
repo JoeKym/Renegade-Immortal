@@ -8,6 +8,10 @@ export interface SearchResult {
 export const searchableData: SearchResult[] = [
   // Characters - with query params for direct navigation
   { title: "Wang Lin", category: "Character", description: "The central protagonist who rises from mortal to transcendent being", path: "/characters?q=Wang+Lin" },
+  { title: "Xu Mu", category: "Character", description: "Wang Lin's most famous alias — Master Demon Xu Mu, Magic Armor Xu Mu in Luotian Star Domain", path: "/characters?q=Wang+Lin" },
+  { title: "Ceng Niu", category: "Character", description: "Wang Lin's alias for infiltrating medicine gardens in Luotian/Yunhai Star Domain", path: "/characters?q=Wang+Lin" },
+  { title: "Ma Liang", category: "Character", description: "Wang Lin's alias after possessing a War Shrine disciple's body", path: "/characters?q=Wang+Lin" },
+  { title: "Master Demon", category: "Character", description: "Wang Lin's infamous nickname earned through massacres and ruthless killing intent", path: "/characters?q=Wang+Lin" },
   { title: "Tu Si", category: "Character", description: "Supreme being of the Ancient God lineage", path: "/characters?q=Tu+Si" },
   { title: "Tou Sen", category: "Character", description: "Legendary Ancient Demon with god-origin hybrid essence", path: "/characters?q=Tou+Sen" },
   { title: "Ta Jia", category: "Character", description: "Master of the Ancient Devil ways", path: "/characters?q=Ta+Jia" },

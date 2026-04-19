@@ -38,6 +38,8 @@ export interface Character {
   description: string;
   tags: string[];
   alias?: string;
+  nicknames?: string[];
+  titles?: string[];
   sect?: string;
   master?: string;
   disciples?: string[];
@@ -62,7 +64,9 @@ export const characters: Character[] = [
     subtitle: "Protagonist • Mortal Origin",
     description: "Born with a weak body and mediocre talent, Wang Lin's features begin as average before becoming moderately handsome. His white hair, red eyes, and cold expression are his most distinctive features — testimony to a life filled with tragedy and killing. He rises from a simple village boy to a being that transcends the heavens.",
     tags: ["14 Essences", "Dao Ancient God", "Five Elements True Body", "Slaughter True Body", "Heaven Trampling Realm", "Defies the Heavens"],
-    alias: "Xu Mu, Ceng Mo, Ma Liang (briefly), Na Du, Ceng Niu, Tie Zhu",
+    alias: "Ma Liang (possessed War Shrine disciple), Ceng Niu (Luotian/Yunhai Star Domain medicine gardens), Xu Mu (Master Demon, Magic Armor), Lü Zihao (Sea of Devils), Tie Zhu (childhood nickname), Qing Mu, Na Du (regional infiltrations)",
+    nicknames: ["Master Demon (魔头)", "Pockmarked Wang (王麻子)", "Black Hearted King", "The Herald of Death / Calamity Star (煞星)", "White-Haired Empyrean"],
+    titles: ["The God", "Master Demon Xu Mu", "Magic Armor Xu Mu"],
     sect: "Heng Yue Sect (former), Cloud Sky Sect, Soul Refining Sect, Rain Celestial Realm",
     master: "Situ Nan (unofficial), Ancient God Tu Si (inheritance), Qing Lin",
     disciples: ["13th Boy", "Thirteen", "Zhou Ru", "Xie Qing"],
