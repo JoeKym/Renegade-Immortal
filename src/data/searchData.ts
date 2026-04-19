@@ -18,13 +18,13 @@ export const searchableData: SearchResult[] = [
   { title: "Qing Shui", category: "Character", description: "Tragic powerhouse with heavy karmic weight", path: "/characters?q=Qing+Shui" },
   { title: "Su Ming", category: "Character", description: "Cross-novel essential for multiverse connections", path: "/characters?q=Su+Ming" },
 
-  // Daos
-  { title: "Dao of the Underworld", category: "Dao", description: "Wang Lin's first forged Dao — born from desperation", path: "/daos" },
-  { title: "Dao of Slaughter", category: "Dao", description: "Absolute offensive power forged through countless battles", path: "/daos" },
-  { title: "Dao of Life/Death", category: "Dao", description: "Mastery over the cycle of life and death", path: "/daos" },
-  { title: "Dao of Karma", category: "Dao", description: "Manipulation of cause and effect across lifetimes", path: "/daos" },
-  { title: "Dao of True/False", category: "Dao", description: "Distinguishing reality from illusion", path: "/daos" },
-  { title: "Dao of Space/Time", category: "Dao", description: "Control over the fundamental fabric of existence", path: "/daos" },
+  // Essences/Daos
+  { title: "14 Essences of Wang Lin", category: "Dao", description: "Complete collection of Wang Lin's 14 Essences categorized as Ethereal, Corporeal, and Special", path: "/daos" },
+  { title: "Ethereal Essences", category: "Dao", description: "Life/Death, Karma, True/False, Dream, Reincarnation — based on insight and life experiences", path: "/daos" },
+  { title: "Corporeal Essences", category: "Dao", description: "Thunder, Fire, Water, Earth, Wood, Metal — Five Elements True Body components", path: "/daos" },
+  { title: "Special Essences", category: "Dao", description: "Slaughter, Restriction, Absolute Beginning, Absolute End — powers of heaven defiance", path: "/daos" },
+  { title: "Five Elements True Body", category: "Dao", description: "Fusion of Fire, Water, Earth, Wood, Metal essences representing cultivation of life", path: "/daos" },
+  { title: "Slaughter True Body", category: "Dao", description: "Black Clone formed from Slaughter, Thunder, Restriction, Absolute Beginning/End essences", path: "/daos" },
 
   // Cultivation
   { title: "Qi Condensation", category: "Cultivation", description: "Early cultivation stage", path: "/cultivation" },

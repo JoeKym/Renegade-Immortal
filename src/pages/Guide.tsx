@@ -27,9 +27,9 @@ const sections = [
   {
     icon: Sparkles,
     title: "What Are Daos?",
-    content: "A Dao is a fundamental law of the universe — a cultivator's unique understanding of reality. Most cultivators inherit Daos from their masters or lineage. Wang Lin is unique because he forges entirely new Daos that have never existed before: Underworld, Slaughter, Life/Death, Karma, True/False, and Space/Time. This makes his cultivation path one-of-a-kind.",
+    content: "A Dao is a fundamental law of the universe — a cultivator's unique understanding of reality. Most cultivators inherit Daos from their masters or lineage. Wang Lin is unique because he comprehends 14 distinct Essences (Daos) that have never existed before: 5 Ethereal Essences (Life/Death, Karma, True/False, Dream, Reincarnation), 6 Corporeal Essences (Thunder, Fire, Water, Earth, Wood, Metal forming the Five Elements), and 4 Special Essences (Slaughter, Restriction, Absolute Beginning, Absolute End). This makes his cultivation path one-of-a-kind.",
     link: "/daos",
-    linkText: "Explore the Dao System →",
+    linkText: "Explore the 14 Essences →",
   },
 ];
 
