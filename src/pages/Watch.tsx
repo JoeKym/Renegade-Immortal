@@ -176,8 +176,8 @@ export default function WatchPage() {
         const now = Date.now();
         const RELEASE_HOUR_UTC = 3; // 3 AM UTC
         
-        // Episode 131 released on March 9, 2026 (Sunday) at 3 AM UTC
-        const EP_131_RELEASE = new Date("2026-03-09T03:00:00Z").getTime();
+        // Episode 131 released on March 8, 2026 (Sunday) at 3 AM UTC
+        const EP_131_RELEASE = new Date("2026-03-08T03:00:00Z").getTime();
         const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
         
         // Calculate how many weeks have passed since episode 131
