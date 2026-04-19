@@ -16,8 +16,18 @@ const translations: Record<string, Record<string, string>> = {
     "nav.groups": "Groups",
     "nav.watch": "Watch",
     "nav.ai_chat": "AI Chat",
+    "nav.news": "News",
+
+    // World section
+    "world.daos": "Daos",
+    "world.cultivation": "Cultivation",
+    "world.artifacts": "Artifacts",
+    "world.locations": "Locations",
+    "world.multiverse": "Multiverse",
 
     // Common
+    "common.messages": "Messages",
+    "common.groups": "Groups",
     "common.search": "Search",
     "common.loading": "Loading...",
     "common.error": "Error",
@@ -118,6 +128,83 @@ const translations: Record<string, Record<string, string>> = {
     "error.not_found": "Page not found",
     "error.no_connection": "No connection",
     "error.try_again": "Please try again",
+
+    // Auth
+    "auth.login": "Sign In",
+    "auth.signup": "Sign Up",
+    "auth.logout": "Sign Out",
+    "auth.email": "Email",
+    "auth.password": "Password",
+    "auth.forgot_password": "Forgot Password?",
+    "auth.reset_password": "Reset Password",
+    "auth.send_reset": "Send Reset Link",
+    "auth.no_account": "Don't have an account?",
+    "auth.has_account": "Already have an account?",
+    "auth.create_account": "Create Account",
+    "auth.confirm_password": "Confirm Password",
+    "auth.username": "Username",
+    "auth.display_name": "Display Name",
+    "auth.bio": "Bio",
+    "auth.or_continue_with": "Or continue with",
+
+    // Profile
+    "profile.title": "Profile",
+    "profile.edit": "Edit Profile",
+    "profile.save_changes": "Save Changes",
+    "profile.avatar": "Avatar",
+    "profile.favorites": "Favorites",
+    "profile.reading_progress": "Reading Progress",
+    "profile.social_links": "Social Links",
+    "profile.followers": "Followers",
+    "profile.following": "Following",
+    "profile.follow": "Follow",
+    "profile.unfollow": "Unfollow",
+    "profile.message": "Message",
+    "profile.not_found": "User not found",
+
+    // Settings
+    "settings.title": "Settings",
+    "settings.account": "Account",
+    "settings.appearance": "Appearance",
+    "settings.notifications": "Notifications",
+    "settings.privacy": "Privacy",
+    "settings.language": "Language",
+    "settings.theme": "Theme",
+    "settings.dark_mode": "Dark Mode",
+    "settings.light_mode": "Light Mode",
+    "settings.system": "System",
+    "settings.delete_account": "Delete Account",
+    "settings.change_password": "Change Password",
+
+    // Home
+    "home.welcome": "Welcome to Renegade Immortal",
+    "home.description": "A fan-made lore encyclopedia",
+    "home.explore": "Explore",
+    "home.latest": "Latest Updates",
+
+    // About
+    "about.title": "About",
+    "about.description": "About this project",
+
+    // Guide
+    "guide.title": "Guide",
+
+    // Contact
+    "contact.title": "Contact",
+    "contact.send": "Send Message",
+    "contact.name": "Name",
+    "contact.message": "Message",
+
+    // Footer
+    "footer.about": "About",
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "footer.support": "Support",
+    "footer.contact": "Contact",
+    "footer.dmca": "DMCA",
+    "footer.community": "Community",
+    "footer.created_by": "Created by",
+    "footer.all_rights": "All rights reserved",
   },
 
   zh: {

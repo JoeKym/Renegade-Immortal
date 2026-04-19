@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { User } from "lucide-react";
+import { useT } from "@/contexts/TranslationContext";
 
 export function UserMenu() {
+  const { t } = useT();
   const { user, profile } = useAuth();
 
   if (!user) {
@@ -12,7 +14,7 @@ export function UserMenu() {
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-all text-xs font-heading tracking-wider"
       >
         <User size={14} />
-        <span className="hidden sm:inline">Sign In</span>
+        <span className="hidden sm:inline">{t("auth.login")}</span>
       </Link>
     );
   }
@@ -20,7 +22,7 @@ export function UserMenu() {
   const profileWithMeta = profile as { username?: string; avatar_url?: string } | null;
   const profileLink = profileWithMeta?.username ? `/u/${profileWithMeta.username}` : "/profile";
   const avatarUrl = profileWithMeta?.avatar_url;
-  const displayName = profile?.display_name || "Profile";
+  const displayName = profile?.display_name || t("profile.title");
 
   return (
     <Link

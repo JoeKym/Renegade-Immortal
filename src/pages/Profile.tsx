@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { User, BookOpen, Heart, Link2, Save, Camera, Loader2, Search, X, Star, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { characters } from "@/data/charactersData";
+import { useT } from "@/contexts/TranslationContext";
 
 const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
 
@@ -24,6 +25,7 @@ const readingOptions = [
 ];
 
 export default function ProfilePage() {
+  const { t } = useT();
   const { user, profile, refreshProfile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
@@ -136,7 +138,7 @@ export default function ProfilePage() {
     return (
       <Layout>
         <div className="min-h-[70vh] flex items-center justify-center">
-          <p className="text-muted-foreground font-body">Loading...</p>
+          <p className="text-muted-foreground font-body">{t("common.loading")}</p>
         </div>
       </Layout>
     );
@@ -147,13 +149,13 @@ export default function ProfilePage() {
       <Layout>
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4">
           <p className="text-muted-foreground font-body text-center">
-            We couldn’t load your profile yet.
+            {t("error.generic")}
           </p>
           <button
             onClick={refreshProfile}
             className="px-4 py-2 rounded gradient-gold font-heading text-xs tracking-wider text-primary-foreground hover:opacity-90 transition-opacity"
           >
-            Retry Loading Profile
+            {t("common.retry")}
           </button>
         </div>
       </Layout>
@@ -166,32 +168,32 @@ export default function ProfilePage() {
         <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center justify-between mb-2">
-              <h1 className="font-heading text-3xl text-primary text-center tracking-wider flex-1">Cultivator Profile</h1>
+              <h1 className="font-heading text-3xl text-primary text-center tracking-wider flex-1">{t("profile.title")}</h1>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate("/settings")}
                   className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-                  title="Settings"
+                  title={t("settings.title")}
                 >
                   <Settings size={18} />
                 </button>
                 <button
                   onClick={signOut}
                   className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  title="Sign Out"
+                  title={t("auth.logout")}
                 >
                   <LogOut size={18} />
                 </button>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground font-body text-center mb-8">Customize your identity in the sect</p>
+            <p className="text-sm text-muted-foreground font-body text-center mb-8">{t("profile.edit")}</p>
 
             <div className="space-y-6">
               {/* Identity */}
               <div className="gradient-card border border-border rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <User size={18} className="text-primary" />
-                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Identity</h2>
+                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.title")}</h2>
                 </div>
                 <div className="space-y-3">
                   {/* Avatar */}
@@ -218,10 +220,10 @@ export default function ProfilePage() {
                         />
                       </label>
                     </div>
-                    <p className="text-[10px] text-muted-foreground font-body mt-1">Hover to change avatar</p>
+                    <p className="text-[10px] text-muted-foreground font-body mt-1">{t("profile.avatar")}</p>
                   </div>
                   <div>
-                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Display Name</label>
+                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.display_name")}</label>
                     <input
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value.slice(0, 50))}
@@ -229,7 +231,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Username</label>
+                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.username")}</label>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground font-body">@</span>
                       <input
@@ -251,7 +253,7 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div>
-                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Bio</label>
+                    <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.bio")}</label>
                     <textarea
                       value={bio}
                       onChange={(e) => setBio(e.target.value.slice(0, 500))}
@@ -268,7 +270,7 @@ export default function ProfilePage() {
               <div className="gradient-card border border-border rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <BookOpen size={18} className="text-primary" />
-                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Reading Progress</h2>
+                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.reading_progress")}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {readingOptions.map((opt) => (
@@ -291,7 +293,7 @@ export default function ProfilePage() {
               <div className="gradient-card border border-border rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Link2 size={18} className="text-primary" />
-                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Social Links</h2>
+                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.social_links")}</h2>
                 </div>
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {[
@@ -329,7 +331,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Heart size={18} className="text-primary" />
-                    <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Favorite Characters</h2>
+                    <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.favorites")}</h2>
                   </div>
                   <span className="text-[10px] text-muted-foreground font-body">{favoriteChars.length}/10</span>
                 </div>
@@ -445,7 +447,7 @@ export default function ProfilePage() {
                 className="w-full py-2.5 rounded gradient-gold font-heading text-sm tracking-wider text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Save size={16} />
-                {saving ? "Saving..." : "Save Profile"}
+                {saving ? t("common.loading") : t("common.save")}
               </button>
             </div>
           </motion.div>

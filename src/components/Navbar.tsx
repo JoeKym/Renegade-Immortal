@@ -7,6 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { MessagesNavLink } from "./MessagesNavLink";
 import { GroupsNavLink } from "./GroupsNavLink";
+import { useT } from "@/contexts/TranslationContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,65 +16,65 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const mainNav = [
-  { path: "/", label: "Home", icon: Scroll },
-  { path: "/guide", label: "Guide", icon: HelpCircle },
-  { path: "/characters", label: "Characters", icon: Users },
+  { path: "/", labelKey: "nav.home", icon: Scroll },
+  { path: "/guide", labelKey: "nav.guide", icon: HelpCircle },
+  { path: "/characters", labelKey: "nav.characters", icon: Users },
 ];
 
 const worldDropdown = {
-  label: "World",
+  labelKey: "nav.world",
   icon: Globe,
   items: [
-    { path: "/daos", label: "Daos", icon: Sparkles },
-    { path: "/cultivation", label: "Cultivation", icon: Swords },
-    { path: "/artifacts", label: "Artifacts", icon: Shield },
-    { path: "/locations", label: "Locations", icon: Map },
-    { path: "/multiverse", label: "Multiverse", icon: Globe },
+    { path: "/daos", labelKey: "world.daos", icon: Sparkles },
+    { path: "/cultivation", labelKey: "world.cultivation", icon: Swords },
+    { path: "/artifacts", labelKey: "world.artifacts", icon: Shield },
+    { path: "/locations", labelKey: "world.locations", icon: Map },
+    { path: "/multiverse", labelKey: "world.multiverse", icon: Globe },
   ],
 };
 
 const moreDropdown = {
-  label: "More",
+  labelKey: "nav.more",
   icon: BookOpen,
   items: [
-    { path: "/timeline", label: "Timeline", icon: Clock },
-    { path: "/donghua", label: "Donghua", icon: Tv },
-    { path: "/lore", label: "Lore", icon: BookOpen },
-    { path: "/news", label: "News", icon: Newspaper },
-    { path: "/watch", label: "Watch", icon: Play },
-    { path: "/about", label: "About", icon: Info },
+    { path: "/timeline", labelKey: "guide.timeline", icon: Clock },
+    { path: "/donghua", labelKey: "watch.donghua", icon: Tv },
+    { path: "/lore", labelKey: "nav.world", icon: BookOpen },
+    { path: "/news", labelKey: "nav.news", icon: Newspaper },
+    { path: "/watch", labelKey: "nav.watch", icon: Play },
+    { path: "/about", labelKey: "footer.about", icon: Info },
   ],
 };
 
-const communityNav = { path: "/communities", label: "Community", icon: Users };
-const feedNav = { path: "/feed", label: "Feed", icon: Rss };
-const voidyNav = { path: "/voidy", label: "Voidy", icon: Bot };
+const communityNav = { path: "/communities", labelKey: "nav.community", icon: Users };
+const feedNav = { path: "/feed", labelKey: "nav.feed", icon: Rss };
+const voidyNav = { path: "/voidy", labelKey: "nav.voidy", icon: Bot };
 
 // Full list for mobile
 const allNavItems = [
-  { path: "/", label: "Home", icon: Scroll },
-  { path: "/guide", label: "Guide", icon: HelpCircle },
-  { path: "/characters", label: "Characters", icon: Users },
-  { path: "/daos", label: "Daos", icon: Sparkles },
-  { path: "/cultivation", label: "Cultivation", icon: Swords },
-  { path: "/artifacts", label: "Artifacts", icon: Shield },
-  { path: "/locations", label: "Locations", icon: Map },
-  { path: "/timeline", label: "Timeline", icon: Clock },
-  { path: "/multiverse", label: "Multiverse", icon: Globe },
-  { path: "/donghua", label: "Donghua", icon: Tv },
-  { path: "/lore", label: "Lore", icon: BookOpen },
-  { path: "/news", label: "News", icon: Newspaper },
-  { path: "/watch", label: "Watch", icon: Play },
-  { path: "/communities", label: "Community", icon: Users },
-  { path: "/feed", label: "Feed", icon: Rss },
-  { path: "/messages", label: "Messages", icon: MessageCircle },
-  { path: "/groups", label: "Group Chats", icon: UsersRound },
-  { path: "/voidy", label: "Voidy", icon: Bot },
-  { path: "/about", label: "About", icon: Info },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/", labelKey: "nav.home", icon: Scroll },
+  { path: "/guide", labelKey: "nav.guide", icon: HelpCircle },
+  { path: "/characters", labelKey: "nav.characters", icon: Users },
+  { path: "/daos", labelKey: "world.daos", icon: Sparkles },
+  { path: "/cultivation", labelKey: "world.cultivation", icon: Swords },
+  { path: "/artifacts", labelKey: "world.artifacts", icon: Shield },
+  { path: "/locations", labelKey: "world.locations", icon: Map },
+  { path: "/timeline", labelKey: "guide.timeline", icon: Clock },
+  { path: "/multiverse", labelKey: "world.multiverse", icon: Globe },
+  { path: "/donghua", labelKey: "watch.donghua", icon: Tv },
+  { path: "/lore", labelKey: "nav.world", icon: BookOpen },
+  { path: "/news", labelKey: "nav.news", icon: Newspaper },
+  { path: "/watch", labelKey: "nav.watch", icon: Play },
+  { path: "/communities", labelKey: "nav.community", icon: Users },
+  { path: "/feed", labelKey: "nav.feed", icon: Rss },
+  { path: "/messages", labelKey: "common.messages", icon: MessageCircle },
+  { path: "/groups", labelKey: "common.groups", icon: UsersRound },
+  { path: "/voidy", labelKey: "nav.voidy", icon: Bot },
+  { path: "/about", labelKey: "footer.about", icon: Info },
+  { path: "/settings", labelKey: "settings.title", icon: Settings },
 ];
 
-function NavDropdown({ dropdown, location }: { dropdown: typeof worldDropdown; location: ReturnType<typeof useLocation> }) {
+function NavDropdown({ dropdown, location, t }: { dropdown: typeof worldDropdown; location: ReturnType<typeof useLocation>; t: (key: string) => string }) {
   const [open, setOpen] = useState(false);
   const isActive = dropdown.items.some(item => location.pathname === item.path);
   const Icon = dropdown.icon;
@@ -92,7 +93,7 @@ function NavDropdown({ dropdown, location }: { dropdown: typeof worldDropdown; l
         }`}
       >
         <Icon size={14} />
-        {dropdown.label}
+        {t(dropdown.labelKey)}
         <ChevronDown size={12} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -111,7 +112,7 @@ function NavDropdown({ dropdown, location }: { dropdown: typeof worldDropdown; l
                 className={`flex items-center gap-2 cursor-pointer ${itemActive ? "text-primary" : ""}`}
               >
                 <ItemIcon size={14} />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             </DropdownMenuItem>
           );
@@ -122,9 +123,10 @@ function NavDropdown({ dropdown, location }: { dropdown: typeof worldDropdown; l
 }
 
 export function Navbar() {
-  const location = useLocation();
+  const { t } = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <>
@@ -148,13 +150,13 @@ export function Navbar() {
                   }`}
                 >
                   <Icon size={14} />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
 
-            <NavDropdown dropdown={worldDropdown} location={location} />
-            <NavDropdown dropdown={moreDropdown} location={location} />
+            <NavDropdown dropdown={worldDropdown} location={location} t={t} />
+            <NavDropdown dropdown={moreDropdown} location={location} t={t} />
 
             <Link
               to={communityNav.path}
@@ -165,7 +167,7 @@ export function Navbar() {
               }`}
             >
               <Users size={14} />
-              {communityNav.label}
+              {t(communityNav.labelKey)}
             </Link>
 
             <Link
@@ -177,7 +179,7 @@ export function Navbar() {
               }`}
             >
               <Rss size={14} />
-              {feedNav.label}
+              {t(feedNav.labelKey)}
             </Link>
 
             <Link
@@ -189,7 +191,7 @@ export function Navbar() {
               }`}
             >
               <Bot size={14} />
-              {voidyNav.label}
+              {t(voidyNav.labelKey)}
             </Link>
 
             <MessagesNavLink iconSize={14} />
@@ -230,7 +232,7 @@ export function Navbar() {
                       }`}
                     >
                       <Icon size={16} />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   );
                 })}

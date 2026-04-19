@@ -4,8 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useT } from "@/contexts/TranslationContext";
 
 export default function SignupPage() {
+  const { t } = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -44,12 +46,12 @@ export default function SignupPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md gradient-card border border-border rounded-lg p-8"
         >
-          <h1 className="font-heading text-2xl text-primary text-center mb-2 tracking-wider">Join the Sect</h1>
-          <p className="text-sm text-muted-foreground font-body text-center mb-6">Create your cultivator identity</p>
+          <h1 className="font-heading text-2xl text-primary text-center mb-2 tracking-wider">{t("auth.signup")}</h1>
+          <p className="text-sm text-muted-foreground font-body text-center mb-6">{t("auth.signup")}</p>
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Display Name</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.display_name")}</label>
               <input
                 type="text"
                 value={displayName}
@@ -59,7 +61,7 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Email</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.email")}</label>
               <input
                 type="email"
                 required
@@ -70,7 +72,7 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Password</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.password")}</label>
               <input
                 type="password"
                 required
@@ -86,13 +88,13 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full py-2.5 rounded gradient-gold font-heading text-sm tracking-wider text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Creating..." : "Begin Cultivation"}
+              {loading ? t("common.loading") : t("auth.create_account")}
             </button>
           </form>
 
-          <p className="mt-4 text-xs text-muted-foreground font-body text-center">
-            Already a cultivator?{" "}
-            <Link to="/login" className="text-primary hover:underline">Sign In</Link>
+          <p className="mt-4 text-xs text-muted-foreground font-body">
+            {t("auth.has_account")}{" "}
+            <Link to="/login" className="text-primary hover:underline">{t("auth.login")}</Link>
           </p>
         </motion.div>
       </div>

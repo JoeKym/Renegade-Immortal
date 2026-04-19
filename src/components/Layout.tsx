@@ -196,7 +196,7 @@ export function Layout({ children }: { children: ReactNode }) {
                     </a>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="text-xs">
-                    Visit {link.name}
+                    {link.name}
                   </TooltipContent>
                 </Tooltip>
               ))}

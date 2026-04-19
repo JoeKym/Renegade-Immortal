@@ -13,12 +13,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { useT } from "@/contexts/TranslationContext";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 export default function Settings() {
+  const { t } = useT();
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -131,26 +133,26 @@ export default function Settings() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-8">
               <SettingsIcon className="h-7 w-7 text-primary" />
-              <h1 className="text-3xl font-heading font-bold text-foreground">Settings</h1>
+              <h1 className="text-3xl font-heading font-bold text-foreground">{t("settings.title")}</h1>
             </div>
 
             <Tabs defaultValue="account" className="space-y-6">
               <TabsList className="grid grid-cols-3 w-full">
                 <TabsTrigger value="account" className="gap-1.5 text-xs sm:text-sm">
-                  <User size={14} /> Account
+                  <User size={14} /> {t("settings.account")}
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="gap-1.5 text-xs sm:text-sm">
-                  <Bell size={14} /> Notifications
+                  <Bell size={14} /> {t("settings.notifications")}
                 </TabsTrigger>
                 <TabsTrigger value="appearance" className="gap-1.5 text-xs sm:text-sm">
-                  <Palette size={14} /> Appearance
+                  <Palette size={14} /> {t("settings.appearance")}
                 </TabsTrigger>
               </TabsList>
 
               {/* Account Tab */}
               <TabsContent value="account" className="space-y-6">
                 <div className="gradient-card border border-border rounded-lg p-6 space-y-5">
-                  <h2 className="font-heading text-lg text-foreground">Profile</h2>
+                  <h1 className="font-heading text-3xl text-primary tracking-wider mb-2">{t("settings.title")}</h1>
 
                   <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16 border-2 border-primary/30">
@@ -168,38 +170,38 @@ export default function Settings() {
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-muted-foreground font-body mb-1 block">Display Name</label>
+                      <label className="text-xs text-muted-foreground font-body mb-1 block">{t("auth.display_name")}</label>
                       <Input value={displayName} onChange={e => setDisplayName(e.target.value)} maxLength={30} />
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground font-body mb-1 block">Username</label>
+                      <label className="text-xs text-muted-foreground font-body mb-1 block">{t("auth.username")}</label>
                       <Input value={username} onChange={e => setUsername(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))} maxLength={20} placeholder="your-username" />
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground font-body mb-1 block">Bio</label>
-                      <Textarea value={bio} onChange={e => setBio(e.target.value)} maxLength={200} rows={3} placeholder="Tell others about yourself..." />
+                      <label className="text-xs text-muted-foreground font-body mb-1 block">{t("auth.bio")}</label>
+                      <Textarea value={bio} onChange={e => setBio(e.target.value)} maxLength={200} rows={3} placeholder={t("settings.bio_placeholder")} />
                     </div>
                   </div>
 
                   <Button onClick={handleSaveProfile} disabled={saving} className="gap-1.5">
-                    <Save size={14} /> {saving ? "Saving..." : "Save Profile"}
+                    <Save size={14} /> {saving ? t("common.loading") : t("profile.save_changes")}
                   </Button>
                 </div>
 
                 {/* Password */}
                 <div className="gradient-card border border-border rounded-lg p-6 space-y-4">
-                  <h2 className="font-heading text-lg text-foreground">Change Password</h2>
+                  <h2 className="font-heading text-lg text-foreground">{t("settings.change_password")}</h2>
                   <div className="space-y-3">
                     <div className="relative">
-                      <Input type={showPassword ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New password" />
+                      <Input type={showPassword ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("settings.new_password")} />
                       <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
-                    <Input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
+                    <Input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t("settings.confirm_password")} />
                   </div>
                   <Button onClick={handleChangePassword} disabled={changingPassword} variant="secondary" className="gap-1.5">
-                    {changingPassword ? "Updating..." : "Update Password"}
+                    {changingPassword ? t("common.loading") : t("settings.change_password")}
                   </Button>
                 </div>
 
@@ -207,15 +209,15 @@ export default function Settings() {
                 <div className="gradient-card border border-border rounded-lg p-6 space-y-3">
                   <h2 className="font-heading text-lg text-foreground">Email</h2>
                   <p className="text-sm text-muted-foreground font-body">{user.email}</p>
-                  <p className="text-[10px] text-muted-foreground/60">Email changes are not supported at this time.</p>
+                  <p className="text-[10px] text-muted-foreground/60">{t("settings.email_not_supported")}</p>
                 </div>
 
                 {/* Danger Zone */}
                 <div className="gradient-card border border-destructive/30 rounded-lg p-6 space-y-3">
-                  <h2 className="font-heading text-lg text-destructive">Danger Zone</h2>
-                  <p className="text-sm text-muted-foreground font-body">Permanently delete your profile data and sign out. This cannot be undone.</p>
+                  <h2 className="font-heading text-lg text-destructive">{t("settings.danger_zone")}</h2>
+                  <p className="text-sm text-muted-foreground font-body">{t("settings.delete_account_warning")}</p>
                   <Button variant="destructive" onClick={() => setDeleteOpen(true)} className="gap-1.5">
-                    <Trash2 size={14} /> Delete Account Data
+                    <Trash2 size={14} /> {t("settings.delete_account")}
                   </Button>
                 </div>
               </TabsContent>
@@ -256,7 +258,7 @@ export default function Settings() {
               {/* Appearance Tab */}
               <TabsContent value="appearance" className="space-y-6">
                 <div className="gradient-card border border-border rounded-lg p-6 space-y-5">
-                  <h2 className="font-heading text-lg text-foreground">Theme</h2>
+                  <h2 className="font-heading text-lg text-foreground">{t("settings.theme")}</h2>
                   <div className="flex gap-3">
                     {[
                       { value: "dark", label: "Dark", icon: Moon },

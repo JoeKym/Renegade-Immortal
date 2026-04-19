@@ -11,6 +11,7 @@ import { RoleBadge } from "@/pages/Members";
 import { Button } from "@/components/ui/button";
 import { ShareMenu } from "@/components/ShareMenu";
 import { characters } from "@/data/charactersData";
+import { useT } from "@/contexts/TranslationContext";
 
 interface PublicProfile {
   user_id: string;
@@ -25,6 +26,7 @@ interface PublicProfile {
 }
 
 export default function UserProfile() {
+  const { t } = useT();
   const { username } = useParams<{ username: string }>();
   const { user, profile: myProfile, signOut } = useAuth();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
@@ -98,7 +100,17 @@ export default function UserProfile() {
     return (
       <Layout>
         <div className="min-h-[70vh] flex items-center justify-center">
-          <p className="text-muted-foreground font-body">Loading profile...</p>
+          <p className="text-muted-foreground font-body">{t("common.loading")}</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] flex items-center justify-center">
+          <p className="text-muted-foreground font-body">{t("profile.not_found")}</p>
         </div>
       </Layout>
     );
@@ -109,15 +121,15 @@ export default function UserProfile() {
       <Layout>
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4">
           <User size={48} className="text-muted-foreground/30" />
-          <h1 className="font-heading text-2xl text-foreground">Cultivator Not Found</h1>
+          <h1 className="font-heading text-2xl text-foreground">{t("profile.not_found_title")}</h1>
           <p className="text-sm text-muted-foreground font-body text-center">
-            No cultivator goes by the name <span className="text-primary">@{username}</span>
+            {t("profile.not_found_message")} <span className="text-primary">@{username}</span>
           </p>
           <Link
             to="/"
             className="px-4 py-2 rounded gradient-gold font-heading text-xs tracking-wider text-primary-foreground hover:opacity-90 transition-opacity"
           >
-            Return Home
+            {t("profile.return_home")}
           </Link>
         </div>
       </Layout>
@@ -176,11 +188,11 @@ export default function UserProfile() {
               <div className="flex items-center gap-4 mt-3">
                 <div className="text-center">
                   <span className="block font-heading text-foreground">{followersCount}</span>
-                  <span className="text-[10px] text-muted-foreground">Followers</span>
+                  <span className="text-[10px] text-muted-foreground">{followersCount} {t("profile.followers")}</span>
                 </div>
                 <div className="text-center">
                   <span className="block font-heading text-foreground">{followingCount}</span>
-                  <span className="text-[10px] text-muted-foreground">Following</span>
+                  <span className="text-[10px] text-muted-foreground">{followingCount} {t("profile.following")}</span>
                 </div>
               </div>
 
@@ -190,21 +202,21 @@ export default function UserProfile() {
                     <Link
                       to="/profile"
                       className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
-                      title="Edit profile"
+                      title={t("profile.edit")}
                     >
                       <Pencil size={16} />
                     </Link>
                     <Link
                       to="/settings"
                       className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"
-                      title="Settings"
+                      title={t("settings.title")}
                     >
                       <Settings size={16} />
                     </Link>
                     <button
                       onClick={signOut}
                       className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      title="Sign Out"
+                      title={t("auth.logout")}
                     >
                       <LogOut size={16} />
                     </button>
@@ -218,11 +230,11 @@ export default function UserProfile() {
                       onClick={isFollowing ? handleUnfollow : handleFollow}
                       className={`gap-1 text-xs ${!isFollowing ? "gradient-gold text-primary-foreground" : ""}`}
                     >
-                      {isFollowing ? <><UserCheck size={12} /> Following</> : <><UserPlus size={12} /> Follow</>}
+                      {isFollowing ? <><UserCheck size={12} /> {t("profile.following")}</> : <><UserPlus size={12} /> {t("profile.follow")}</>}
                     </Button>
                     <Link to={`/messages?with=${profile.user_id}`}>
                       <Button variant="outline" size="sm" className="gap-1 text-xs">
-                        <MessageCircle size={12} /> Message
+                        <MessageCircle size={12} /> {t("profile.message")}
                       </Button>
                     </Link>
                   </>
@@ -253,7 +265,7 @@ export default function UserProfile() {
               <div className="gradient-card border border-border rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen size={18} className="text-primary" />
-                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Reading Progress</h2>
+                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.reading_progress")}</h2>
                 </div>
                 <span className="inline-block px-3 py-1.5 rounded text-xs font-body gradient-gold text-primary-foreground">
                   {profile.reading_progress}
@@ -266,7 +278,7 @@ export default function UserProfile() {
               <div className="gradient-card border border-border rounded-lg p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Heart size={18} className="text-red-500" />
-                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">Favorite Characters</h2>
+                  <h2 className="font-heading text-sm text-primary tracking-wider uppercase">{t("profile.favorites")}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {profile.favorite_characters.map((name) => {

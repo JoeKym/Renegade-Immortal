@@ -7,6 +7,7 @@ import { TopReviews } from "@/components/TopReviews";
 import { CommunityDiscovery } from "@/components/CommunityDiscovery";
 import { CommunityLeaderboard } from "@/components/CommunityLeaderboard";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/contexts/TranslationContext";
 import heroBg from "@/assets/hero-bg.jpg";
 import wangLinImg from "@/assets/wang-lin.jpg";
 
@@ -41,6 +42,7 @@ const features = [
 ];
 
 const Index = () => {
+  const { t } = useT();
   const [pageStats, setPageStats] = useState<Record<string, { count: number; avg: number }>>({});
 
   useEffect(() => {
@@ -77,17 +79,17 @@ const Index = () => {
             <p className="font-heading text-2xl md:text-4xl text-foreground tracking-[0.2em] uppercase mb-6">Renegade Immortal</p>
           </motion.div>
           <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-body text-lg md:text-xl text-foreground/70 max-w-xl mx-auto mb-10">
-            The Journey of Wang Lin Across Gods, Demons, and Devils
+            {t("home.description")}
           </motion.p>
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.8 }} className="flex flex-wrap justify-center gap-4">
             <Link to="/guide" className="px-6 py-3 rounded-md gradient-gold font-heading text-sm tracking-wider text-primary-foreground hover:opacity-90 transition-opacity">
-              Start Here
+              {t("guide.beginners")}
             </Link>
             <Link to="/characters" className="px-6 py-3 rounded-md border border-primary/30 font-heading text-sm tracking-wider text-primary hover:bg-primary/10 transition-colors">
-              Explore Characters
+              {t("nav.characters")}
             </Link>
             <Link to="/daos" className="px-6 py-3 rounded-md border border-border font-heading text-sm tracking-wider text-foreground hover:border-primary/30 transition-colors">
-              Discover Daos
+              {t("nav.world")}
             </Link>
           </motion.div>
         </div>

@@ -4,8 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useT } from "@/contexts/TranslationContext";
 
 export default function LoginPage() {
+  const { t } = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,12 +34,12 @@ export default function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md gradient-card border border-border rounded-lg p-8"
         >
-          <h1 className="font-heading text-2xl text-primary text-center mb-2 tracking-wider">Enter the Sect</h1>
-          <p className="text-sm text-muted-foreground font-body text-center mb-6">Sign in to your account</p>
+          <h1 className="font-heading text-2xl text-primary text-center mb-2 tracking-wider">{t("auth.login")}</h1>
+          <p className="text-sm text-muted-foreground font-body text-center mb-6">{t("auth.login")}</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Email</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.email")}</label>
               <input
                 type="email"
                 required
@@ -48,7 +50,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">Password</label>
+              <label className="text-xs font-heading text-muted-foreground tracking-wider uppercase block mb-1">{t("auth.password")}</label>
               <input
                 type="password"
                 required
@@ -63,17 +65,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-2.5 rounded gradient-gold font-heading text-sm tracking-wider text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Entering..." : "Sign In"}
+              {loading ? t("common.loading") : t("auth.login")}
             </button>
           </form>
 
           <div className="mt-4 text-center space-y-2">
             <Link to="/forgot-password" className="text-xs text-primary hover:underline font-body block">
-              Forgot your password?
+              {t("auth.forgot_password")}
             </Link>
             <p className="text-xs text-muted-foreground font-body">
-              No account?{" "}
-              <Link to="/signup" className="text-primary hover:underline">Join the Sect</Link>
+              {t("auth.no_account")}{" "}
+              <Link to="/signup" className="text-primary hover:underline">{t("auth.signup")}</Link>
             </p>
           </div>
         </motion.div>
