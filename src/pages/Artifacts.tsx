@@ -17,24 +17,286 @@ interface ArtifactItem {
 }
 
 const items: ArtifactItem[] = [
-  // Artifacts
+  // ========== TREASURES ==========
+  {
+    name: "Heaven-Defying Bead",
+    type: "artifact",
+    origin: "Unknown origin, bonded to Wang Lin",
+    owner: "Wang Lin",
+    power: "Wang Lin's most critical treasure. Allows entry into Dream Space where time moves 10:1 ratio vs outside world. Can absorb five elements and eventually opens Gate of Emptiness leading to Dao Realm.",
+    firstAppearance: "Chapter 1",
+    storyArc: "The Beginning"
+  },
+  {
+    name: "Billion Soul Flag",
+    type: "artifact",
+    origin: "Soul Refining Sect inheritance",
+    owner: "Wang Lin",
+    power: "Inherited from Soul Refining Sect. Allows control of millions of souls. One of his primary weapons during middle-stage cultivation. Can deploy devastating soul attacks.",
+    firstAppearance: "Soul Refining arc",
+    storyArc: "Sect Master Era"
+  },
+  {
+    name: "Celestial Sealing Stamp",
+    type: "artifact",
+    origin: "Refined by divine retribution",
+    owner: "Wang Lin",
+    power: "Powerful artifact later integrated into spells to form the '18 Layers of Hell Reincarnation Realm'. Can seal and suppress enemies across dimensions.",
+    firstAppearance: "Mid-late arcs",
+    storyArc: "Celestial Techniques"
+  },
+  {
+    name: "Karma Whip (Soul Lasher)",
+    type: "artifact",
+    origin: "Originally Red Butterfly's artifact",
+    owner: "Wang Lin",
+    power: "Originally Red Butterfly's artifact, Wang Lin nourished it with his Karma artistic conception. Strikes directly at the primordial spirit, bypassing physical defense.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Karma Dao Mastery",
+    dao: "Karma"
+  },
+  {
+    name: "Ancient God Trident",
+    type: "artifact",
+    origin: "Ancient God Tu Si's life treasure",
+    owner: "Wang Lin",
+    power: "Life treasure of Ancient God Tu Si. Channels Ancient God power for devastating attacks. Grows stronger with Wang Lin's Ancient God body.",
+    firstAppearance: "Ancient God inheritance arc",
+    storyArc: "Ancient God Integration"
+  },
+  {
+    name: "God Slaying Spear",
+    type: "artifact",
+    origin: "Ancient God Tu Si's life treasure",
+    owner: "Wang Lin",
+    power: "Legendary life treasure of Ancient God Tu Si. Designed to kill Ancient God-level beings. Wang Lin's ultimate weapon for fighting higher-level cultivators.",
+    firstAppearance: "Late arcs",
+    storyArc: "Ancient Race conflicts"
+  },
+  {
+    name: "Heaven-Avoiding Coffin",
+    type: "artifact",
+    origin: "Mysterious origin",
+    owner: "Wang Lin",
+    power: "Used to preserve and eventually resurrect Li Muwan. Can seal a person's life force and soul, preventing death and decay across millennia.",
+    firstAppearance: "Li Muwan death arc",
+    storyArc: "The Obsession with Resurrection"
+  },
+
+  // ========== STANDARD ARTIFACTS ==========
   { name: "Heaven Rending Sword", type: "artifact", origin: "Ancient battlefield", owner: "Wang Lin", power: "Capable of slicing through spatial barriers and dimensional rifts", firstAppearance: "Mid arcs", storyArc: "Outer Realm Exploration" },
   { name: "Soul Flag", type: "artifact", origin: "Underworld Dao refinement", owner: "Wang Lin", power: "Captures and binds souls, can command an army of spirits", firstAppearance: "Early arcs", storyArc: "Foundation Stage", dao: "Underworld" },
   { name: "Ancient God Leather Armor", type: "artifact", origin: "Ancient God remains", owner: "Wang Lin", power: "Provides immense physical defense, enhances Ancient God body", firstAppearance: "Ancient God arc", storyArc: "Ancient God Integration" },
   { name: "Restriction Flag", type: "artifact", origin: "Wang Lin's creation", owner: "Wang Lin", power: "Deploys sealing arrays and binding formations", firstAppearance: "Early arcs", storyArc: "Foundation Stage" },
-  { name: "God Slaying Spear", type: "artifact", origin: "Forged by ancient beings", owner: "Various", power: "Legendary weapon designed to kill Ancient God-level beings", firstAppearance: "Late arcs", storyArc: "Ancient Race conflicts" },
   { name: "Celestial Sword", type: "artifact", origin: "Celestial Realm", owner: "Various sect leaders", power: "Standard high-level cultivator weapon with celestial energy", firstAppearance: "Various", storyArc: "Multiple arcs" },
   { name: "Mosquito Beast", type: "artifact", origin: "Ancient creature", owner: "Wang Lin", power: "Soul-devouring beast companion, grows stronger over time", firstAppearance: "Early arcs", storyArc: "Foundation Stage" },
 
-  // Techniques
-  { name: "Call the Wind", type: "technique", origin: "Early cultivation", owner: "Wang Lin", power: "Summons destructive wind blades; one of Wang Lin's signature early moves", firstAppearance: "Chapter 1-50", storyArc: "Early cultivation", dao: "None (basic)" },
-  { name: "Finger of Death", type: "technique", origin: "Underworld Dao", owner: "Wang Lin", power: "Channels death energy into a single devastating finger strike", firstAppearance: "Mid arcs", storyArc: "Underworld Dao Mastery", dao: "Underworld" },
-  { name: "Life & Death Domain", type: "technique", origin: "Life/Death Dao mastery", owner: "Wang Lin", power: "Creates a domain where Wang Lin controls life and death of all within", firstAppearance: "Soul Formation arc", storyArc: "Life/Death Dao", dao: "Life/Death" },
-  { name: "Karmic Severance", type: "technique", origin: "Karma Dao", owner: "Wang Lin", power: "Severs karmic ties between beings, weakening their fate connections", firstAppearance: "Late mid arcs", storyArc: "Karma Dao Mastery", dao: "Karma" },
-  { name: "Stop", type: "technique", origin: "Space/Time Dao", owner: "Wang Lin", power: "Freezes time in a localized area; devastating when combined with other Daos", firstAppearance: "Transcendent arc", storyArc: "Space/Time Dao", dao: "Space/Time" },
-  { name: "True/False Reversal", type: "technique", origin: "True/False Dao", owner: "Wang Lin", power: "Makes illusions real and reality into illusion", firstAppearance: "Divine Transformation arc", storyArc: "True/False Dao", dao: "True/False" },
-  { name: "Slaughter Domain", type: "technique", origin: "Slaughter Dao", owner: "Wang Lin", power: "Fills an area with killing intent, amplifying attack power dramatically", firstAppearance: "Core Formation arc", storyArc: "Slaughter Dao Mastery", dao: "Slaughter" },
-  { name: "Ancient God Punch", type: "technique", origin: "Ancient God inheritance", owner: "Wang Lin", power: "Physical attack infused with Ancient God body power", firstAppearance: "Ancient God arc", storyArc: "Ancient God Integration" },
+  // ========== SIGNATURE TECHNIQUES ==========
+  {
+    name: "Ji Realm (Death Spell)",
+    type: "technique",
+    origin: "Taboo state achieved through extreme trauma",
+    owner: "Wang Lin",
+    power: "Mythical and 'taboo' state where Wang Lin's spiritual energy/divine sense turns red. Instantly kills any cultivator at his own level or below just by looking at them. Allows fighting far above his cultivation realm.",
+    firstAppearance: "After Teng Clan massacre",
+    storyArc: "Vengeance and Resilience"
+  },
+  {
+    name: "Finger of Death",
+    type: "technique",
+    origin: "Situ Nan's Three Fingers / Underworld Dao",
+    owner: "Wang Lin",
+    power: "One of Situ Nan's three early celestial spells. Absorbs life force from surroundings. Later evolves to summon the Underworld River, which exists outside the cycle of reincarnation.",
+    firstAppearance: "Early cultivation",
+    storyArc: "Situ Nan's Training",
+    dao: "Underworld"
+  },
+  {
+    name: "Demonic Finger",
+    type: "technique",
+    origin: "Situ Nan's Three Fingers",
+    owner: "Wang Lin",
+    power: "One of Situ Nan's three incomplete celestial spells. Taints the opponent with demonic energy, corrupting their cultivation and soul.",
+    firstAppearance: "Early cultivation",
+    storyArc: "Situ Nan's Training"
+  },
+  {
+    name: "Underworld Finger",
+    type: "technique",
+    origin: "Situ Nan's Three Fingers evolution",
+    owner: "Wang Lin",
+    power: "The evolved form that can summon the Underworld River from beyond reincarnation. Deals damage from a realm outside the normal cycle of life and death.",
+    firstAppearance: "Mid arcs",
+    storyArc: "Underworld Dao Mastery",
+    dao: "Underworld"
+  },
+
+  // ========== CELESTIAL EMPEROR SPELLS ==========
+  {
+    name: "Call the Wind",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "Highly powerful art summoning black dragons or spears of wind that tear through space. One of Bai Fan's signature spells.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+  {
+    name: "Summon the Rain",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "Destructive blue crystal drops that can erode and destroy nearly anything they touch. Devastating area-of-effect technique.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+  {
+    name: "Magic Arsenal",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "Creates countless magical weapons that barrage enemies simultaneously. Overwhelming offensive capability.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+  {
+    name: "Celestial Emperor Spell #4",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "One of the six powerful spells inherited from Celestial Emperor Bai Fan.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+  {
+    name: "Celestial Emperor Spell #5",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "One of the six powerful spells inherited from Celestial Emperor Bai Fan.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+  {
+    name: "Celestial Emperor Spell #6",
+    type: "technique",
+    origin: "Celestial Emperor Bai Fan's 6 Spells",
+    owner: "Wang Lin",
+    power: "One of the six powerful spells inherited from Celestial Emperor Bai Fan.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Celestial Emperor Legacy"
+  },
+
+  // ========== ANCIENT GOD TECHNIQUES ==========
+  {
+    name: "Ancient God Body",
+    type: "technique",
+    origin: "Ancient God Tu Si inheritance",
+    owner: "Wang Lin",
+    power: "Wang Lin reconstructs his body into that of an Ancient God, gaining immense physical strength. Stars on forehead represent power level. Can fight purely with physical power.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient God Integration"
+  },
+  {
+    name: "Ancient God Transformation",
+    type: "technique",
+    origin: "Ancient God bloodline",
+    owner: "Wang Lin",
+    power: "Transforms into Ancient God form with increased size, strength, and power. Forehead stars glow with divine light.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient God Integration"
+  },
+  {
+    name: "Ancient God Punch",
+    type: "technique",
+    origin: "Ancient God inheritance",
+    owner: "Wang Lin",
+    power: "Physical attack infused with Ancient God body power. Can shatter mountains and crack space with raw force.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient God Integration"
+  },
+
+  // ========== DAO DOMAINS & ORIGINAL SPELLS ==========
+  {
+    name: "Life & Death Domain",
+    type: "technique",
+    origin: "Life/Death Dao mastery",
+    owner: "Wang Lin",
+    power: "Formed after living as a mortal for a century. Creates a domain where Wang Lin controls the cycle of reincarnation of all within. Absolute control over life and death.",
+    firstAppearance: "Soul Formation arc",
+    storyArc: "Life/Death Dao",
+    dao: "Life/Death"
+  },
+  {
+    name: "Karma Domain",
+    type: "technique",
+    origin: "Karma Dao mastery",
+    owner: "Wang Lin",
+    power: "Evolved from Life and Death Domain. Targets the karmic cause and effect of enemies. Can manipulate fate and sever destiny connections.",
+    firstAppearance: "Late mid arcs",
+    storyArc: "Karma Dao Mastery",
+    dao: "Karma"
+  },
+  {
+    name: "Sundered Night",
+    type: "technique",
+    origin: "Wang Lin's self-created original spell",
+    owner: "Wang Lin",
+    power: "First self-created original spell based on Dao of Beginning and End (Creation and Extermination). Represents Wang Lin's true understanding of his path.",
+    firstAppearance: "Third Step arc",
+    storyArc: "Original Spell Creation",
+    dao: "Absolute Beginning/Absolute End"
+  },
+  {
+    name: "Flowing Time",
+    type: "technique",
+    origin: "Wang Lin's self-created original spell",
+    owner: "Wang Lin",
+    power: "High-level original spell utilizing Dao of Time. Manipulates aging or movement of targets. Can accelerate or decelerate time on enemies.",
+    firstAppearance: "Third Step arc",
+    storyArc: "Original Spell Creation",
+    dao: "Time"
+  },
+  {
+    name: "Stop",
+    type: "technique",
+    origin: "Space/Time Dao",
+    owner: "Wang Lin",
+    power: "Freezes time in a localized area. Devastating when combined with other Daos. Allows Wang Lin to act while enemies are frozen.",
+    firstAppearance: "Transcendent arc",
+    storyArc: "Space/Time Dao",
+    dao: "Space/Time"
+  },
+  {
+    name: "True/False Reversal",
+    type: "technique",
+    origin: "True/False Dao",
+    owner: "Wang Lin",
+    power: "Makes illusions real and reality into illusion. Can turn attacks into nothingness or make imaginary attacks real.",
+    firstAppearance: "Divine Transformation arc",
+    storyArc: "True/False Dao",
+    dao: "True/False"
+  },
+  {
+    name: "Slaughter Domain",
+    type: "technique",
+    origin: "Slaughter Dao",
+    owner: "Wang Lin",
+    power: "Fills an area with killing intent, amplifying attack power dramatically. Created from Wang Lin's countless battles and killings.",
+    firstAppearance: "Core Formation arc",
+    storyArc: "Slaughter Dao Mastery",
+    dao: "Slaughter"
+  },
+  {
+    name: "Karmic Severance",
+    type: "technique",
+    origin: "Karma Dao",
+    owner: "Wang Lin",
+    power: "Severs karmic ties between beings, weakening their fate connections. Can nullify relationships and inherited karma.",
+    firstAppearance: "Late mid arcs",
+    storyArc: "Karma Dao Mastery",
+    dao: "Karma"
+  },
 ];
 
 const types = ["All", "artifact", "technique"];
