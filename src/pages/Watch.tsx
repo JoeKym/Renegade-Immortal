@@ -6,6 +6,7 @@ import {
   Tv, Clock, List, Grid, Volume2, Eye, PlaySquare
 } from "lucide-react";
 import { VideoPlayer } from "@/components/watch/VideoPlayer";
+import { useT } from "@/contexts/TranslationContext";
 
 interface AniListData {
   id: number;
@@ -74,6 +75,7 @@ function formatTimeUntil(seconds: number): string {
 }
 
 export default function WatchPage() {
+  const { t } = useT();
   const [search, setSearch] = useState("");
   const [selectedEpisode, setSelectedEpisode] = useState<number | null>(null);
   const [aniData, setAniData] = useState<AniListData | null>(null);
@@ -359,18 +361,15 @@ export default function WatchPage() {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
               {aniData?.averageScore && (
                 <span className="flex items-center gap-1 text-xs text-yellow-400 font-body">
-                  <Star size={12} fill="currentColor" /> {aniData.averageScore / 10}/10
+                  <Star size={12} fill="currentColor" /> {(aniData.averageScore / 10).toFixed(1)} {t("watch.rating")}
                 </span>
               )}
               <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
-                <Tv size={12} /> {releasedCount} episodes
+                <Tv size={12} /> {t("watch.episode_count", { count: releasedCount })}
               </span>
               {aniData?.status && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
-                  <Volume2 size={12} />
-                  {aniData.status === "RELEASING" ? (
-                    <span className="text-green-400">Airing</span>
-                  ) : aniData.status}
+                  {aniData.status === "RELEASING" ? t("watch.airing") : t("watch.completed")}
                 </span>
               )}
               {studio && (

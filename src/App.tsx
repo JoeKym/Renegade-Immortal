@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/components/AuthProvider";
+import { TranslationProvider } from "@/contexts/TranslationContext";
 import Index from "./pages/Index";
 import Characters from "./pages/Characters";
 import Daos from "./pages/Daos";
@@ -48,8 +49,9 @@ const queryClient = new QueryClient();
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
+      <TranslationProvider>
+        <TooltipProvider>
+          <AuthProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -95,6 +97,7 @@ const App = () => (
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>
+      </TranslationProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );

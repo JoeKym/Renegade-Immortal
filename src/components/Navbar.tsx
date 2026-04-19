@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GlobalSearch } from "./GlobalSearch";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
+import { LanguageSelector } from "./LanguageSelector";
 import { MessagesNavLink } from "./MessagesNavLink";
 import { GroupsNavLink } from "./GroupsNavLink";
 import {
@@ -201,6 +202,7 @@ export function Navbar() {
               <Search size={18} />
             </button>
             <ThemeToggle />
+            <LanguageSelector />
             <UserMenu />
             <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-primary transition-colors">
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
