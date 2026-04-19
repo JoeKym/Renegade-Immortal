@@ -46,7 +46,20 @@ export default function Voidy() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Dynamic mobile detection with resize listener
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setSidebarOpen(false);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const authHeader = useMemo(() => {
     return session?.access_token ? `Bearer ${session.access_token}` : "";
@@ -116,6 +129,10 @@ export default function Voidy() {
     setActiveConversationId(id);
     loadMessages(id);
     if (isMobile) setSidebarOpen(false);
+  };
+
+  const closeSidebarMobile = () => {
+    if (isMobile && sidebarOpen) setSidebarOpen(false);
   };
 
   const deleteConversation = async (id: string, e: React.MouseEvent) => {
@@ -395,11 +412,18 @@ ${conversationText}`;
   return (
     <Layout>
       <VoidyBackground />
-      <div className="flex h-screen pt-16">
+      <div className="flex h-[calc(100dvh)] pt-16 relative">
+        {/* Mobile overlay */}
+        {isMobile && sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-10"
+            onClick={closeSidebarMobile}
+          />
+        )}
         <motion.div
           initial={{ x: -300 }}
           animate={{ x: sidebarOpen ? 0 : -300 }}
-          className={`fixed md:relative z-20 w-72 h-[calc(100vh-4rem)] bg-card/95 backdrop-blur-md border-r border-border flex flex-col ${sidebarOpen ? "" : "hidden md:flex"}`}
+          className={`fixed md:relative z-20 w-72 h-[calc(100dvh-4rem)] bg-card/95 backdrop-blur-md border-r border-border flex flex-col ${sidebarOpen ? "" : "hidden md:flex"} ${isMobile && sidebarOpen ? "shadow-2xl" : ""}`}
         >
           <div className="p-4 border-b border-border">
             <Button onClick={createConversation} className="w-full gap-2"><Plus size={16} /> New Chat</Button>
@@ -445,7 +469,7 @@ ${conversationText}`;
           </ScrollArea>
         </motion.div>
 
-        <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] bg-background/50">
+        <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] bg-background/50">
           <div className="flex items-center gap-2 p-4 border-b border-border bg-card/50 backdrop-blur-sm">
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden"><ChevronLeft size={20} /></Button>
             <div className="flex items-center gap-2">
@@ -459,7 +483,7 @@ ${conversationText}`;
             <VoidyChatMessages messages={messages} isLoading={isLoading} suggestions={suggestions} onSuggestion={sendMessage} />
           </ScrollArea>
 
-          <div className="border-t border-border p-3 bg-card/80 backdrop-blur-sm">
+          <div className="border-t border-border p-2 sm:p-3 bg-card/80 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-2 px-1">
               {messages.length > 0 && (
                 <div className="flex gap-2">
@@ -472,17 +496,18 @@ ${conversationText}`;
             <form onSubmit={handleSubmit} className="flex gap-2">
               <div className="flex-1 relative">
                 <Textarea
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, MAX_CHARS))}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask Voidy a question..."
-                  className="min-h-[44px] max-h-[120px] resize-none text-sm bg-background/50 pr-16"
+                  className="min-h-[48px] sm:min-h-[44px] max-h-[120px] resize-none text-sm bg-background/50 pr-16 text-base sm:text-sm"
                   rows={1}
                   disabled={isLoading}
                 />
-                <span className={`absolute right-2 bottom-1.5 text-[10px] ${input.length > MAX_CHARS * 0.9 ? "text-destructive" : "text-muted-foreground/50"}`}>{input.length}/{MAX_CHARS}</span>
+                <span className={`absolute right-2 bottom-2 text-[10px] ${input.length > MAX_CHARS * 0.9 ? "text-destructive" : "text-muted-foreground/50"}`}>{input.length}/{MAX_CHARS}</span>
               </div>
-              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0 h-[44px] w-[44px]"><Send size={18} /></Button>
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0 h-[48px] w-[48px] sm:h-[44px] sm:w-[44px]"><Send size={20} className="sm:w-[18px] sm:h-[18px]" /></Button>
             </form>
           </div>
         </div>

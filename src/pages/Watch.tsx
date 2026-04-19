@@ -79,6 +79,7 @@ export default function WatchPage() {
   const [aniData, setAniData] = useState<AniListData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<string>("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
   const [lastWatched, setLastWatched] = useState<number | null>(null);
@@ -95,6 +96,26 @@ export default function WatchPage() {
       console.warn("Failed to load local watch history");
     }
   }, []);
+
+  // Live countdown timer
+  useEffect(() => {
+    if (!aniData?.nextAiringEpisode) return;
+    
+    const updateCountdown = () => {
+      const now = Date.now();
+      const nextAiring = aniData.nextAiringEpisode;
+      if (!nextAiring) return;
+      
+      // Use the corrected Sunday release time (subtract 1 day from AniList Monday time)
+      const sundayAiringAt = (nextAiring.airingAt - 86400) * 1000;
+      const timeUntil = Math.max(0, Math.floor((sundayAiringAt - now) / 1000));
+      setCountdown(formatTimeUntil(timeUntil));
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [aniData?.nextAiringEpisode]);
 
   useEffect(() => {
     async function fetchData() {
@@ -150,20 +171,47 @@ export default function WatchPage() {
           }
         } catch (_) { /* Jikan failure is non-fatal */ }
 
-        // Calculate expected current released episodes based on a known date.
-        // Episode 131 was released on March 9, 2026.
-        const BASE_DATE = new Date("2026-03-09T03:00:00Z").getTime();
-        const BASE_EPISODE = 131;
+        // Calculate expected current released episodes based on known Sunday releases
+        // Episodes release every Sunday at ~3:00 AM UTC
         const now = Date.now();
-        const weeksPassed = Math.floor((now - BASE_DATE) / (7 * 24 * 60 * 60 * 1000));
-        const KNOWN_RELEASED = BASE_EPISODE + Math.max(0, weeksPassed);
-
-        // Calculate a synthesized next airing episode if APIs fall short.
-        const nextAirDate = BASE_DATE + (Math.max(0, weeksPassed) + 1) * 7 * 24 * 60 * 60 * 1000;
+        const SUNDAY_RELEASE_HOUR = 3; // 3 AM UTC
+        
+        // Find the most recent Sunday at 3 AM UTC
+        const getLastSunday3AM = (date: Date) => {
+          const d = new Date(date);
+          d.setUTCMinutes(0, 0, 0);
+          // Go back to last Sunday
+          const day = d.getUTCDay(); // 0 = Sunday
+          const diff = day === 0 ? 0 : day;
+          d.setUTCDate(d.getUTCDate() - diff);
+          d.setUTCHours(SUNDAY_RELEASE_HOUR);
+          return d.getTime();
+        };
+        
+        // Episode 131 released on March 9, 2026 (Sunday)
+        const EP_131_RELEASE = new Date("2026-03-09T03:00:00Z").getTime();
+        const lastSunday3AM = getLastSunday3AM(new Date(now));
+        
+        // Calculate weeks since episode 131
+        const weeksSince131 = Math.floor((lastSunday3AM - EP_131_RELEASE) / (7 * 24 * 60 * 60 * 1000));
+        const KNOWN_RELEASED = 131 + Math.max(0, weeksSince131);
+        
+        // Calculate next Sunday 3 AM
+        const nextSunday = new Date(lastSunday3AM);
+        if (now >= lastSunday3AM + 7 * 24 * 60 * 60 * 1000) {
+          // We're past this week's release, next is next Sunday
+          nextSunday.setUTCDate(nextSunday.getUTCDate() + 7);
+        } else if (now < lastSunday3AM) {
+          // We calculated previous Sunday, this Sunday is coming
+        } else {
+          // We're between release time and next Sunday
+          nextSunday.setUTCDate(nextSunday.getUTCDate() + 7);
+        }
+        
         const synthesizedNextAiring = {
-          airingAt: Math.floor(nextAirDate / 1000),
+          airingAt: Math.floor(nextSunday.getTime() / 1000),
           episode: KNOWN_RELEASED + 1,
-          timeUntilAiring: Math.max(0, Math.floor((nextAirDate - now) / 1000))
+          timeUntilAiring: Math.max(0, Math.floor((nextSunday.getTime() - now) / 1000))
         };
 
         // Jikan sometimes over-counts by including unreleased future episodes (e.g., 180).
@@ -341,12 +389,16 @@ export default function WatchPage() {
             <span className="text-xs font-body text-muted-foreground">
               Episode {aniData.nextAiringEpisode.episode} airs in{" "}
               <span className="text-primary font-semibold">
-                {formatTimeUntil(aniData.nextAiringEpisode.timeUntilAiring - 86400)}
+                {countdown || formatTimeUntil(Math.max(0, aniData.nextAiringEpisode.timeUntilAiring - 86400))}
               </span>
               {" "}·{" "}
-              {new Date((aniData.nextAiringEpisode.airingAt - 86400) * 1000).toLocaleString("en-US", {
-                weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
-              })}
+              {(() => {
+                const sundayAiringAt = (aniData.nextAiringEpisode.airingAt - 86400) * 1000;
+                const date = new Date(sundayAiringAt);
+                return date.toLocaleString("en-US", {
+                  weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
+                });
+              })()}
             </span>
           </div>
         </div>
