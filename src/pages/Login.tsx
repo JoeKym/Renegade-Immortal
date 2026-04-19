@@ -17,38 +17,49 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Try login with email first
-    let loginEmail = email;
+    let authData;
+    let error;
 
-    // If not an email format, try to find user by username
+    // If not an email format, use Edge Function for username login
     if (!email.includes("@")) {
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("username", email)
-        .single();
+      const { data, error: invokeError } = await supabase.functions.invoke("login-with-username", {
+        body: { username: email, password },
+      });
 
-      if (profileError || !profileData) {
-        toast.error("Username not found");
+      if (invokeError) {
+        toast.error(invokeError.message);
         setLoading(false);
         return;
       }
 
-      // Get email from auth using user_id
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.user_id);
-      if (userError || !userData?.user?.email) {
-        toast.error("Could not find user email");
+      if (data?.error) {
+        toast.error(data.error);
         setLoading(false);
         return;
       }
-      loginEmail = userData.user.email;
+
+      // Set the session from Edge Function response
+      if (data?.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+        authData = { user: data.user, session: data.session };
+      }
+    } else {
+      // Regular email login
+      const result = await supabase.auth.signInWithPassword({ email, password });
+      authData = result.data;
+      error = result.error;
+
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
+      }
     }
 
-    const { data: authData, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
-
-    if (error) {
-      toast.error(error.message);
-    } else if (authData?.user) {
+    if (authData?.user) {
       // Fetch user profile for welcome message and username check
       const { data: profile } = await supabase
         .from("profiles")

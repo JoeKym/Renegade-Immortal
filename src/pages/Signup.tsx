@@ -31,6 +31,18 @@ export default function SignupPage() {
       return;
     }
 
+    // Check if username already exists
+    const { data: existingUser } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("username", username.trim().toLowerCase())
+      .single();
+
+    if (existingUser) {
+      toast.error("Username already taken");
+      return;
+    }
+
     setLoading(true);
     const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
