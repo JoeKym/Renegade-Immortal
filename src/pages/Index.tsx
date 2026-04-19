@@ -51,7 +51,7 @@ const Index = () => {
       const { data } = await supabase.from("reviews").select("page_path, rating").neq("page_path", "/_contact_inbox");
       if (!data) return;
       const stats: Record<string, { count: number; sum: number }> = {};
-      data.forEach((r: any) => {
+      data.forEach((r: { page_path: string; rating: number }) => {
         if (!stats[r.page_path]) stats[r.page_path] = { count: 0, sum: 0 };
         stats[r.page_path].count++;
         stats[r.page_path].sum += r.rating;
@@ -117,14 +117,15 @@ const Index = () => {
                 {[
                   { label: "Name", value: "Wang Lin (王林)" },
                   { label: "Alias", value: "Tie Zhu, Ma Liang,Lü Zihao, Ceng Niu, Xu Mu, The Ancestor" },
-                  { label: "Cultivation Realm", value: "Third Step — Transcendent" },
-                  { label: "Dao", value: "Underworld, Slaughter, Life/Death, Karma, True/False, Space/Time" },
+                  { label: "Cultivation Realm", value: "Fourth Step — Heaven Trampling Realm (Transcendent)" },
+                  { label: "Essences", value: "14 Total: 5 Ethereal, 6 Corporeal (Five Elements), 4 Special" },
+                  { label: "True Bodies", value: "Five Elements True Body (Life) + Slaughter True Body/Black Clone (Death)" },
                   { label: "Affiliation / Sect", value: "Heng Yue Sect → Tian Yun Sect → Heaven-Defying Alliance" },
-                  { label: "Master", value: "Situ Nan" },
-                  { label: "Disciples", value: "Thirteen, Zhou Ru" },
-                  { label: "Enemies", value: "Teng Huayuan, Liu Mei(Mu Bingmei), Ling Tianhou, All-Seer" },
+                  { label: "Master", value: "Situ Nan, Ancient God Tu Si (inheritance), Qing Lin" },
+                  { label: "Disciples", value: "13th Boy, Thirteen, Zhou Ru, Xie Qing" },
+                  { label: "Enemies", value: "Teng Huayuan (Teng Clan), All-Seer/Tian Yunzi, Liu Mei, Tuo Sen, Ling Tianhou, Seven Colored Sovereign, Heaven itself" },
                   { label: "First Appearance", value: "Chapter 1 — Planet Suzaku" },
-                  { label: "Status", value: "Alive — Transcendent" },
+                  { label: "Status", value: "Alive — Transcendent, Beyond all classification" },
                 ].map((item) => (
                   <div key={item.label} className="gradient-card rounded-lg p-3 border border-border">
                     <span className="font-heading text-[11px] text-primary/70 tracking-wider uppercase block mb-0.5">{item.label}</span>
