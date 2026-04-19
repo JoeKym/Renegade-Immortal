@@ -493,6 +493,23 @@ function CharacterCard({
               {char.disciples && char.disciples.length > 0 && (
                 <ProfileField label="Disciples" value={char.disciples.join(", ")} />
               )}
+              {char.disciplesDetails && char.disciplesDetails.length > 0 && (
+                <div>
+                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Disciples Detailed</span>
+                  <div className="mt-2 space-y-3">
+                    {char.disciplesDetails.map((d, i) => (
+                      <div key={i} className="p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-heading text-primary">{d.name}</span>
+                          <span className="text-[10px] font-body text-muted-foreground">{d.status}</span>
+                        </div>
+                        <p className="text-xs text-primary/80 font-body mb-1">{d.relationship}</p>
+                        <p className="text-xs text-foreground/70 font-body">{d.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {char.majorBattles && char.majorBattles.length > 0 && (
                 <div>
                   <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">

@@ -46,6 +46,12 @@ export interface Character {
   nationalRoles?: string[];
   master?: string;
   disciples?: string[];
+  disciplesDetails?: {
+    name: string;
+    relationship: string;
+    description: string;
+    status: string;
+  }[];
   enemies?: string[];
   status?: string;
   firstAppearance?: string;
@@ -93,7 +99,7 @@ export const characters: Character[] = [
       "Ancient Dao — Guardian (cited in later stages, never formally acknowledged)"
     ],
     master: "Situ Nan (unofficial), Ancient God Tu Si (inheritance), Qing Lin",
-    disciples: ["13th Boy", "Thirteen", "Zhou Ru", "Xie Qing"],
+    disciples: ["Thirteen (Shi San) — Most loyal disciple, Forsaken Immortal Tribe youth", "Xie Qing — Talented disciple from Allheaven Star System", "Xi Zi Feng — Female disciple, unrequited love", "Zhou Ru — Protected junior, tied to Li Muwan's soul fragment", "Tie Yan — Early-mid stage disciple", "Lian Daofei — Amnesiac Grand Empyrean, learned Dao principles", "Du Jian — First Immortal Guard, puppet-servant entrusted with protecting Wang Ping"],
     enemies: ["Teng Huayuan (Teng Clan)", "All-Seer/Tian Yunzi", "Liu Mei (early)", "Tuo Sen", "Ling Tianhou", "Seven Colored Sovereign", "Heaven itself"],
     status: "Alive — Transcendent, Beyond all classification",
     firstAppearance: "Chapter 1",
@@ -104,6 +110,50 @@ export const characters: Character[] = [
     cultivationRealm: "Fourth Step / Transcendence",
     dao: ["Life/Death", "Karma", "True/False", "Dream", "Reincarnation", "Thunder", "Fire", "Water", "Earth", "Wood", "Metal", "Slaughter", "Restriction", "Absolute Beginning", "Absolute End"],
     image: wangLinImg,
+    disciplesDetails: [
+      {
+        name: "Thirteen (Shi San)",
+        relationship: "Primary Disciple — Most Loyal",
+        description: "A youth from the Forsaken Immortal Tribe whom Wang Lin took in. Thirteen's unwavering devotion is a highlight of his character arc. Often considered Wang Lin's most loyal and significant disciple.",
+        status: "Devoted disciple"
+      },
+      {
+        name: "Xie Qing",
+        relationship: "Primary Disciple — Talented",
+        description: "A talented and dedicated disciple whom Wang Lin guided during his time in the Allheaven Star System or later stages of his journey. Showed exceptional dedication to his master's teachings.",
+        status: "Active disciple"
+      },
+      {
+        name: "Xi Zi Feng",
+        relationship: "Primary Disciple — Female",
+        description: "A female disciple who developed deep feelings for Wang Lin. Her story is often associated with themes of unrequited love and regret within Wang Lin's legacy.",
+        status: "Disciple with unrequited love"
+      },
+      {
+        name: "Zhou Ru",
+        relationship: "Protected Junior / Disciple",
+        description: "Though sometimes viewed more as a junior Wang Lin protected, she is officially listed among his disciples. Connected to a reincarnation of Li Muwan's soul fragment, giving her special significance in Wang Lin's life.",
+        status: "Protected disciple"
+      },
+      {
+        name: "Tie Yan",
+        relationship: "Early-Mid Stage Disciple",
+        description: "Identified in records as a disciple associated with the early to mid-stages of Wang Lin's cultivation journey. Less prominent but still part of the official disciple legacy.",
+        status: "Early disciple"
+      },
+      {
+        name: "Lian Daofei",
+        relationship: "Student in Spirit",
+        description: "While technically a powerful expert (an amnesiac Grand Empyrean), their relationship involved an exchange of knowledge where Lian Daofei learned principles of the Dao from Wang Lin, leading some to categorize him as a 'student' in spirit rather than formal disciple.",
+        status: "Grand Empyrean student"
+      },
+      {
+        name: "Du Jian",
+        relationship: "First Immortal Guard",
+        description: "Wang Lin's first 'Immortal Guard.' While not a traditional disciple, he was a cultivator Wang Lin forcefully refined into a puppet-servant. Later entrusted with protecting Wang Lin's son, Wang Ping, showing the depth of trust despite the unconventional relationship.",
+        status: "Immortal Guard / Protector of Wang Ping"
+      }
+    ],
     quotes: [
       "I, Wang Lin, will pay back ten times the grievances I have suffered!",
       "Heaven will not give me a way, I will find my own way!",
