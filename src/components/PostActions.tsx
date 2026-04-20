@@ -179,7 +179,7 @@ export function PostActions({ postId, likeCount, isLiked, onLike }: PostActionsP
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {comments.map(c => (
                 <div key={c.id} className="flex items-start gap-2 bg-muted/30 rounded-md p-2.5">
-                  <Link to={c.author_username ? `/u/${c.author_username}` : "#"}>
+                  <Link to={c.author_username ? `/cultivator/${c.author_username}` : "#"}>
                     <Avatar className="h-5 w-5 border border-primary/20">
                       <AvatarImage src={c.author_avatar || undefined} />
                       <AvatarFallback className="bg-primary/10 text-primary text-[8px] font-heading">
@@ -190,7 +190,7 @@ export function PostActions({ postId, likeCount, isLiked, onLike }: PostActionsP
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <Link
-                        to={c.author_username ? `/u/${c.author_username}` : "#"}
+                        to={c.author_username ? `/cultivator/${c.author_username}` : "#"}
                         className="font-heading text-[11px] text-foreground hover:text-primary transition-colors"
                       >
                         {c.author_name}

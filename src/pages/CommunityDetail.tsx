@@ -592,7 +592,7 @@ export default function CommunityDetail() {
                             <AvatarFallback className="bg-primary/10 text-primary text-[10px]">{author.display_name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           {author.username ? (
-                            <Link to={`/u/${author.username}`} className="font-heading text-xs text-primary/80 hover:text-primary hover:underline">{author.display_name}</Link>
+                            <Link to={`/cultivator/${author.username}`} className="font-heading text-xs text-primary/80 hover:text-primary hover:underline">{author.display_name}</Link>
                           ) : (
                             <span className="font-heading text-xs text-primary/80">{author.display_name}</span>
                           )}
@@ -671,7 +671,7 @@ export default function CommunityDetail() {
                         </Avatar>
                         <div className="flex-1">
                           {p.username ? (
-                            <Link to={`/u/${p.username}`} className="font-heading text-sm text-foreground hover:text-primary hover:underline">{p.display_name}</Link>
+                            <Link to={`/cultivator/${p.username}`} className="font-heading text-sm text-foreground hover:text-primary hover:underline">{p.display_name}</Link>
                           ) : (
                             <span className="font-heading text-sm text-foreground">{p.display_name}</span>
                           )}

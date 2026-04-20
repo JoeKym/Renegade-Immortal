@@ -266,7 +266,7 @@ export default function Feed() {
                       className="gradient-card border border-border rounded-lg p-5 hover:border-primary/20 transition-colors"
                     >
                       <div className="flex items-center gap-3 mb-3">
-                        <Link to={post.author_username ? `/u/${post.author_username}` : "#"}>
+                        <Link to={post.author_username ? `/cultivator/${post.author_username}` : "#"}>
                           <Avatar className="h-8 w-8 border border-primary/20">
                             <AvatarImage src={post.author_avatar || undefined} />
                             <AvatarFallback className="bg-primary/10 text-primary font-heading text-xs">
@@ -277,7 +277,7 @@ export default function Feed() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <Link
-                              to={post.author_username ? `/u/${post.author_username}` : "#"}
+                              to={post.author_username ? `/cultivator/${post.author_username}` : "#"}
                               className="font-heading text-sm text-foreground hover:text-primary transition-colors"
                             >
                               {post.author_name}
@@ -371,7 +371,7 @@ export default function Feed() {
                       {activeMembers.map((m) => (
                         <Link
                           key={m.user_id}
-                          to={m.username ? `/u/${m.username}` : "#"}
+                          to={m.username ? `/cultivator/${m.username}` : "#"}
                           className="flex items-center gap-3 group"
                         >
                           <Avatar className="h-7 w-7 border border-primary/20">

@@ -115,7 +115,7 @@ export function TopReviews() {
                     </Avatar>
                   )}
                   {r.user_id && usernames[r.user_id] ? (
-                    <Link to={`/u/${usernames[r.user_id]}`} className="font-heading text-xs text-primary/70 hover:text-primary hover:underline transition-colors">
+                    <Link to={`/cultivator/${usernames[r.user_id]}`} className="font-heading text-xs text-primary/70 hover:text-primary hover:underline transition-colors">
                       — {r.author_name}
                     </Link>
                   ) : (

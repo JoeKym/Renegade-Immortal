@@ -224,9 +224,11 @@ export function Layout({ children }: { children: ReactNode }) {
             <Link to="/dmca" className="text-muted-foreground hover:text-primary transition-colors">DMCA</Link>
           </div>
 
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <VisitorCounter />
-          </div>
+          {isAdmin && (
+            <div className="flex items-center justify-center gap-4 mb-3">
+              <VisitorCounter />
+            </div>
+          )}
           <div className="text-center">
             <p className="text-muted-foreground/50 font-body text-xs">
               All lore content based on the original novel by Er Gen

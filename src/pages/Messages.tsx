@@ -718,7 +718,7 @@ export default function Messages() {
                         {activeOtherUserId && onlineUsers.has(activeOtherUserId) ? (
                           <p className="text-[10px] text-green-500">Online</p>
                         ) : activeOtherProfile?.username ? (
-                          <Link to={`/u/${activeOtherProfile.username}`} className="text-[10px] text-primary/60 hover:text-primary">@{activeOtherProfile.username}</Link>
+                          <Link to={`/cultivator/${activeOtherProfile.username}`} className="text-[10px] text-primary/60 hover:text-primary">@{activeOtherProfile.username}</Link>
                         ) : null}
                       </div>
                       <button

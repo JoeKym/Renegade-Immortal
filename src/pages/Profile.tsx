@@ -248,7 +248,7 @@ export default function ProfilePage() {
                     {username && !usernameError && (
                       <p className="text-[10px] text-muted-foreground font-body mt-1">
                         Your profile will be visible at{" "}
-                        <span className="text-primary">/u/{username}</span>
+                        <span className="text-primary">/cultivator/{username}</span>
                       </p>
                     )}
                   </div>

@@ -375,7 +375,7 @@ export default function CommunitiesPage() {
                         transition={{ delay: Math.min(i * 0.05, 0.5) }}
                       >
                         <Link
-                          to={m.username ? `/u/${m.username}` : "#"}
+                          to={m.username ? `/cultivator/${m.username}` : "#"}
                           className={`gradient-card border border-border rounded-lg p-5 flex items-start gap-4 hover:border-primary/30 transition-colors block ${!m.username ? "pointer-events-none" : ""}`}
                         >
                           <Avatar className="h-12 w-12 shrink-0 border border-primary/20">

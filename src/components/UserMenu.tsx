@@ -20,7 +20,7 @@ export function UserMenu() {
   }
 
   const profileWithMeta = profile as { username?: string; avatar_url?: string } | null;
-  const profileLink = profileWithMeta?.username ? `/u/${profileWithMeta.username}` : "/profile";
+  const profileLink = profileWithMeta?.username ? `/cultivator/${profileWithMeta.username}` : "/profile";
   const avatarUrl = profileWithMeta?.avatar_url;
   const displayName = profile?.display_name || t("profile.title");
 
