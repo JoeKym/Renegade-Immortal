@@ -1422,6 +1422,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.watch": "Tazama",
     "nav.ai_chat": "Chat AI",
     "nav.news": "Habari",
+    "nav.donghua": "Donghua",
 
     // World section
     "world.daos": "Daos",
