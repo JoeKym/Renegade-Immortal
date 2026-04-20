@@ -111,7 +111,7 @@ const translations: Record<string, Record<string, string>> = {
     "world.locations": "Locations",
     "world.realm": "Realm",
     "world.sect": "Sect",
-    "world.cultivation": "Cultivation System",
+    "world.cultivation": "Cultivation",
     "world.artifacts": "Artifacts",
 
     // Guide
@@ -896,7 +896,7 @@ const translations: Record<string, Record<string, string>> = {
     "world.locations": "Orte",
     "world.realm": "Reich",
     "world.sect": "Sekte",
-    "world.cultivation": "Kultivierungssystem",
+    "world.cultivation": "Kultivierung",
     "world.artifacts": "Artefakte",
 
     // Guide
@@ -1496,7 +1496,7 @@ const translations: Record<string, Record<string, string>> = {
     "world.title": "Dunia",
     "world.realms": "Nchi",
     "world.daos_title": "Daos",
-    "world.cultivation_system": "Mfumo wa Kuendeleza",
+    "world.cultivation": "Kuendeleza",
     "world.artifacts_title": "Vifaa",
     "world.locations_title": "Maeneo",
 

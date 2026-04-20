@@ -19,7 +19,7 @@ export function LanguageSelector() {
         <TooltipTrigger asChild>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50 border border-border text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/30 transition-all"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-card/90 backdrop-blur-lg border border-border text-muted-foreground hover:text-primary hover:border-primary transition-all duration-200"
             aria-label="Select language"
             dir={isRTL ? "rtl" : "ltr"}
           >

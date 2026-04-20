@@ -141,9 +141,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       {/* Floating icons - Language, Admin, Notifications */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2">
-        <div className="bg-card/90 backdrop-blur-lg border border-border rounded-full p-1 shadow-lg shadow-primary/10">
-          <LanguageSelector />
-        </div>
+        <LanguageSelector />
         {isAdmin && (
           <Tooltip>
             <TooltipTrigger asChild>

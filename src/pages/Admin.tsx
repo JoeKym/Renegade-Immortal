@@ -1289,6 +1289,12 @@ export default function AdminPage() {
   };
 
   const handleBanUser = async (userId: string, reason: string) => {
+    // Check if user is admin - prevent banning admins
+    const { data: roleData } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").single();
+    if (roleData) {
+      toast.error("Cannot ban administrators");
+      return;
+    }
     const { data, error } = await supabase.from("user_suspensions").insert({
       user_id: userId,
       type: "banned",
