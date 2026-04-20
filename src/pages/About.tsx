@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
@@ -6,6 +7,7 @@ import {
   Shield, Map, Clock, Sparkles, ExternalLink, Code2, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getDonghuaStats } from "@/services/donghua";
 
 const features = [
   { icon: Users, label: "Characters", desc: "Detailed profiles for every major character — cultivation level, dao, relationships, and story arc.", path: "/characters" },
@@ -21,16 +23,30 @@ const features = [
   { icon: Users, label: "Community", desc: "Join fan communities, post theories, and chat with other readers.", path: "/communities" },
 ];
 
-const stats = [
-  { value: "4", label: "Streaming Servers" },
-  { value: "129+", label: "Episodes Covered" },
-  { value: "100+", label: "Characters Documented" },
-  { value: "1", label: "Epic Story" },
-];
-
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
 
 export default function About() {
+  const [stats, setStats] = useState<{ currentEpisode: number; currentChapter: number } | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDonghuaStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch donghua stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const staticStats = [
+    { value: "4", label: "Streaming Servers" },
+    { value: stats ? `${stats.currentEpisode}+` : "129+", label: "Episodes Covered" },
+    { value: stats ? `${stats.currentChapter}+` : "850+", label: "Chapters Adapted" },
+    { value: "1", label: "Epic Story" },
+  ];
+
   return (
     <Layout>
       <PageHero 
@@ -98,7 +114,7 @@ export default function About() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          {stats.map((s) => (
+          {staticStats.map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-5 text-center">
               <p className="font-heading text-3xl text-primary mb-1">{s.value}</p>
               <p className="text-muted-foreground font-body text-xs uppercase tracking-wider">{s.label}</p>

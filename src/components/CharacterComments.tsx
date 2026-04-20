@@ -213,7 +213,7 @@ export function CharacterComments({ characterId, characterName }: { characterId:
                           </Avatar>
                         )}
                         {c.user_id && usernames[c.user_id] ? (
-                          <Link to={`/u/${usernames[c.user_id]}`} className="font-heading text-xs text-primary/80 hover:text-primary hover:underline transition-colors">
+                          <Link to={`/cultivator/${usernames[c.user_id]}`} className="font-heading text-xs text-primary/80 hover:text-primary hover:underline transition-colors">
                             {c.author_name}
                           </Link>
                         ) : (

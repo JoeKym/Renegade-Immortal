@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { BookOpen, Users, Swords, Sparkles, Clock, Tv, ChevronRight } from "lucide-react";
+import { getDonghuaStats } from "@/services/donghua";
 
 const sections = [
   {
@@ -50,6 +52,22 @@ const readingOrder = [
 ];
 
 const GuidePage = () => {
+  const [stats, setStats] = useState<{ currentEpisode: number } | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDonghuaStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch donghua stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const episodeCount = stats?.currentEpisode || 128;
+
   return (
     <Layout>
       <PageHero title="Beginner's Guide" subtitle="New to Renegade Immortal? Start here to understand the world of Xian Ni" />
@@ -136,7 +154,7 @@ const GuidePage = () => {
             <Tv className="mx-auto text-primary mb-4" size={28} />
             <h2 className="font-heading text-xl text-primary tracking-wider mb-3">Watch the Donghua</h2>
             <p className="font-body text-foreground/80 mb-4">
-              The Renegade Immortal donghua (Chinese anime) has 129+ episodes and is ongoing. It adapts the early arcs of the novel with stunning animation.
+              The Renegade Immortal donghua (Chinese anime) has {episodeCount}+ episodes and is ongoing. It adapts the early arcs of the novel with stunning animation.
             </p>
             <Link to="/donghua" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
               Donghua Tracker → <ChevronRight size={14} />

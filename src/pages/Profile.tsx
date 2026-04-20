@@ -129,7 +129,7 @@ export default function ProfilePage() {
       toast.success("Profile updated!");
       await refreshProfile();
       if (trimmedUsername) {
-        navigate(`/u/${trimmedUsername}`);
+        navigate(`/cultivator/${trimmedUsername}`);
       }
     }
   };

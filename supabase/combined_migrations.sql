@@ -1101,7 +1101,7 @@ DECLARE
 BEGIN
   SELECT display_name INTO _follower_name FROM public.profiles WHERE user_id = NEW.follower_id;
   INSERT INTO public.notifications (title, message, type, page_link, target_user_id)
-  VALUES ('New Follower', COALESCE(_follower_name, 'Someone') || ' started following you', 'follow', '/u/' || NEW.follower_id::text, NEW.following_id);
+  VALUES ('New Follower', COALESCE(_follower_name, 'Someone') || ' started following you', 'follow', '/cultivator/' || NEW.follower_id::text, NEW.following_id);
   RETURN NEW;
 END;
 $$;

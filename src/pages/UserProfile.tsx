@@ -275,7 +275,7 @@ export default function UserProfile() {
                   </>
                 )}
                 <ShareMenu
-                  url={`${window.location.origin}/u/${username}`}
+                  url={`${window.location.origin}/cultivator/${username}`}
                   text={`Check out ${profile.display_name}'s cultivator profile!`}
                 />
               </div>

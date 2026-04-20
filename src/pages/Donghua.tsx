@@ -1,29 +1,12 @@
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { BookOpen, Tv, Clock, Calendar, TrendingUp, ExternalLink, Play, ChevronRight, Info } from "lucide-react";
-import { useState } from "react";
-import { ReleaseTimeline } from "@/components/donghua/ReleaseTimeline";
-import { ChapterConverter } from "@/components/donghua/ChapterConverter";
+import { Tv, BookOpen, Clock, Calendar, Play, ChevronRight, TrendingUp, Loader2 } from "lucide-react";
+import { getDonghuaStats, getDonghuaArcs, type DonghuaArc } from "@/services/donghua";
+import { useState, useEffect } from "react";
 
-const adaptationTable = [
-  { range: "1–50", chapters: "1–250", frequency: "1 per week", status: "aired" },
-  { range: "51–100", chapters: "251–600", frequency: "1 per week", status: "aired" },
-  { range: "101–128", chapters: "601–850", frequency: "1 per week", status: "airing" },
-  { range: "129–150", chapters: "851–1000", frequency: "1 per week", status: "upcoming" },
-  { range: "151–200", chapters: "1001–1400", frequency: "1 per week", status: "upcoming" },
-  { range: "201–250", chapters: "1401–1800", frequency: "1 per week", status: "upcoming" },
-  { range: "251–300+", chapters: "1801–2100", frequency: "1 per week", status: "upcoming" },
-];
-
-const storyArcs = [
-  { num: "I", title: "Ji Realm Awakening", episodes: "1–50", chapters: "1–250", status: "completed", desc: "Wang Lin's humble origins on Suzaku Planet, his entry into the Heng Yue Sect, and the discovery of the mysterious bead. His early struggles in the cultivation world forge his iron will." },
-  { num: "II", title: "Underworld & Corporeal Realm", episodes: "51–100", chapters: "251–600", status: "completed", desc: "Wang Lin masters the Underworld Dao, gains recognition among cultivators, and faces the first major betrayals. His cunning nature emerges as he navigates deadly political landscapes." },
-  { num: "III", title: "Ancient God Lands", episodes: "101–150", chapters: "601–1000", status: "airing", desc: "Confrontations with Ancient Races begin. Wang Lin discovers his Ancient God heritage and forges the Dao of Slaughter. The emergence of Tuo Sen and demonic forces threatens all realms." },
-  { num: "IV", title: "Dao Expansion & Alliances", episodes: "151–200", chapters: "1001–1400", status: "upcoming", desc: "Wang Lin forges multiple Daos — Life and Death, Karma, and True/False. His power reaches unprecedented levels as he challenges heavenly forces and builds unlikely alliances." },
-  { num: "V", title: "Heaven-Defying Ascension", episodes: "201–250", chapters: "1401–1800", status: "upcoming", desc: "Wang Lin masters Space/Time Daos. Hunted by celestial beings, he uncovers the truth behind the Cave system and the ancient war between immortals and gods." },
-  { num: "VI", title: "Final Confrontation", episodes: "251–300+", chapters: "1801–2100", status: "upcoming", desc: "The ultimate battle. Wang Lin absorbs the essences of Ancient Gods, Demons, and Devils. He confronts the heavens themselves and achieves true transcendence — defying fate itself." },
-];
+const totalChapters = 2100;
+const totalEstimated = 350;
 
 const storyHighlights = [
   { label: "Protagonist", value: "Wang Lin" },
@@ -38,11 +21,40 @@ const fanPredictions = [
 ];
 
 const DonghuaPage = () => {
-  const totalEstimated = 350;
-  const airedEpisodes = 128;
-  const totalChapters = 2100;
-  const adaptedChapters = 850;
   const [expandedArc, setExpandedArc] = useState<string | null>(null);
+  const [stats, setStats] = useState<{
+    currentEpisode: number;
+    totalEpisodes: number;
+    currentChapter: number;
+    totalChapters: number;
+    episodeProgress: number;
+    chapterProgress: number;
+    currentArc: DonghuaArc | null;
+  } | null>(null);
+  const [arcs, setArcs] = useState<DonghuaArc[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsData, arcsData] = await Promise.all([
+          getDonghuaStats(),
+          getDonghuaArcs(),
+        ]);
+        setStats(statsData);
+        setArcs(arcsData);
+      } catch (error) {
+        console.error("Failed to fetch donghua data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const airedEpisodes = stats?.currentEpisode || 128;
+  const adaptedChapters = stats?.currentChapter || 850;
 
   const statusColor = (s: string) =>
     s === "completed" ? "text-jade" : s === "airing" ? "text-primary" : "text-muted-foreground";
@@ -178,49 +190,61 @@ const DonghuaPage = () => {
 
           {/* Story Arcs */}
           <h2 className="font-heading text-2xl text-primary text-center mb-8 tracking-wider">Story Arcs</h2>
-          <div className="space-y-3 mb-16">
-            {storyArcs.map((arc, i) => {
-              const isExpanded = expandedArc === arc.num;
-              return (
-                <motion.div
-                  key={arc.num}
-                  initial={{ x: -20, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.04 }}
-                  className={`gradient-card border rounded-lg overflow-hidden transition-colors cursor-pointer ${isExpanded ? "border-primary/40" : "border-border hover:border-primary/20"}`}
-                  onClick={() => setExpandedArc(isExpanded ? null : arc.num)}
-                >
-                  <div className="p-5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-xs font-heading tracking-wider border ${statusBadge(arc.status)}`}>
-                        {arc.num}
+          <div className="space-y-3">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : arcs.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No arc data available</p>
+            ) : (
+              arcs.map((arc, i) => {
+                const isExpanded = expandedArc === arc.id;
+                const episodes = `${arc.episode_start}–${arc.episode_end}`;
+                const chapters = `${arc.chapter_start}–${arc.chapter_end}`;
+                return (
+                  <motion.div
+                    key={arc.id}
+                    initial={{ x: -20, opacity: 0 }}
+                    whileInView={{ x: 0, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04 }}
+                    className={`gradient-card border rounded-lg overflow-hidden transition-colors cursor-pointer ${isExpanded ? "border-primary/40" : "border-border hover:border-primary/20"}`}
+                    onClick={() => setExpandedArc(isExpanded ? null : arc.id)}
+                  >
+                    <div className="p-5 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-xs font-heading tracking-wider border ${arc.status === "completed" ? "border-jade text-jade" : arc.status === "now_airing" ? "border-primary text-primary" : "border-muted-foreground text-muted-foreground"}`}>
+                          {String(i + 1).padStart(2, "0")}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-heading text-base text-foreground tracking-wider truncate">{arc.name}</h3>
+                          <p className="text-xs text-muted-foreground font-body">Ep {episodes} • Ch {chapters}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="font-heading text-base text-foreground tracking-wider truncate">{arc.title}</h3>
-                        <p className="text-xs text-muted-foreground font-body">Ep {arc.episodes} • Ch {arc.chapters}</p>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className={`text-xs font-heading tracking-wider ${arc.status === "completed" ? "text-jade" : arc.status === "now_airing" ? "text-primary" : "text-muted-foreground"}`}>
+                          {arc.status === "completed" ? "Completed" : arc.status === "now_airing" ? "Now Airing" : "Upcoming"}
+                        </span>
+                        <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className={`text-xs font-heading tracking-wider ${statusColor(arc.status)}`}>
-                        {arc.status === "completed" ? "Completed" : arc.status === "airing" ? "Now Airing" : "Upcoming"}
-                      </span>
-                      <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
-                    </div>
-                  </div>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="px-5 pb-5 border-t border-border/50"
-                    >
-                      <p className="text-foreground/80 font-body text-sm leading-relaxed pt-4">{arc.desc}</p>
-                    </motion.div>
-                  )}
-                </motion.div>
-              );
-            })}
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="px-5 pb-5 border-t border-border/50"
+                      >
+                        <p className="text-foreground/80 font-body text-sm leading-relaxed pt-4">
+                          {arc.description}
+                        </p>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })
+            )}
           </div>
 
           {/* Story Highlights & Fan Predictions side by side */}

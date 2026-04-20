@@ -60,7 +60,7 @@ BEGIN
     'New Follower',
     COALESCE(_follower_name, 'A cultivator') || ' started following ' || COALESCE(_following_name, 'you'),
     'follow',
-    CASE WHEN _follower_username IS NOT NULL THEN '/u/' || _follower_username ELSE '/communities' END
+    CASE WHEN _follower_username IS NOT NULL THEN '/cultivator/' || _follower_username ELSE '/communities' END
   );
 
   RETURN NEW;

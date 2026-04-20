@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { AdminRoute } from "@/components/AdminRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DonghuaAdmin from "@/components/DonghuaAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { motion } from "framer-motion";
-import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star, BarChart3 } from "lucide-react";
+import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star, BarChart3, Tv } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -252,11 +253,182 @@ const getStartDate = (range: DateRange): Date => {
 };
 
 // Parse user agent to get device type
-const getDeviceType = (userAgent?: string): string => {
+const getDeviceType = (userAgent?: string) => {
   if (!userAgent) return "Unknown";
-  if (/mobile|android|iphone|ipad|ipod/i.test(userAgent)) return "Mobile";
-  if (/tablet|ipad/i.test(userAgent)) return "Tablet";
+  if (/mobile/i.test(userAgent)) return "Mobile";
+  if (/tablet/i.test(userAgent)) return "Tablet";
   return "Desktop";
+};
+
+// Country detection from browser timezone
+const timezoneCountryMap: Record<string, string> = {
+  "America/New_York": "United States",
+  "America/Chicago": "United States",
+  "America/Denver": "United States",
+  "America/Los_Angeles": "United States",
+  "Europe/London": "United Kingdom",
+  "Europe/Paris": "France",
+  "Europe/Berlin": "Germany",
+  "Europe/Madrid": "Spain",
+  "Europe/Rome": "Italy",
+  "Europe/Amsterdam": "Netherlands",
+  "Europe/Brussels": "Belgium",
+  "Europe/Vienna": "Austria",
+  "Europe/Stockholm": "Sweden",
+  "Europe/Oslo": "Norway",
+  "Europe/Copenhagen": "Denmark",
+  "Europe/Helsinki": "Finland",
+  "Europe/Zurich": "Switzerland",
+  "Europe/Moscow": "Russia",
+  "Asia/Tokyo": "Japan",
+  "Asia/Seoul": "South Korea",
+  "Asia/Shanghai": "China",
+  "Asia/Hong_Kong": "Hong Kong",
+  "Asia/Singapore": "Singapore",
+  "Asia/Taipei": "Taiwan",
+  "Asia/Bangkok": "Thailand",
+  "Asia/Jakarta": "Indonesia",
+  "Asia/Manila": "Philippines",
+  "Asia/Kuala_Lumpur": "Malaysia",
+  "Asia/Dubai": "UAE",
+  "Asia/Kolkata": "India",
+  "Asia/Mumbai": "India",
+  "Asia/Tehran": "Iran",
+  "Australia/Sydney": "Australia",
+  "Australia/Melbourne": "Australia",
+  "Pacific/Auckland": "New Zealand",
+  "Africa/Cairo": "Egypt",
+  "Africa/Johannesburg": "South Africa",
+  "Africa/Lagos": "Nigeria",
+  "America/Sao_Paulo": "Brazil",
+  "America/Mexico_City": "Mexico",
+  "America/Toronto": "Canada",
+  "America/Vancouver": "Canada",
+};
+
+const countryFlagMap: Record<string, string> = {
+  "United States": "",
+  "United Kingdom": "",
+  "Canada": "",
+  "Australia": "",
+  "Germany": "",
+  "France": "",
+  "Japan": "",
+  "China": "",
+  "India": "",
+  "Brazil": "",
+  "Russia": "",
+  "South Korea": "",
+  "Italy": "",
+  "Spain": "",
+  "Mexico": "",
+  "Indonesia": "",
+  "Netherlands": "",
+  "Saudi Arabia": "",
+  "Turkey": "",
+  "Switzerland": "",
+  "Sweden": "",
+  "Poland": "",
+  "Belgium": "",
+  "Argentina": "",
+  "Thailand": "",
+  "Austria": "",
+  "United Arab Emirates": "",
+  "UAE": "",
+  "Norway": "",
+  "Israel": "",
+  "Ireland": "",
+  "Denmark": "",
+  "Singapore": "",
+  "Hong Kong": "",
+  "Malaysia": "",
+  "Philippines": "",
+  "Pakistan": "",
+  "Egypt": "",
+  "South Africa": "",
+  "New Zealand": "",
+  "Finland": "",
+  "Greece": "",
+  "Portugal": "",
+  "Vietnam": "",
+  "Bangladesh": "",
+  "Nigeria": "",
+  "Chile": "",
+  "Czech Republic": "",
+  "Romania": "",
+  "Ukraine": "",
+  "Peru": "",
+  "Colombia": "",
+  "Hungary": "",
+  "Kazakhstan": "",
+  "Qatar": "",
+  "Morocco": "",
+  "Kuwait": "",
+  "Sri Lanka": "",
+  "Myanmar": "",
+  "Iraq": "",
+  "Uzbekistan": "",
+  "Angola": "",
+  "Mozambique": "",
+  "Ghana": "",
+  "Yemen": "",
+  "Nepal": "",
+  "Venezuela": "",
+  "Ecuador": "",
+  "Cameroon": "",
+  "Ivory Coast": "",
+  "North Korea": "",
+  "Taiwan": "",
+  "Kyrgyzstan": "",
+  "Syria": "",
+  "Zimbabwe": "",
+  "Rwanda": "",
+  "Tunisia": "",
+  "Somalia": "",
+  "Haiti": "",
+  "Senegal": "",
+  "Chad": "",
+  "Guinea": "",
+  "South Sudan": "",
+  "Rwanda": "",
+  "Benin": "",
+  "Burundi": "",
+  "Togo": "",
+  "Sierra Leone": "",
+  "Libya": "",
+  "Liberia": "",
+  "Central African Republic": "",
+  "Mauritania": "",
+  "Eritrea": "",
+  "Gambia": "",
+  "Botswana": "",
+  "Namibia": "",
+  "Gabon": "",
+  "Lesotho": "",
+  "Guinea-Bissau": "",
+  "Equatorial Guinea": "",
+  "Mauritius": "",
+  "Eswatini": "",
+  "Djibouti": "",
+  "Comoros": "",
+  "Cape Verde": "",
+  "Sao Tome and Principe": "",
+  "Seychelles": "",
+  "Iran": "",
+  "Unknown": "",
+};
+
+const detectCountryFromTimezone = (): string => {
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return timezoneCountryMap[timezone] || "Unknown";
+  } catch {
+    return "Unknown";
+  }
+};
+
+const getCountryFlag = (country: string): string => {
+  return countryFlagMap[country] || "";
 };
 
 // Parse referrer to get source
@@ -1684,21 +1856,6 @@ export default function AdminPage() {
     <AdminRoute>
       <Layout>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="container mx-auto px-4 py-10"
-        >
-          <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-xl sm:text-3xl font-heading font-bold text-foreground">Admin Dashboard</h1>
-                <p className="text-muted-foreground font-body text-xs sm:text-sm">Real-time site management</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button
-                variant="outline"
                 onClick={() => window.location.href = "/admin/search-analytics"}
                 className="gap-2"
               >
@@ -1827,6 +1984,9 @@ export default function AdminPage() {
                 onDelete={handleDeleteContact}
                 onDeleteAll={handleDeleteAllContacts}
               />
+            </TabsContent>
+            <TabsContent value="donghua">
+              <DonghuaAdmin />
             </TabsContent>
           </Tabs>
         </motion.div>
