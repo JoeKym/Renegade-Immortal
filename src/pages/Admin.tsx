@@ -1855,13 +1855,20 @@ export default function AdminPage() {
   return (
     <AdminRoute>
       <Layout>
-        <motion.div
-                onClick={() => window.location.href = "/admin/search-analytics"}
-                className="gap-2"
-              >
-                <BarChart3 size={16} /> Search Analytics
-              </Button>
-              <Button
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-heading tracking-wider">{t("admin.dashboard")}</h1>
+                <p className="text-sm text-muted-foreground font-body">{t("admin.manage")}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.href = "/admin/search-analytics"}
+                  className="gap-2"
+                >
+                  <BarChart3 size={16} /> Search Analytics
+                </Button>
+                <Button
                 variant={maintenanceMode ? "destructive" : "outline"}
                 onClick={handleToggleMaintenance}
                 disabled={togglingMaintenance}
