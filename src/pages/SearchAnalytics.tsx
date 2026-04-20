@@ -9,7 +9,7 @@ import {
   getTrendingItems,
   getSearchConversionRate,
 } from "@/services/searchTracking";
-import { Search, TrendingUp, MousePointer, BarChart3 } from "lucide-react";
+import { Search, TrendingUp, MousePointer, BarChart3, Calendar } from "lucide-react";
 
 interface PopularSearch {
   query: string;
@@ -30,9 +30,20 @@ interface ConversionRate {
   conversion_rate: number;
 }
 
+type DateRange = 1 | 7 | 14 | 30 | 90;
+
+const dateRangeLabels: Record<DateRange, string> = {
+  1: "Last 24 Hours",
+  7: "Last 7 Days",
+  14: "Last 14 Days",
+  30: "Last 30 Days",
+  90: "Last 90 Days",
+};
+
 export default function SearchAnalytics() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const [dateRange, setDateRange] = useState<DateRange>(7);
   const [popularSearches, setPopularSearches] = useState<PopularSearch[]>([]);
   const [trendingItems, setTrendingItems] = useState<TrendingItem[]>([]);
   const [conversionRate, setConversionRate] = useState<ConversionRate | null>(null);
@@ -53,16 +64,17 @@ export default function SearchAnalytics() {
       return;
     }
 
-    loadAnalytics();
+    loadAnalytics(dateRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAdmin, loading, navigate]);
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = async (days: DateRange = dateRange) => {
     setIsLoading(true);
     try {
       const [searches, items, conversion] = await Promise.all([
-        getPopularSearches(7, 10),
-        getTrendingItems(7, 10),
-        getSearchConversionRate(7),
+        getPopularSearches(days, 10),
+        getTrendingItems(days, 10),
+        getSearchConversionRate(days),
       ]);
       setPopularSearches(searches);
       setTrendingItems(items);
@@ -73,6 +85,11 @@ export default function SearchAnalytics() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDateRangeChange = (newRange: DateRange) => {
+    setDateRange(newRange);
+    loadAnalytics(newRange);
   };
 
   if (isLoading) {
@@ -92,11 +109,32 @@ export default function SearchAnalytics() {
           Search Analytics
         </h1>
 
+        {/* Date Range Selector */}
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground font-body">Time Range:</span>
+          <div className="flex flex-wrap gap-1">
+            {([1, 7, 14, 30, 90] as DateRange[]).map((range) => (
+              <button
+                key={range}
+                onClick={() => handleDateRangeChange(range)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                  dateRange === range
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                }`}
+              >
+                {dateRangeLabels[range]}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Overview Cards */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Searches (7d)</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Searches ({dateRange}d)</CardTitle>
               <Search className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -108,7 +146,7 @@ export default function SearchAnalytics() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Clicks (7d)</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Clicks ({dateRange}d)</CardTitle>
               <MousePointer className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -140,7 +178,7 @@ export default function SearchAnalytics() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Search className="h-5 w-5 text-primary" />
-                Popular Searches (7 days)
+                Popular Searches ({dateRange} days)
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -179,7 +217,7 @@ export default function SearchAnalytics() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
-                Trending Items (7 days)
+                Trending Items ({dateRange} days)
               </CardTitle>
             </CardHeader>
             <CardContent>

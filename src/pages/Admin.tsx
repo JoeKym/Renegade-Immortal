@@ -206,46 +206,163 @@ function OverviewTab({ profiles, comments, visitors, pageViews }: {
   );
 }
 
+type DateRange = "24h" | "7d" | "14d" | "30d" | "90d" | "today" | "yesterday" | "this_month";
+
+const getDateRangeLabel = (range: DateRange): string => {
+  const labels: Record<DateRange, string> = {
+    "24h": "Last 24 Hours",
+    "7d": "Last 7 Days",
+    "14d": "Last 14 Days",
+    "30d": "Last 30 Days",
+    "90d": "Last 90 Days",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_month": "This Month",
+  };
+  return labels[range];
+};
+
+const getStartDate = (range: DateRange): Date => {
+  const now = new Date();
+  switch (range) {
+    case "24h":
+      return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    case "7d":
+      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    case "14d":
+      return new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    case "30d":
+      return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    case "90d":
+      return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    case "today":
+      return new Date(now.setHours(0, 0, 0, 0));
+    case "yesterday":
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+      return yesterday;
+    case "this_month":
+      return new Date(now.getFullYear(), now.getMonth(), 1);
+    default:
+      return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  }
+};
+
 function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: ActiveVisitor[] }) {
+  const [dateRange, setDateRange] = useState<DateRange>("24h");
+
+  const filteredPageViews = useMemo(() => {
+    const startDate = getStartDate(dateRange);
+    return pageViews.filter((pv) => new Date(pv.created_at) >= startDate);
+  }, [pageViews, dateRange]);
+
   const chartData = useMemo(() => {
-    const hourMap: Record<string, number> = {};
-    pageViews.forEach((pv) => {
-      const hour = new Date(pv.created_at).toISOString().slice(0, 13);
-      hourMap[hour] = (hourMap[hour] || 0) + 1;
+    const timeMap: Record<string, number> = {};
+    const startDate = getStartDate(dateRange);
+    const now = new Date();
+    
+    // For shorter ranges (24h, today, yesterday), group by hour
+    // For longer ranges, group by day
+    const isHourly = ["24h", "today", "yesterday"].includes(dateRange);
+    
+    filteredPageViews.forEach((pv) => {
+      const date = new Date(pv.created_at);
+      let key: string;
+      
+      if (isHourly) {
+        // Group by hour: "2024-01-15 10:00"
+        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:00`;
+      } else {
+        // Group by day: "2024-01-15"
+        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+      
+      timeMap[key] = (timeMap[key] || 0) + 1;
     });
-    return Object.entries(hourMap)
+
+    // Fill in missing time periods with 0
+    if (isHourly) {
+      const hours = Math.ceil((now.getTime() - startDate.getTime()) / (60 * 60 * 1000));
+      for (let i = 0; i <= hours && i < 24; i++) {
+        const d = new Date(startDate.getTime() + i * 60 * 60 * 1000);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:00`;
+        if (!(key in timeMap)) timeMap[key] = 0;
+      }
+    } else {
+      const days = Math.ceil((now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
+      for (let i = 0; i <= days; i++) {
+        const d = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        if (!(key in timeMap)) timeMap[key] = 0;
+      }
+    }
+    
+    return Object.entries(timeMap)
       .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-24)
-      .map(([hour, count]) => ({
-        hour: new Date(hour).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        views: count,
-      }));
-  }, [pageViews]);
+      .map(([timeKey, count]) => {
+        const date = new Date(timeKey);
+        return {
+          time: isHourly 
+            ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : date.toLocaleDateString([], { month: "short", day: "numeric" }),
+          views: count,
+          fullDate: date.toLocaleString(),
+        };
+      });
+  }, [filteredPageViews, dateRange]);
 
   const pageStats = useMemo(() => {
     const map: Record<string, number> = {};
-    pageViews.forEach((pv) => { map[pv.page_path] = (map[pv.page_path] || 0) + 1; });
+    filteredPageViews.forEach((pv) => { map[pv.page_path] = (map[pv.page_path] || 0) + 1; });
     return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 10);
-  }, [pageViews]);
+  }, [filteredPageViews]);
 
   return (
     <div className="space-y-6">
+      {/* Date Range Selector */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground font-body">Time Range:</span>
+        <div className="flex flex-wrap gap-1">
+          {(["24h", "today", "yesterday", "7d", "14d", "30d", "90d", "this_month"] as DateRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setDateRange(range)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                dateRange === range
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+              }`}
+            >
+              {getDateRangeLabel(range)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="font-heading text-lg">Page Views (Last 24h)</CardTitle>
+          <CardTitle className="font-heading text-lg">Page Views ({getDateRangeLabel(dateRange)})</CardTitle>
         </CardHeader>
         <CardContent>
           {chartData.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No traffic data yet</p>
+            <p className="text-muted-foreground text-sm">No traffic data for this period</p>
           ) : (
             <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 200 : 300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
+                  formatter={(value: number) => [`${value} views`, "Views"]}
+                  labelFormatter={(label: string, payload: any) => {
+                    if (payload && payload[0]?.payload?.fullDate) {
+                      return payload[0].payload.fullDate;
+                    }
+                    return label;
+                  }}
                 />
                 <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
               </LineChart>
