@@ -17,6 +17,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.watch": "Watch",
     "nav.ai_chat": "AI Chat",
     "nav.news": "News",
+    "nav.lore": "Lore",
 
     // World section
     "world.daos": "Daos",
@@ -68,6 +69,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Duration",
     "watch.studio": "Studio",
     "watch.genres": "Genres",
+    "watch.donghua": "Donghua",
 
     // AI Chat
     "chat.new_conversation": "New Conversation",
@@ -211,6 +213,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "角色",
     "nav.world": "世界",
     "nav.more": "更多",
+    "nav.lore": "传说",
     "nav.community": "社区",
     "nav.feed": "动态",
     "nav.voidy": "Voidy",
@@ -263,6 +266,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "时长",
     "watch.studio": "制作公司",
     "watch.genres": "类型",
+    "watch.donghua": "动画",
 
     // AI Chat
     "chat.new_conversation": "新对话",
@@ -329,6 +333,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Personajes",
     "nav.world": "Mundo",
     "nav.more": "Más",
+    "nav.lore": "Tradición",
     "nav.community": "Comunidad",
     "nav.feed": "Feed",
     "nav.voidy": "Voidy",
@@ -381,6 +386,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Duración",
     "watch.studio": "Estudio",
     "watch.genres": "Géneros",
+    "watch.donghua": "Donghua",
 
     // AI Chat
     "chat.new_conversation": "Nueva Conversación",
@@ -447,6 +453,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Personnages",
     "nav.world": "Monde",
     "nav.more": "Plus",
+    "nav.lore": "Tradition",
     "nav.community": "Communauté",
     "nav.feed": "Fil",
     "nav.voidy": "Voidy",
@@ -499,6 +506,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Durée",
     "watch.studio": "Studio",
     "watch.genres": "Genres",
+    "watch.donghua": "Donghua",
 
     // AI Chat
     "chat.new_conversation": "Nouvelle Conversation",
@@ -565,6 +573,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "الشخصيات",
     "nav.world": "العالم",
     "nav.more": "المزيد",
+    "nav.lore": "المعرفة",
     "nav.community": "المجتمع",
     "nav.feed": "الأخبار",
     "nav.voidy": "Voidy",
@@ -617,6 +626,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "المدة",
     "watch.studio": "الاستوديو",
     "watch.genres": "التصنيفات",
+    "watch.donghua": "دونغوا",
 
     // AI Chat
     "chat.new_conversation": "محادثة جديدة",
@@ -683,6 +693,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Personagens",
     "nav.world": "Mundo",
     "nav.more": "Mais",
+    "nav.lore": "Tradição",
     "nav.community": "Comunidade",
     "nav.feed": "Feed",
     "nav.voidy": "Voidy",
@@ -735,6 +746,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Duração",
     "watch.studio": "Estúdio",
     "watch.genres": "Gêneros",
+    "watch.donghua": "Donghua",
 
     // AI Chat
     "chat.new_conversation": "Nova Conversa",
@@ -801,6 +813,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Charaktere",
     "nav.world": "Welt",
     "nav.more": "Mehr",
+    "nav.lore": "Wissen",
     "nav.community": "Community",
     "nav.feed": "Feed",
     "nav.voidy": "Voidy",
@@ -853,6 +866,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Dauer",
     "watch.studio": "Studio",
     "watch.genres": "Genres",
+    "watch.donghua": "Donghua",
 
     // AI Chat
     "chat.new_conversation": "Neues Gespräch",
@@ -919,6 +933,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "キャラクター",
     "nav.world": "世界",
     "nav.more": "その他",
+    "nav.lore": "伝承",
     "nav.community": "コミュニティ",
     "nav.feed": "フィード",
     "nav.voidy": "Voidy",
@@ -971,6 +986,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "再生時間",
     "watch.studio": "スタジオ",
     "watch.genres": "ジャンル",
+    "watch.donghua": "動画",
 
     // AI Chat
     "chat.new_conversation": "新しい会話",
@@ -1037,6 +1053,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "캐릭터",
     "nav.world": "세계",
     "nav.more": "더보기",
+    "nav.lore": "전승",
     "nav.community": "커뮤니티",
     "nav.feed": "피드",
     "nav.voidy": "Voidy",
@@ -1089,6 +1106,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "재생 시간",
     "watch.studio": "스튜디오",
     "watch.genres": "장르",
+    "watch.donghua": "동화",
 
     // AI Chat
     "chat.new_conversation": "새 대화",
@@ -1155,6 +1173,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Персонажи",
     "nav.world": "Мир",
     "nav.more": "Ещё",
+    "nav.lore": "Знания",
     "nav.community": "Сообщество",
     "nav.feed": "Лента",
     "nav.voidy": "Voidy",
@@ -1207,6 +1226,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "Длительность",
     "watch.studio": "Студия",
     "watch.genres": "Жанры",
+    "watch.donghua": "Донхуа",
 
     // AI Chat
     "chat.new_conversation": "Новый разговор",
@@ -1273,6 +1293,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "पात्र",
     "nav.world": "दुनिया",
     "nav.more": "अधिक",
+    "nav.lore": "ज्ञान",
     "nav.community": "समुदाय",
     "nav.feed": "फीड",
     "nav.voidy": "Voidy",
@@ -1325,6 +1346,7 @@ const translations: Record<string, Record<string, string>> = {
     "watch.duration": "अवधि",
     "watch.studio": "स्टूडियो",
     "watch.genres": "श्रेणियां",
+    "watch.donghua": "डोंगहुआ",
 
     // AI Chat
     "chat.new_conversation": "नई बातचीत",
@@ -1391,6 +1413,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.characters": "Wahusika",
     "nav.world": "Dunia",
     "nav.more": "Zaidi",
+    "nav.lore": "Maarifa",
     "nav.community": "Jumuiya",
     "nav.feed": "Mabadiliko",
     "nav.voidy": "Voidy",

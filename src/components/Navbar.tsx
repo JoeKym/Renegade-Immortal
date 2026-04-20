@@ -39,7 +39,7 @@ const moreDropdown = {
   items: [
     { path: "/timeline", labelKey: "guide.timeline", icon: Clock },
     { path: "/donghua", labelKey: "watch.donghua", icon: Tv },
-    { path: "/lore", labelKey: "nav.world", icon: BookOpen },
+    { path: "/lore", labelKey: "nav.lore", icon: BookOpen },
     { path: "/news", labelKey: "nav.news", icon: Newspaper },
     { path: "/watch", labelKey: "nav.watch", icon: Play },
     { path: "/about", labelKey: "footer.about", icon: Info },
