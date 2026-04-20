@@ -90,7 +90,7 @@ const Index = () => {
               {t("nav.characters")}
             </Link>
             <Link to="/daos" className="px-6 py-3 rounded-md border border-border font-heading text-sm tracking-wider text-foreground hover:border-primary/30 transition-colors">
-              {t("nav.world")}
+              {t("world.daos")}
             </Link>
           </motion.div>
         </div>

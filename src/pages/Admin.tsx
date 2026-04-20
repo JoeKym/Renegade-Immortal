@@ -45,6 +45,8 @@ interface PageView {
   page_path: string;
   session_id: string;
   created_at: string;
+  user_agent?: string;
+  referrer?: string | null;
 }
 
 interface Notification {
@@ -249,6 +251,36 @@ const getStartDate = (range: DateRange): Date => {
   }
 };
 
+// Parse user agent to get device type
+const getDeviceType = (userAgent?: string): string => {
+  if (!userAgent) return "Unknown";
+  if (/mobile|android|iphone|ipad|ipod/i.test(userAgent)) return "Mobile";
+  if (/tablet|ipad/i.test(userAgent)) return "Tablet";
+  return "Desktop";
+};
+
+// Parse referrer to get source
+const getSource = (referrer?: string | null): string => {
+  if (!referrer) return "Direct";
+  try {
+    const url = new URL(referrer);
+    const hostname = url.hostname.replace("www.", "");
+    if (hostname.includes("google")) return "Google";
+    if (hostname.includes("bing")) return "Bing";
+    if (hostname.includes("yahoo")) return "Yahoo";
+    if (hostname.includes("facebook")) return "Facebook";
+    if (hostname.includes("twitter") || hostname.includes("x.com")) return "Twitter/X";
+    if (hostname.includes("instagram")) return "Instagram";
+    if (hostname.includes("linkedin")) return "LinkedIn";
+    if (hostname.includes("reddit")) return "Reddit";
+    if (hostname.includes("youtube")) return "YouTube";
+    if (hostname.includes("tiktok")) return "TikTok";
+    return hostname;
+  } catch {
+    return "Direct";
+  }
+};
+
 function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: ActiveVisitor[] }) {
   const [dateRange, setDateRange] = useState<DateRange>("24h");
 
@@ -257,13 +289,26 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
     return pageViews.filter((pv) => new Date(pv.created_at) >= startDate);
   }, [pageViews, dateRange]);
 
+  // Calculate key metrics
+  const metrics = useMemo(() => {
+    const totalViews = filteredPageViews.length;
+    const uniqueSessions = new Set(filteredPageViews.map((pv) => pv.session_id)).size;
+    const viewsPerVisit = uniqueSessions > 0 ? (totalViews / uniqueSessions).toFixed(2) : "0";
+    const bounceRate = uniqueSessions > 0 ? Math.round((uniqueSessions / totalViews) * 100) : 0;
+    
+    return {
+      visitors: uniqueSessions,
+      pageviews: totalViews,
+      viewsPerVisit,
+      bounceRate: `${bounceRate}%`,
+    };
+  }, [filteredPageViews]);
+
   const chartData = useMemo(() => {
     const timeMap: Record<string, number> = {};
     const startDate = getStartDate(dateRange);
     const now = new Date();
     
-    // For shorter ranges (24h, today, yesterday), group by hour
-    // For longer ranges, group by day
     const isHourly = ["24h", "today", "yesterday"].includes(dateRange);
     
     filteredPageViews.forEach((pv) => {
@@ -271,17 +316,14 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
       let key: string;
       
       if (isHourly) {
-        // Group by hour: "2024-01-15 10:00"
         key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:00`;
       } else {
-        // Group by day: "2024-01-15"
         key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
       
       timeMap[key] = (timeMap[key] || 0) + 1;
     });
 
-    // Fill in missing time periods with 0
     if (isHourly) {
       const hours = Math.ceil((now.getTime() - startDate.getTime()) / (60 * 60 * 1000));
       for (let i = 0; i <= hours && i < 24; i++) {
@@ -318,6 +360,34 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
     return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 10);
   }, [filteredPageViews]);
 
+  const sourceStats = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredPageViews.forEach((pv) => {
+      const source = getSource(pv.referrer);
+      map[source] = (map[source] || 0) + 1;
+    });
+    return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 8);
+  }, [filteredPageViews]);
+
+  const deviceStats = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredPageViews.forEach((pv) => {
+      const device = getDeviceType(pv.user_agent);
+      map[device] = (map[device] || 0) + 1;
+    });
+    const total = Object.values(map).reduce((a, b) => a + b, 0);
+    return Object.entries(map)
+      .sort(([, a], [, b]) => b - a)
+      .map(([device, count]) => ({
+        device,
+        count,
+        percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+      }));
+  }, [filteredPageViews]);
+
+  const maxPageViews = pageStats.length > 0 ? pageStats[0][1] : 0;
+  const maxSourceViews = sourceStats.length > 0 ? sourceStats[0][1] : 0;
+
   return (
     <div className="space-y-6">
       {/* Date Range Selector */}
@@ -340,9 +410,30 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
         </div>
       </div>
 
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs text-muted-foreground font-body uppercase tracking-wider">Visitors</div>
+          <div className="text-2xl font-bold text-foreground mt-1">{metrics.visitors}</div>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs text-muted-foreground font-body uppercase tracking-wider">Pageviews</div>
+          <div className="text-2xl font-bold text-foreground mt-1">{metrics.pageviews}</div>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs text-muted-foreground font-body uppercase tracking-wider">Views Per Visit</div>
+          <div className="text-2xl font-bold text-foreground mt-1">{metrics.viewsPerVisit}</div>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs text-muted-foreground font-body uppercase tracking-wider">Bounce Rate</div>
+          <div className="text-2xl font-bold text-foreground mt-1">{metrics.bounceRate}</div>
+        </div>
+      </div>
+
+      {/* Chart */}
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="font-heading text-lg">Page Views ({getDateRangeLabel(dateRange)})</CardTitle>
+          <CardTitle className="font-heading text-lg">Traffic Overview ({getDateRangeLabel(dateRange)})</CardTitle>
         </CardHeader>
         <CardContent>
           {chartData.length === 0 ? (
@@ -350,28 +441,38 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
           ) : (
             <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 200 : 300}>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <defs>
+                  <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   formatter={(value: number) => [`${value} views`, "Views"]}
-                  labelFormatter={(label: string, payload: any) => {
-                    if (payload && payload[0]?.payload?.fullDate) {
-                      return payload[0].payload.fullDate;
-                    }
-                    return label;
-                  }}
                 />
-                <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="views"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  dot={false}
+                  fillOpacity={1}
+                  fill="url(#colorViews)"
+                />
               </LineChart>
             </ResponsiveContainer>
           )}
         </CardContent>
       </Card>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Pages */}
         <Card className="border-border">
           <CardHeader>
             <CardTitle className="font-heading text-lg">Top Pages</CardTitle>
@@ -380,17 +481,77 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
             {pageStats.length === 0 ? (
               <p className="text-muted-foreground text-sm">No data</p>
             ) : (
-              <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 200 : 300}>
-                <BarChart data={pageStats.map(([page, views]) => ({ page, views }))} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis dataKey="page" type="category" stroke="hsl(var(--muted-foreground))" fontSize={11} width={100} />
-                  <Tooltip
-                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                  />
-                  <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-3">
+                {pageStats.map(([page, views]) => (
+                  <div key={page} className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-foreground truncate">{page || "/"}</span>
+                        <span className="text-sm text-muted-foreground">{views}</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all"
+                          style={{ width: `${(views / maxPageViews) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Traffic Sources */}
+        <Card className="border-border">
+          <CardHeader>
+            <CardTitle className="font-heading text-lg">Traffic Sources</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {sourceStats.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No data</p>
+            ) : (
+              <div className="space-y-3">
+                {sourceStats.map(([source, views]) => (
+                  <div key={source} className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-foreground">{source}</span>
+                        <span className="text-sm text-muted-foreground">{views}</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary/70 rounded-full transition-all"
+                          style={{ width: `${(views / maxSourceViews) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Device Breakdown */}
+        <Card className="border-border">
+          <CardHeader>
+            <CardTitle className="font-heading text-lg">Devices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {deviceStats.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No data</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {deviceStats.map((stat) => (
+                  <div key={stat.device} className="text-center">
+                    <div className="text-2xl font-bold text-foreground">{stat.percentage}%</div>
+                    <div className="text-xs text-muted-foreground mt-1">{stat.device}</div>
+                    <div className="text-xs text-muted-foreground/60">{stat.count} visits</div>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
