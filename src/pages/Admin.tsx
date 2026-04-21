@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Layout } from "@/components/Layout";
 import { AdminRoute } from "@/components/AdminRoute";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/contexts/TranslationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DonghuaAdmin from "@/components/DonghuaAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -1596,6 +1597,7 @@ function ReviewsTab({
 }
 
 export default function AdminPage() {
+  const { t } = useT();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [visitors, setVisitors] = useState<ActiveVisitor[]>([]);
