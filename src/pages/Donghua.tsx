@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { Tv, BookOpen, Clock, Calendar, Play, ChevronRight, TrendingUp, Loader2 } from "lucide-react";
+import { Tv, BookOpen, Clock, Calendar, Play, ChevronRight, TrendingUp, Loader2, Info, ExternalLink } from "lucide-react";
 import { getDonghuaStats, getDonghuaArcs, type DonghuaArc } from "@/services/donghua";
 import { useState, useEffect } from "react";
 
@@ -64,6 +64,17 @@ const DonghuaPage = () => {
       : s === "airing"
         ? "bg-primary/10 text-primary border-primary/20"
         : "bg-muted text-muted-foreground border-border";
+
+  // Episode adaptation breakdown data
+  const adaptationTable = [
+    { range: "1–26", chapters: "1–120", frequency: "~4.6 ch/ep", status: "aired" },
+    { range: "27–52", chapters: "121–240", frequency: "~4.8 ch/ep", status: "aired" },
+    { range: "53–76", chapters: "241–380", frequency: "~5.8 ch/ep", status: "aired" },
+    { range: "77–128", chapters: "381–850", frequency: "~9.0 ch/ep", status: "airing" },
+    { range: "129–180", chapters: "851–1300", frequency: "~8.6 ch/ep", status: "upcoming" },
+    { range: "181–250", chapters: "1301–1800", frequency: "~7.1 ch/ep", status: "upcoming" },
+    { range: "251–350", chapters: "1801–2100", frequency: "~3.0 ch/ep", status: "upcoming" },
+  ];
 
   return (
     <Layout>

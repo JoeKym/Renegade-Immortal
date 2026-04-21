@@ -1877,7 +1877,7 @@ export default function AdminPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setActiveTab("donghua")}
+                  onClick={() => window.location.href = "/"}
                   className="gap-2"
                 >
                   <Tv size={16} /> Donghua
