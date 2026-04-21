@@ -1876,6 +1876,13 @@ export default function AdminPage() {
                   <BarChart3 size={16} /> Search Analytics
                 </Button>
                 <Button
+                  variant="outline"
+                  onClick={() => setActiveTab("donghua")}
+                  className="gap-2"
+                >
+                  <Tv size={16} /> Donghua
+                </Button>
+                <Button
                 variant={maintenanceMode ? "destructive" : "outline"}
                 onClick={handleToggleMaintenance}
                 disabled={togglingMaintenance}
