@@ -3,6 +3,8 @@ import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Tv, BookOpen, Clock, Calendar, Play, ChevronRight, TrendingUp, Loader2, Info, ExternalLink } from "lucide-react";
 import { getDonghuaStats, getDonghuaArcs, type DonghuaArc } from "@/services/donghua";
+import { ReleaseTimeline } from "@/components/donghua/ReleaseTimeline";
+import { ChapterConverter } from "@/components/donghua/ChapterConverter";
 import { useState, useEffect } from "react";
 
 const totalChapters = 2100;
