@@ -175,6 +175,10 @@ const translations: Record<string, Record<string, string>> = {
     "settings.delete_account": "Delete Account",
     "settings.change_password": "Change Password",
 
+    // Admin
+    "admin.dashboard": "Admin Dashboard",
+    "admin.manage": "Manage your site",
+
     // Home
     "home.welcome": "Welcome to Renegade Immortal",
     "home.description": "A fan-made lore encyclopedia",
