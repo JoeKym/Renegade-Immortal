@@ -1598,6 +1598,7 @@ function ReviewsTab({
 
 export default function AdminPage() {
   const { t } = useT();
+  const [activeTab, setActiveTab] = useState("overview");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [visitors, setVisitors] = useState<ActiveVisitor[]>([]);
@@ -1877,7 +1878,7 @@ export default function AdminPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => window.location.href = "/"}
+                  onClick={() => setActiveTab("donghua")}
                   className="gap-2"
                 >
                   <Tv size={16} /> Donghua
@@ -1908,7 +1909,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="overview" className="space-y-6">
             <div className="overflow-x-auto -mx-4 px-4">
               <TabsList className="bg-muted/50 w-max min-w-full sm:w-auto">
                 <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm"><Globe size={14} /> <span className="hidden sm:inline">Overview</span><span className="sm:hidden">Home</span></TabsTrigger>
@@ -1942,6 +1943,7 @@ export default function AdminPage() {
                     </span>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="donghua" className="gap-1.5 text-xs sm:text-sm"><Tv size={14} /> Donghua</TabsTrigger>
               </TabsList>
             </div>
 
