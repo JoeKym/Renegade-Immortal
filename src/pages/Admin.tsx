@@ -1855,7 +1855,12 @@ export default function AdminPage() {
   return (
     <AdminRoute>
       <Layout>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="container mx-auto px-4 py-8"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-heading tracking-wider">{t("admin.dashboard")}</h1>
                 <p className="text-sm text-muted-foreground font-body">{t("admin.manage")}</p>
