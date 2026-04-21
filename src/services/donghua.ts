@@ -82,12 +82,21 @@ export const getEpisodeBreakdown = async (): Promise<DonghuaEpisode[]> => {
 export const updateDonghuaProgress = async (
   progress: Partial<DonghuaProgress>
 ): Promise<DonghuaProgress> => {
+  // First, get the existing record to get its ID
+  const { data: existing } = await supabase
+    .from("donghua_progress")
+    .select("id")
+    .single();
+
+  const updateData = {
+    ...progress,
+    last_updated: new Date().toISOString(),
+    ...(existing ? { id: existing.id } : {}),
+  };
+
   const { data, error } = await supabase
     .from("donghua_progress")
-    .upsert({
-      ...progress,
-      last_updated: new Date().toISOString(),
-    })
+    .upsert(updateData)
     .select()
     .single();
 

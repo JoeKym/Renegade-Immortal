@@ -32,6 +32,16 @@ export default function DonghuaAdmin() {
     totalChapters: 2100,
   });
 
+  // Calculate chapters based on episodes (using ~6.6 chapters per episode as average)
+  const calculateChapterFromEpisode = (episode: number) => {
+    // Approximate ratio: episode * 6.6 chapters per episode (adjusted for early episodes being faster)
+    if (episode <= 26) return Math.round(episode * 4.6); // Early arcs: ~4.6 ch/ep
+    if (episode <= 52) return Math.round(120 + (episode - 26) * 4.6); // Continued early pace
+    if (episode <= 76) return Math.round(240 + (episode - 52) * 5.8); // Middle arcs
+    if (episode <= 128) return Math.round(380 + (episode - 76) * 9.0); // Recent arcs (slower pacing)
+    return Math.round(850 + (episode - 128) * 8.6); // Future projection
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -123,12 +133,18 @@ export default function DonghuaAdmin() {
                   id="currentEpisode"
                   type="number"
                   value={formData.currentEpisode}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    currentEpisode: parseInt(e.target.value) || 0
-                  }))}
+                  onChange={(e) => {
+                    const newEpisode = parseInt(e.target.value) || 0;
+                    const newChapter = calculateChapterFromEpisode(newEpisode);
+                    setFormData(prev => ({
+                      ...prev,
+                      currentEpisode: newEpisode,
+                      currentChapter: newChapter
+                    }));
+                  }}
                   min={0}
                 />
+                <p className="text-xs text-muted-foreground">Auto-calculates chapter: ~{formData.currentChapter}</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalEpisodes">Total Episodes (Estimated)</Label>
