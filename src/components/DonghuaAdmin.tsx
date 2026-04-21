@@ -65,10 +65,18 @@ export default function DonghuaAdmin() {
     e.preventDefault();
     try {
       setUpdating(true);
-      await updateDonghuaProgress(formData);
+      // Map camelCase form data to snake_case for the API
+      const progressData = {
+        current_episode: formData.currentEpisode,
+        total_episodes: formData.totalEpisodes,
+        current_chapter: formData.currentChapter,
+        total_chapters: formData.totalChapters,
+      };
+      await updateDonghuaProgress(progressData);
       toast.success("Progress updated successfully");
       fetchData();
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update progress");
     } finally {
       setUpdating(false);

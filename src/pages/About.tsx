@@ -41,7 +41,7 @@ export default function About() {
   }, []);
 
   const staticStats = [
-    { value: "4", label: "Streaming Servers" },
+    { value: "ss", label: "Streaming Servers" },
     { value: stats ? `${stats.currentEpisode}+` : "129+", label: "Episodes Covered" },
     { value: stats ? `${stats.currentChapter}+` : "850+", label: "Chapters Adapted" },
     { value: "1", label: "Epic Story" },
