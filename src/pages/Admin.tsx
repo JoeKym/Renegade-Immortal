@@ -1832,9 +1832,9 @@ export default function AdminPage() {
     const newValue = maintenanceMode ? "false" : "true";
     const { error } = await supabase
       .from("site_settings" as any)
-      .update({ value: newValue, updated_at: new Date().toISOString() } as any)
-      .eq("key", "maintenance_mode");
+      .upsert({ key: "maintenance_mode", value: newValue, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
     if (error) {
+      console.error("Maintenance toggle error:", error);
       toast.error("Failed to toggle maintenance mode");
     } else {
       setMaintenanceMode(!maintenanceMode);
@@ -1846,9 +1846,9 @@ export default function AdminPage() {
   const handleUpdateEta = async () => {
     const { error } = await supabase
       .from("site_settings" as any)
-      .update({ value: maintenanceEta, updated_at: new Date().toISOString() } as any)
-      .eq("key", "maintenance_eta");
+      .upsert({ key: "maintenance_eta", value: maintenanceEta, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
     if (error) {
+      console.error("ETA update error:", error);
       toast.error("Failed to update ETA");
     } else {
       toast.success("Maintenance ETA updated");

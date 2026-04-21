@@ -82,47 +82,30 @@ export const getEpisodeBreakdown = async (): Promise<DonghuaEpisode[]> => {
 export const updateDonghuaProgress = async (
   progress: Partial<DonghuaProgress>
 ): Promise<DonghuaProgress> => {
-  // Try to get existing record
-  const { data: existingRows, error: fetchError } = await supabase
+  // First get existing ID if any
+  const { data: existing } = await supabase
     .from("donghua_progress")
     .select("id")
-    .limit(1);
+    .maybeSingle();
 
-  if (fetchError) {
-    console.error("Error fetching existing progress:", fetchError);
-    throw fetchError;
-  }
-
-  const existing = existingRows?.[0];
   const updateData = {
     ...progress,
     last_updated: new Date().toISOString(),
+    ...(existing?.id ? { id: existing.id } : {}),
   };
 
-  let result;
-  if (existing?.id) {
-    // Update existing record
-    result = await supabase
-      .from("donghua_progress")
-      .update(updateData)
-      .eq("id", existing.id)
-      .select()
-      .single();
-  } else {
-    // Insert new record
-    result = await supabase
-      .from("donghua_progress")
-      .insert(updateData)
-      .select()
-      .single();
+  const { data, error } = await supabase
+    .from("donghua_progress")
+    .upsert(updateData)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating donghua progress:", error);
+    throw error;
   }
 
-  if (result.error) {
-    console.error("Error updating donghua progress:", result.error);
-    throw result.error;
-  }
-
-  return result.data;
+  return data;
 };
 
 // Update arc status (admin only)
