@@ -72,23 +72,32 @@ export default function CommunitiesPage() {
   const [memberSearch, setMemberSearch] = useState("");
 
   const fetchCommunities = async () => {
-    const { data } = await supabase
-      .from("communities")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-    if (data) {
-      setCommunities(data as Community[]);
-      const { data: membersData } = await supabase
-        .from("community_members")
-        .select("community_id");
-      if (membersData) {
-        const counts: Record<string, number> = {};
-        membersData.forEach((m: any) => {
-          counts[m.community_id] = (counts[m.community_id] || 0) + 1;
-        });
-        setMemberCounts(counts);
+    try {
+      const { data, error } = await supabase
+        .from("communities")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching communities:", error);
+        setCommunities([]);
+      } else if (data) {
+        setCommunities(data as Community[]);
+        const { data: membersData, error: membersError } = await supabase
+          .from("community_members")
+          .select("community_id");
+        if (!membersError && membersData) {
+          const counts: Record<string, number> = {};
+          membersData.forEach((m: any) => {
+            counts[m.community_id] = (counts[m.community_id] || 0) + 1;
+          });
+          setMemberCounts(counts);
+        }
       }
+    } catch (err) {
+      console.error("Failed to fetch communities:", err);
+      setCommunities([]);
     }
     setLoading(false);
   };
