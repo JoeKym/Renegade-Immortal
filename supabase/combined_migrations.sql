@@ -1278,5 +1278,167 @@ BEGIN
 END $$;
 
 -- ============================================================================
+-- SITE SETTINGS (Maintenance Mode, ETA, etc.)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.site_settings (
+  key text PRIMARY KEY,
+  value text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable RLS on site_settings
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to read site settings
+CREATE POLICY "Allow public read access" 
+  ON public.site_settings 
+  FOR SELECT 
+  TO PUBLIC 
+  USING (true);
+
+-- Allow admins to manage site settings
+CREATE POLICY "Allow admin access" 
+  ON public.site_settings 
+  FOR ALL 
+  TO PUBLIC 
+  USING (is_admin());
+
+-- Initialize default settings
+INSERT INTO public.site_settings (key, value) VALUES
+  ('maintenance_mode', 'false'),
+  ('maintenance_eta', 'Soon')
+ON CONFLICT (key) DO NOTHING;
+
+-- ============================================================================
+-- DONGHUA TRACKING TABLES
+-- ============================================================================
+
+-- Donghua progress tracking
+CREATE TABLE IF NOT EXISTS public.donghua_progress (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  current_episode integer NOT NULL DEFAULT 128,
+  total_episodes integer NOT NULL DEFAULT 350,
+  current_chapter integer NOT NULL DEFAULT 850,
+  total_chapters integer NOT NULL DEFAULT 2100,
+  last_updated timestamp with time zone DEFAULT now()
+);
+
+-- Donghua story arcs
+CREATE TABLE IF NOT EXISTS public.donghua_arcs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  episode_start integer NOT NULL,
+  episode_end integer,
+  chapter_start integer NOT NULL,
+  chapter_end integer,
+  status text NOT NULL DEFAULT 'upcoming',
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT valid_arc_status CHECK (status IN ('completed', 'airing', 'upcoming'))
+);
+
+-- Enable RLS on donghua tables
+ALTER TABLE public.donghua_progress ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.donghua_arcs ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access
+CREATE POLICY "Allow public read donghua" 
+  ON public.donghua_progress 
+  FOR SELECT 
+  TO PUBLIC 
+  USING (true);
+
+CREATE POLICY "Allow public read arcs" 
+  ON public.donghua_arcs 
+  FOR SELECT 
+  TO PUBLIC 
+  USING (true);
+
+-- Allow admin write access
+CREATE POLICY "Allow admin write donghua" 
+  ON public.donghua_progress 
+  FOR ALL 
+  TO PUBLIC 
+  USING (is_admin());
+
+CREATE POLICY "Allow admin write arcs" 
+  ON public.donghua_arcs 
+  FOR ALL 
+  TO PUBLIC 
+  USING (is_admin());
+
+-- Seed initial data
+INSERT INTO public.donghua_arcs (name, episode_start, episode_end, chapter_start, chapter_end, status, description)
+VALUES
+  ('Realm Awakening', 1, 26, 1, 120, 'completed', 'Wang Lin''s awakening and cultivation start'),
+  ('Underworld & Corporeal Realm', 27, 52, 121, 240, 'completed', 'The arc covering Wang Lin''s journey through the underworld'),
+  ('Ancient God Lands', 53, 76, 241, 380, 'airing', 'Currently airing arc in the Ancient God Lands'),
+  ('Dao Expansion & Alliances', 77, 128, 381, 850, 'airing', 'Dao comprehension and alliance building'),
+  ('Heaven-Defying Ascension', 129, 200, 851, 1400, 'upcoming', 'Future arc about ascending to higher realms'),
+  ('Final Confrontation', 201, 350, 1401, 2100, 'upcoming', 'The ultimate confrontation arc')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- CONVERSATIONS/DM TABLES
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.conversations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user1_id uuid NOT NULL REFERENCES public.profiles(user_id),
+  user2_id uuid NOT NULL REFERENCES public.profiles(user_id),
+  last_message_at timestamp with time zone DEFAULT now(),
+  created_at timestamp with time zone DEFAULT now(),
+  UNIQUE(user1_id, user2_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id uuid NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
+  sender_id uuid NOT NULL REFERENCES public.profiles(user_id),
+  content text NOT NULL,
+  read boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+-- Conversation policies
+CREATE POLICY "Users can view their own conversations"
+  ON public.conversations
+  FOR SELECT
+  TO authenticated
+  USING (user1_id = auth.uid() OR user2_id = auth.uid());
+
+CREATE POLICY "Users can create conversations"
+  ON public.conversations
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (user1_id = auth.uid() OR user2_id = auth.uid());
+
+-- Message policies
+CREATE POLICY "Users can view messages in their conversations"
+  ON public.messages
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.conversations c
+      WHERE c.id = conversation_id
+      AND (c.user1_id = auth.uid() OR c.user2_id = auth.uid())
+    )
+  );
+
+CREATE POLICY "Users can send messages"
+  ON public.messages
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (sender_id = auth.uid());
+
+-- ============================================================================
 -- END OF COMPLETE COMBINED MIGRATIONS
 -- ============================================================================
