@@ -3,6 +3,7 @@ import type { AniListData } from "@/hooks/useDonghuaData";
 import type { DonghuaSeries } from "@/data/donghuaData";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const RELEASING_SYNC_MS = 6 * 60 * 60 * 1000;
 const CACHE_KEY_PREFIX = "donghua_release_meta_v1";
 const GLOBAL_SYNC_KEY = "donghua_release_meta_global_sync_v1";
 
@@ -58,6 +59,12 @@ function buildFallbackMetadata(anilist: AniListData | null, jikanTotal: number):
   };
 }
 
+function getCacheTtl(anilist: AniListData | null, cached?: ReleaseMetadata | null): number {
+  if (anilist?.status === "RELEASING") return RELEASING_SYNC_MS;
+  if (cached?.nextEpisode) return RELEASING_SYNC_MS;
+  return DAY_MS;
+}
+
 interface NextEpisodeResponse {
   success: boolean;
   source?: "next-episode";
@@ -76,7 +83,8 @@ export async function syncSeriesReleaseMetadata(
   force = false,
 ): Promise<ReleaseMetadata> {
   const cached = parseCached(series.id);
-  if (!force && cached && (Date.now() - cached.updatedAt) < DAY_MS) {
+  const ttlMs = getCacheTtl(anilist, cached);
+  if (!force && cached && (Date.now() - cached.updatedAt) < ttlMs) {
     return cached;
   }
 
@@ -85,6 +93,7 @@ export async function syncSeriesReleaseMetadata(
       body: {
         slug: series.nextEpisodeSlug,
         query: series.searchQuery,
+        aliases: series.aliases || [],
       },
     });
 
@@ -118,7 +127,7 @@ export async function syncAllSeriesReleaseMetadata(
   force = false,
 ) {
   const lastSync = Number(localStorage.getItem(GLOBAL_SYNC_KEY) || 0);
-  if (!force && Date.now() - lastSync < DAY_MS) {
+  if (!force && Date.now() - lastSync < RELEASING_SYNC_MS) {
     return;
   }
 
@@ -128,6 +137,7 @@ export async function syncAllSeriesReleaseMetadata(
         body: {
           slug: series.nextEpisodeSlug,
           query: series.searchQuery,
+          aliases: series.aliases || [],
         },
       }).then(({ data, error }) => {
         if (error) return;

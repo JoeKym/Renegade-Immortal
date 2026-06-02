@@ -28,6 +28,7 @@ interface JikanAnimeEntry {
   title?: string;
   title_english?: string;
   titles?: JikanTitleEntry[];
+  airing?: boolean;
 }
 
 const ANILIST_QUERY = `
@@ -83,6 +84,49 @@ export function useDonghuaData(seriesId: string | undefined) {
       setLoading(true);
       setError(null);
       try {
+        const canonicalTerms = [
+          series?.title,
+          series?.searchQuery,
+          series?.anilistSearch,
+          ...(series?.aliases || []),
+        ]
+          .filter(Boolean)
+          .map((term) => String(term).toLowerCase());
+
+        const titleMatchScore = (names: string[]) => {
+          const lowered = names.map((n) => n.toLowerCase());
+          let score = 0;
+          for (const name of lowered) {
+            for (const term of canonicalTerms) {
+              if (name === term) score += 6;
+              else if (name.includes(term)) score += 3;
+              else if (term.includes(name)) score += 1;
+            }
+          }
+          return score;
+        };
+
+        const releasedFromAni = (m: AniListData) => {
+          if (m.nextAiringEpisode?.episode) return Math.max(0, m.nextAiringEpisode.episode - 1);
+          return m.episodes || 0;
+        };
+
+        const pickBestAniMatch = (items: AniListData[]) => {
+          return items
+            .map((item) => {
+              const names = [item.title?.romaji, item.title?.english, item.title?.native].filter(Boolean) as string[];
+              const score = titleMatchScore(names);
+              const released = releasedFromAni(item);
+              const isReleasing = item.status === "RELEASING" ? 1 : 0;
+              return { item, score, released, isReleasing };
+            })
+            .sort((a, b) => {
+              if (b.score !== a.score) return b.score - a.score;
+              if (b.isReleasing !== a.isReleasing) return b.isReleasing - a.isReleasing;
+              return b.released - a.released;
+            })[0]?.item || null;
+        };
+
         let aniRes = await fetch("https://graphql.anilist.co", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -108,26 +152,8 @@ export function useDonghuaData(seriesId: string | undefined) {
             mediaList = aniJson?.data?.Page?.media || [];
         }
         
-        // Improved matching logic
-        let primary: AniListData | null = null;
-        
-        if (series?.id === "renegade-immortal") {
-            primary = mediaList.find(m => {
-                const names = [m.title?.romaji, m.title?.english, m.title?.native].filter(Boolean).join(" ").toLowerCase();
-                return names.includes("xian ni") || names.includes("renegade immortal") || names.includes("仙逆");
-            }) || mediaList[0];
-        } else if (series) {
-            // Find the best match by comparing search query or titles
-            primary = mediaList.find(m => {
-                const searchLower = series.anilistSearch.toLowerCase();
-                const titleLower = series.title.toLowerCase();
-                const names = [m.title?.romaji, m.title?.english, m.title?.native].filter(Boolean).map(n => n.toLowerCase());
-                return names.some(n => n.includes(searchLower)) || 
-                       names.some(n => n.includes(titleLower)) ||
-                       searchLower.includes(m.title.romaji.toLowerCase()) ||
-                       titleLower.includes(m.title.romaji.toLowerCase());
-            }) || mediaList[0];
-        }
+        // Use score + release state + highest released episode to avoid selecting short seasonal entries.
+        const primary = pickBestAniMatch(mediaList);
 
         if (!primary) {
           setError(`Could not find data for "${series.title}".`);
@@ -143,15 +169,19 @@ export function useDonghuaData(seriesId: string | undefined) {
           if (jRes.ok) {
             const jData = await jRes.json();
             const jList = jData?.data || [];
-            // Find best Jikan match
-            const jBest = jList.find((a: JikanAnimeEntry) => {
-                const searchLower = series.jikanSearch.toLowerCase();
-                const altTitles = (a.titles || []).map((t: JikanTitleEntry) => t.title);
-                const names = [a.title, a.title_english, ...altTitles]
-                  .filter(Boolean)
-                  .map((n) => n!.toLowerCase());
-                return names.some(n => n.includes(searchLower));
-            }) || jList[0];
+            const jBest = jList
+              .map((entry: JikanAnimeEntry) => {
+                const altTitles = (entry.titles || []).map((t: JikanTitleEntry) => t.title).filter(Boolean) as string[];
+                const names = [entry.title, entry.title_english, ...altTitles].filter(Boolean) as string[];
+                const score = titleMatchScore(names);
+                const releasingBonus = entry.airing ? 1 : 0;
+                return { entry, score, releasingBonus, episodes: entry.episodes || 0 };
+              })
+              .sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                if (b.releasingBonus !== a.releasingBonus) return b.releasingBonus - a.releasingBonus;
+                return b.episodes - a.episodes;
+              })[0]?.entry;
             jikanTotal = jBest?.episodes || 0;
           }
         } catch (_err) {

@@ -5,9 +5,13 @@ const corsHeaders = {
 
 const ANILIST_QUERY = `
   query ($search: String) {
-    Media(search: $search, type: ANIME) {
+    Page(perPage: 10) {
+      media(search: $search, type: ANIME, sort: POPULARITY_DESC) {
+      title { romaji english native }
+      status
       episodes
       nextAiringEpisode { airingAt episode }
+      }
     }
   }
 `;
@@ -66,7 +70,23 @@ async function fetchFromNextEpisode(slug: string) {
   };
 }
 
-async function fetchAniListFallback(query: string) {
+const normalize = (v: string) => v.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, " ").trim();
+
+function scoreNames(names: string[], terms: string[]) {
+  let score = 0;
+  const normalizedNames = names.map((name) => normalize(name));
+  for (const name of normalizedNames) {
+    for (const term of terms) {
+      if (!name || !term) continue;
+      if (name === term) score += 6;
+      else if (name.includes(term)) score += 3;
+      else if (term.includes(name)) score += 1;
+    }
+  }
+  return score;
+}
+
+async function fetchAniListFallback(query: string, aliases: string[]) {
   const response = await fetch('https://graphql.anilist.co', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -78,7 +98,26 @@ async function fetchAniListFallback(query: string) {
 
   if (!response.ok) return null;
   const json = await response.json();
-  const media = json?.data?.Media;
+  const mediaList = json?.data?.Page?.media;
+  if (!Array.isArray(mediaList) || mediaList.length === 0) return null;
+
+  const terms = [query, ...aliases].map(normalize).filter(Boolean);
+  const media = mediaList
+    .map((entry: any) => {
+      const names = [entry?.title?.romaji, entry?.title?.english, entry?.title?.native].filter(Boolean);
+      const score = scoreNames(names, terms);
+      const released = entry?.nextAiringEpisode?.episode
+        ? Math.max(0, entry.nextAiringEpisode.episode - 1)
+        : entry?.episodes || 0;
+      const releasingBoost = entry?.status === "RELEASING" ? 1 : 0;
+      return { entry, score, released, releasingBoost };
+    })
+    .sort((a: any, b: any) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.releasingBoost !== a.releasingBoost) return b.releasingBoost - a.releasingBoost;
+      return b.released - a.released;
+    })[0]?.entry;
+
   if (!media) return null;
   return {
     totalEpisodes: media.episodes || (media.nextAiringEpisode?.episode ? media.nextAiringEpisode.episode - 1 : 0),
@@ -87,11 +126,31 @@ async function fetchAniListFallback(query: string) {
   };
 }
 
-async function fetchJikanFallback(query: string) {
-  const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=5`);
+async function fetchJikanFallback(query: string, aliases: string[]) {
+  const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=10`);
   if (!response.ok) return null;
   const json = await response.json();
-  const first = json?.data?.[0];
+  const list = json?.data;
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const terms = [query, ...aliases].map(normalize).filter(Boolean);
+
+  const first = list
+    .map((entry: any) => {
+      const altTitles = Array.isArray(entry?.titles)
+        ? entry.titles.map((t: any) => t?.title).filter(Boolean)
+        : [];
+      const names = [entry?.title, entry?.title_english, ...altTitles].filter(Boolean);
+      const score = scoreNames(names, terms);
+      const airingBoost = entry?.airing ? 1 : 0;
+      const episodes = entry?.episodes || 0;
+      return { entry, score, airingBoost, episodes };
+    })
+    .sort((a: any, b: any) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.airingBoost !== a.airingBoost) return b.airingBoost - a.airingBoost;
+      return b.episodes - a.episodes;
+    })[0]?.entry;
+
   if (!first) return null;
   return {
     totalEpisodes: first.episodes || 0,
@@ -104,7 +163,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { slug, query } = await req.json();
+    const { slug, query, aliases } = await req.json();
     if (!slug || typeof slug !== "string") {
       return new Response(
         JSON.stringify({ success: false, error: "slug is required" }),
@@ -127,8 +186,9 @@ Deno.serve(async (req) => {
     }
 
     const fallbackQuery = typeof query === "string" && query.trim() ? query.trim() : slug.replace(/-/g, " ");
-    const ani = await fetchAniListFallback(fallbackQuery);
-    const jikan = await fetchJikanFallback(fallbackQuery);
+    const aliasList = Array.isArray(aliases) ? aliases.filter((a) => typeof a === "string") : [];
+    const ani = await fetchAniListFallback(fallbackQuery, aliasList);
+    const jikan = await fetchJikanFallback(fallbackQuery, aliasList);
 
     const totalEpisodes = Math.max(ani?.totalEpisodes || 0, jikan?.totalEpisodes || 0);
     if (!totalEpisodes) {
