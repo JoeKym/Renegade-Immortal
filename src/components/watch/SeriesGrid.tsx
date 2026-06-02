@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Volume2, ExternalLink } from "lucide-react";
-import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { useState } from "react";
 
 interface SeriesGridProps {
   currentSeriesId: string;
@@ -8,6 +9,7 @@ interface SeriesGridProps {
 
 export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
   const otherSeries = DONGHUA_SERIES.filter(s => s.id !== currentSeriesId);
+  const [brokenThumbs, setBrokenThumbs] = useState<Record<string, boolean>>({});
 
   return (
     <div className="mt-8 space-y-4">
@@ -16,7 +18,7 @@ export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
           <Volume2 size={20} className="text-primary" />
           More Donghua Series
         </h3>
-        <Link to="/donghua" className="text-xs text-primary hover:underline font-body">View All</Link>
+        <Link to="/donghua-series/watch-more-donghua" className="text-xs text-primary hover:underline font-body">View All</Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {otherSeries.slice(0, 4).map((s) => (
@@ -26,10 +28,11 @@ export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
             className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all shadow-lg bg-card"
           >
             <img
-              src={s.thumbnail}
+              src={brokenThumbs[s.id] ? "/placeholder.svg" : s.thumbnail}
               alt={s.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"
+              onError={() => setBrokenThumbs((prev) => ({ ...prev, [s.id]: true }))}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
             <div className="absolute bottom-0 left-0 right-0 p-3">

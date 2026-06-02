@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { syncSeriesReleaseMetadata } from "@/services/releaseMetadata";
 
 export interface AniListData {
   id: number;
@@ -16,6 +17,17 @@ export interface AniListData {
   streamingEpisodes: { title: string; thumbnail: string; url: string; site: string }[] | null;
   studios: { nodes: { name: string }[] };
   trailer?: { id: string; site: string } | null;
+}
+
+interface JikanTitleEntry {
+  title?: string;
+}
+
+interface JikanAnimeEntry {
+  episodes?: number;
+  title?: string;
+  title_english?: string;
+  titles?: JikanTitleEntry[];
 }
 
 const ANILIST_QUERY = `
@@ -132,50 +144,35 @@ export function useDonghuaData(seriesId: string | undefined) {
             const jData = await jRes.json();
             const jList = jData?.data || [];
             // Find best Jikan match
-            const jBest = jList.find((a: any) => {
+            const jBest = jList.find((a: JikanAnimeEntry) => {
                 const searchLower = series.jikanSearch.toLowerCase();
-                const names = [a.title, a.title_english, ...a.titles.map((t: any) => t.title)].filter(Boolean).map(n => n.toLowerCase());
+                const altTitles = (a.titles || []).map((t: JikanTitleEntry) => t.title);
+                const names = [a.title, a.title_english, ...altTitles]
+                  .filter(Boolean)
+                  .map((n) => n!.toLowerCase());
                 return names.some(n => n.includes(searchLower));
             }) || jList[0];
             jikanTotal = jBest?.episodes || 0;
           }
-        } catch (_) {}
-
-        // Episode count logic
-        let bestTotal = Math.max(primary.episodes || 0, jikanTotal);
-        let bestNextAiring = primary.nextAiringEpisode;
-
-        // Special logic for RELEASING series to estimate total count
-        if (primary.status === "RELEASING" && primary.nextAiringEpisode) {
-            bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
+        } catch (_err) {
+          // Jikan is a secondary source and may rate-limit requests.
         }
 
-        // Special logic for Renegade Immortal release cycles
-        if (series?.id === "renegade-immortal") {
-            const now = Date.now();
-            // EP 131 was released around March 2, 2026 based on previous context, let's adjust
-            const EP_131_RELEASE = new Date("2026-03-02T03:00:00Z").getTime(); 
-            const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-            const weeksSince131 = Math.floor((now - EP_131_RELEASE) / ONE_WEEK);
-            const mostRecentReleaseTime = EP_131_RELEASE + (weeksSince131 * ONE_WEEK);
-            
-            let KNOWN_RELEASED = now >= mostRecentReleaseTime ? 131 + weeksSince131 : 131 + weeksSince131 - 1;
-            let nextReleaseTime = now >= mostRecentReleaseTime ? mostRecentReleaseTime + ONE_WEEK : mostRecentReleaseTime;
-            
-            bestTotal = Math.max(bestTotal, KNOWN_RELEASED);
-            if (!bestNextAiring || Math.abs(bestNextAiring.airingAt * 1000 - nextReleaseTime) > ONE_WEEK) {
-                bestNextAiring = {
-                    airingAt: Math.floor(nextReleaseTime / 1000),
-                    episode: KNOWN_RELEASED + 1,
-                    timeUntilAiring: Math.max(0, Math.floor((nextReleaseTime - now) / 1000))
-                };
-            }
-        } else if (primary.status === "RELEASING") {
-            // For other releasing series, if AniList count is 26 but it's clearly more
-            // we can try to use the nextAiringEpisode as the source of truth for count
-            if (primary.nextAiringEpisode) {
-                bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
-            }
+        const releaseMeta = await syncSeriesReleaseMetadata(series, primary, jikanTotal);
+        let bestTotal = releaseMeta.totalEpisodes || Math.max(primary.episodes || 0, jikanTotal);
+        let bestNextAiring = primary.nextAiringEpisode;
+
+        // Prefer authoritative next-episode sync when available.
+        if (releaseMeta.nextAiringAt && releaseMeta.nextEpisode) {
+          const now = Date.now();
+          const timeUntilAiring = Math.max(0, Math.floor((releaseMeta.nextAiringAt * 1000 - now) / 1000));
+          bestNextAiring = {
+            airingAt: releaseMeta.nextAiringAt,
+            episode: releaseMeta.nextEpisode,
+            timeUntilAiring,
+          };
+        } else if (primary.status === "RELEASING" && primary.nextAiringEpisode) {
+          bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
         }
 
         setAniData({

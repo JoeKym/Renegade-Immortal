@@ -4,8 +4,16 @@ export interface DonghuaSeries {
   searchQuery: string;
   anilistSearch: string;
   jikanSearch: string;
+  nextEpisodeSlug: string;
   thumbnail: string;
   serverSlug?: string; // Optional slug for servers if different from id
+}
+
+export interface DonghuaSection {
+  id: string;
+  title: string;
+  description: string;
+  seriesIds: string[];
 }
 
 export const DONGHUA_SERIES: DonghuaSeries[] = [
@@ -15,7 +23,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Xian Ni",
     anilistSearch: "Xian Ni",
     jikanSearch: "xian ni",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx163542-m97v60G7VvT8.jpg",
+    nextEpisodeSlug: "renegade-immortal",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx163542-m97v60G7VvT8.jpg",
     serverSlug: "renegade-immortal-xian-ni"
   },
   {
@@ -24,7 +33,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Guang Yin Zhi Wai",
     anilistSearch: "Guang Yin Zhi Wai",
     jikanSearch: "Guang Yin Zhi Wai",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170135-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "beyond-times-gaze",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170135-7uYyJm8Xp8S0.jpg",
     serverSlug: "beyond-times-gaze"
   },
   {
@@ -33,7 +43,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Mu Shen Ji",
     anilistSearch: "Mu Shen Ji",
     jikanSearch: "Mu Shen Ji",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx171311-5uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "tales-of-herding-gods",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx171311-5uYyJm8Xp8S0.jpg",
     serverSlug: "tales-of-herding-gods"
   },
   {
@@ -42,7 +53,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Tunshi Xingkong",
     anilistSearch: "Tunshi Xingkong",
     jikanSearch: "Tunshi Xingkong",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx124314-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "swallowed-star",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx124314-7uYyJm8Xp8S0.jpg",
     serverSlug: "swallowed-star"
   },
   {
@@ -51,7 +63,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Lian Qi Shi Wan Nian",
     anilistSearch: "Lian Qi Shi Wan Nian",
     jikanSearch: "Lian Qi Shi Wan Nian",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx162486-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "one-hundred-thousand-years-of-qi-refining",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx162486-7uYyJm8Xp8S0.jpg",
     serverSlug: "one-hundred-thousand-years-of-qi-refining"
   },
   {
@@ -60,7 +73,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Doupo Cangqiong",
     anilistSearch: "Doupo Cangqiong",
     jikanSearch: "Doupo Cangqiong",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx98075-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "battle-through-the-heavens",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx98075-7uYyJm8Xp8S0.jpg",
     serverSlug: "battle-through-the-heavens"
   },
   {
@@ -69,7 +83,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Huan Jing Zhi Yue",
     anilistSearch: "Huan Jing Zhi Yue",
     jikanSearch: "Huan Jing Zhi Yue",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170136-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "eclipse-of-illusion",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx206160-l36djxNn7Mm2.jpg",
     serverSlug: "eclipse-of-illusion"
   },
   {
@@ -78,7 +93,8 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Shen Mu",
     anilistSearch: "Shen Mu",
     jikanSearch: "Shen Mu",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx153120-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "tomb-of-fallen-gods",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx153120-7uYyJm8Xp8S0.jpg",
     serverSlug: "tomb-of-fallen-gods"
   },
   {
@@ -87,7 +103,17 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     searchQuery: "Wo De Jia Shi Dou Shi Wo De Yan Xian",
     anilistSearch: "Wo De Jia Shi Dou Shi Wo De Yan Xian",
     jikanSearch: "Wo De Jia Shi Dou Shi Wo De Yan Xian",
-    thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170137-7uYyJm8Xp8S0.jpg",
+    nextEpisodeSlug: "spy-x-sect",
+    thumbnail: "https://wsrv.nl/?url=https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170137-7uYyJm8Xp8S0.jpg",
     serverSlug: "spy-x-sect"
+  },
+];
+
+export const DONGHUA_SECTIONS: DonghuaSection[] = [
+  {
+    id: "watch-more-donghua",
+    title: "More Donghua Series",
+    description: "Series highlighted in the watch page recommendations panel.",
+    seriesIds: DONGHUA_SERIES.map((series) => series.id),
   },
 ];

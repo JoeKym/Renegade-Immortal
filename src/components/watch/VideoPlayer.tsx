@@ -12,7 +12,13 @@ interface Server {
   directUrl: (ep: number, slug: string) => string;
 }
 
+// Priority order: Anime4i first, then fallbacks only when needed.
 const SERVERS: Server[] = [
+  {
+    name: "anime4i",
+    label: "Anime4i",
+    directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
+  },
   {
     name: "luciferdonghua",
     label: "LuciferDonghua",
@@ -27,11 +33,6 @@ const SERVERS: Server[] = [
     name: "donghuastream",
     label: "DonghuaStream",
     directUrl: (ep, slug) => `https://donghuastream.org/${slug}-episode-${ep}-multiple-subtitles/`,
-  },
-  {
-    name: "anime4i",
-    label: "Anime4i",
-    directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
   },
   {
     name: "evasub",
@@ -110,7 +111,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
         setLoadState("error");
       }
     }
-  }, [episode]);
+  }, [episode, donghuaSlug]);
 
   useEffect(() => {
     setServerStatuses({});
