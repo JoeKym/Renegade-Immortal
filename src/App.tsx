@@ -49,60 +49,62 @@ import SearchAnalytics from "./pages/SearchAnalytics";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-    <QueryClientProvider client={queryClient}>
-      <TranslationProvider>
-        <TooltipProvider>
-          <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/characters" element={<Characters />} />
-              <Route path="/daos" element={<Daos />} />
-              <Route path="/cultivation" element={<Cultivation />} />
-              <Route path="/timeline" element={<Timeline />} />
-              <Route path="/multiverse" element={<Multiverse />} />
-              <Route path="/donghua" element={<Donghua />} />
-              <Route path="/lore" element={<Lore />} />
-              <Route path="/guide" element={<Guide />} />
-              <Route path="/artifacts" element={<Artifacts />} />
-              <Route path="/locations" element={<Locations />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/suspended" element={<Suspended />} />
-              <Route path="/members" element={<Members />} />
-              <Route path="/communities" element={<Communities />} />
-              <Route path="/communities/:id" element={<CommunityDetail />} />
-              <Route path="/feed" element={<Feed />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/groups" element={<GroupMessages />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/cultivator/:username" element={<UserProfile />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/voidy" element={<Voidy />} />
-              <Route path="/news" element={<News />} />
-              <Route path="/watch" element={<Watch />} />
-              <Route path="/watch/:slug" element={<WatchDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/dmca" element={<DMCA />} />
-              <Route path="/admin/search-analytics" element={<SearchAnalytics />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-      </TranslationProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <HelmetProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TranslationProvider>
+          <TooltipProvider>
+            <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/characters" element={<Characters />} />
+                <Route path="/daos" element={<Daos />} />
+                <Route path="/cultivation" element={<Cultivation />} />
+                <Route path="/timeline" element={<Timeline />} />
+                <Route path="/multiverse" element={<Multiverse />} />
+                <Route path="/donghua" element={<Donghua />} />
+                <Route path="/lore" element={<Lore />} />
+                <Route path="/guide" element={<Guide />} />
+                <Route path="/artifacts" element={<Artifacts />} />
+                <Route path="/locations" element={<Locations />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/suspended" element={<Suspended />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/communities" element={<Communities />} />
+                <Route path="/communities/:id" element={<CommunityDetail />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/groups" element={<GroupMessages />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/cultivator/:username" element={<UserProfile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/voidy" element={<Voidy />} />
+                <Route path="/news" element={<News />} />
+                <Route path="/watch" element={<Watch />} />
+                <Route path="/watch/:slug" element={<WatchDetail />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/dmca" element={<DMCA />} />
+                <Route path="/admin/search-analytics" element={<SearchAnalytics />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
+        </TranslationProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </HelmetProvider>
 );
 
 export default App;

@@ -188,11 +188,21 @@ export default function WatchDetail() {
     }
   };
 
-  if (!loading && !series) {
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center py-32">
+          <Loader2 size={36} className="animate-spin text-primary mb-4" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!series) {
     return <NotFound />;
   }
 
-  if (!loading && episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) {
+  if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) {
     return <NotFound />;
   }
 
@@ -258,11 +268,7 @@ export default function WatchDetail() {
       </div>
 
       <div className="container mx-auto px-4 max-w-7xl py-6">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 size={36} className="animate-spin text-primary mb-4" />
-          </div>
-        ) : error ? (
+        {error ? (
           <div className="text-center py-24">
             <p className="text-destructive font-body mb-2">{error}</p>
           </div>
