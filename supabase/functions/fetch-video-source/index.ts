@@ -6,7 +6,7 @@ const corsHeaders = {
 interface ServerConfig {
   name: string;
   label: string;
-  getPageUrl: (episode: number) => string;
+  getPageUrl: (episode: number, slug: string) => string;
   extractEmbed: (html: string) => string | null;
 }
 
@@ -14,7 +14,7 @@ const servers: ServerConfig[] = [
   {
     name: 'luciferdonghua',
     label: 'Lucifer Donghua',
-    getPageUrl: (ep) => `https://luciferdonghua.org/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+    getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
     extractEmbed: (html) => {
       // LuciferDonghua uses Dailymotion embeds - look for geo.dailymotion.com player URL
       const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
@@ -45,7 +45,7 @@ const servers: ServerConfig[] = [
   {
     name: 'luciferdonghua-alt',
     label: 'Lucifer Donghua (Alt)',
-    getPageUrl: (ep) => `https://luciferdonghua.org/renegade-immortal-xian-ni-episode-${ep}-english-subtitles/`,
+    getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-subtitles/`,
     extractEmbed: (html) => {
       // Same extraction as above
       const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
@@ -71,7 +71,7 @@ const servers: ServerConfig[] = [
   {
     name: 'anime4i',
     label: 'Anime4i',
-    getPageUrl: (ep) => `https://anime4i.com/renegade-immortal-xian-ni-episode-${ep}-english-subtitles`,
+    getPageUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
     extractEmbed: (html) => {
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       return iframeMatch?.[1] || null;
@@ -80,7 +80,11 @@ const servers: ServerConfig[] = [
   {
     name: 'donghuastream',
     label: 'DonghuaStream',
-    getPageUrl: (ep) => `https://donghuastream.org/episode/renegade-immortal-episode-${ep}/`,
+    getPageUrl: (ep, slug) => {
+      // Some series might have slightly different slug patterns on donghuastream
+      const dsSlug = slug.includes('renegade-immortal') ? 'renegade-immortal' : slug;
+      return `https://donghuastream.org/episode/${dsSlug}-episode-${ep}/`;
+    },
     extractEmbed: (html) => {
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       return iframeMatch?.[1] || null;
@@ -89,7 +93,7 @@ const servers: ServerConfig[] = [
   {
     name: 'luciferdonghua-in',
     label: 'LuciferDonghua.in',
-    getPageUrl: (ep) => `https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${ep}-lucifer-donghua/`,
+    getPageUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
     extractEmbed: (html) => {
       // Similar to luciferdonghua - look for Dailymotion or iframe embeds
       const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
@@ -104,7 +108,7 @@ const servers: ServerConfig[] = [
   {
     name: 'evasub',
     label: 'EvaSub',
-    getPageUrl: (ep) => `http://evasub.com/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+    getPageUrl: (ep, slug) => `http://evasub.com/${slug}-episode-${ep}-english-sub/`,
     extractEmbed: (html) => {
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       return iframeMatch?.[1] || null;
@@ -113,7 +117,10 @@ const servers: ServerConfig[] = [
   {
     name: 'animecube',
     label: 'Anime Cube',
-    getPageUrl: (ep) => `https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${ep}`,
+    getPageUrl: (ep, slug) => {
+      const cubeSlug = slug.includes('renegade-immortal') ? 'renegade-immortal' : slug;
+      return `https://animecube.live/anime/${cubeSlug}?season=tab-1&episode=${cubeSlug}-tab-1-ep-${ep}`;
+    },
     extractEmbed: (html) => {
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       return iframeMatch?.[1] || null;
@@ -122,7 +129,12 @@ const servers: ServerConfig[] = [
   {
     name: 'myanime',
     label: 'MyAnime',
-    getPageUrl: (ep) => `https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${ep}-english-sub/`,
+    getPageUrl: (ep, slug) => {
+       // MyAnime URLs often have dates, making them hard to predict. 
+       // Fallback to a search-like pattern if possible, or just use the slug.
+       const mySlug = slug.includes('renegade-immortal') ? 'xian-ni-renegade-immortal-2023' : slug;
+       return `https://myanime.live/${mySlug}-episode-${ep}-english-sub/`;
+    },
     extractEmbed: (html) => {
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       return iframeMatch?.[1] || null;
@@ -136,7 +148,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { episode, server } = await req.json();
+    const { episode, server, donghuaSlug } = await req.json();
+    const slug = donghuaSlug || 'renegade-immortal-xian-ni';
 
     if (!episode || typeof episode !== 'number') {
       return new Response(
@@ -160,7 +173,7 @@ Deno.serve(async (req) => {
 
     for (const srv of serversToTry) {
       try {
-        const pageUrl = srv.getPageUrl(episode);
+        const pageUrl = srv.getPageUrl(episode, slug);
         console.log(`Fetching ${srv.name}: ${pageUrl}`);
 
         const response = await fetch(pageUrl, {
@@ -213,7 +226,7 @@ Deno.serve(async (req) => {
         success: false,
         error: 'Could not extract embed from any server',
         results,
-        fallbackUrls: servers.map(s => ({ name: s.name, label: s.label, url: s.getPageUrl(episode) })),
+        fallbackUrls: servers.map(s => ({ name: s.name, label: s.label, url: s.getPageUrl(episode, slug) })),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

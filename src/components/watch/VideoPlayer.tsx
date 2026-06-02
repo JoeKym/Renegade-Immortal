@@ -9,55 +9,56 @@ import { supabase } from "@/integrations/supabase/client";
 interface Server {
   name: string;
   label: string;
-  directUrl: (ep: number) => string;
+  directUrl: (ep: number, slug: string) => string;
 }
 
 const SERVERS: Server[] = [
   {
     name: "luciferdonghua",
     label: "LuciferDonghua",
-    directUrl: (ep) => `https://luciferdonghua.org/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+    directUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
   },
   {
     name: "luciferdonghua-in",
     label: "LuciferDonghua.in",
-    directUrl: (ep) => `https://luciferdonghua.in/renegade-immortal-xian-ni-episode-${ep}-lucifer-donghua/`,
+    directUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
   },
   {
     name: "donghuastream",
     label: "DonghuaStream",
-    directUrl: (ep) => `https://donghuastream.org/renegade-immortal-episode-${ep}-multiple-subtitles/`,
+    directUrl: (ep, slug) => `https://donghuastream.org/${slug}-episode-${ep}-multiple-subtitles/`,
   },
   {
     name: "anime4i",
     label: "Anime4i",
-    directUrl: (ep) => `https://anime4i.com/renegade-immortal-xian-ni-episode-${ep}-english-subtitles`,
+    directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
   },
   {
     name: "evasub",
     label: "EvaSub",
-    directUrl: (ep) => `http://evasub.com/renegade-immortal-xian-ni-episode-${ep}-english-sub/`,
+    directUrl: (ep, slug) => `http://evasub.com/${slug}-episode-${ep}-english-sub/`,
   },
   {
     name: "animecube",
     label: "Anime Cube",
-    directUrl: (ep) => `https://animecube.live/anime/renegade-immortal?season=tab-1&episode=renegade-immortal-tab-1-ep-${ep}`,
+    directUrl: (ep, slug) => `https://animecube.live/anime/${slug}?season=tab-1&episode=${slug}-tab-1-ep-${ep}`,
   },
   {
     name: "myanime",
     label: "MyAnime",
-    directUrl: (ep) => `https://myanime.live/2026/04/19/xian-ni-renegade-immortal-2023-episode-${ep}-english-sub/`,
+    directUrl: (ep, slug) => `https://myanime.live/${slug}-episode-${ep}-english-sub/`,
   },
 ];
 
 interface VideoPlayerProps {
   episode: number;
+  donghuaSlug?: string;
   onEnded?: () => void;
 }
 
 type LoadState = "loading" | "playing" | "error";
 
-export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
+export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni", onEnded }: VideoPlayerProps) {
   const [activeServer, setActiveServer] = useState(0);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -86,7 +87,7 @@ export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
 
     try {
       const { data, error } = await supabase.functions.invoke("fetch-video-source", {
-        body: { episode, server: server.name },
+        body: { episode, server: server.name, donghuaSlug },
       });
 
       if (error) throw new Error(error.message);
@@ -190,7 +191,7 @@ export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
               {SERVERS.map((srv) => (
                 <a
                   key={srv.name}
-                  href={srv.directUrl(episode)}
+                  href={srv.directUrl(episode, donghuaSlug)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground rounded text-xs font-body transition-colors border border-border"
@@ -286,7 +287,7 @@ export function VideoPlayer({ episode, onEnded }: VideoPlayerProps) {
               {SERVERS.map((srv) => (
                 <a
                   key={srv.name}
-                  href={srv.directUrl(episode)}
+                  href={srv.directUrl(episode, donghuaSlug)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"

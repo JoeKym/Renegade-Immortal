@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/components/AuthProvider";
 import { TranslationProvider } from "@/contexts/TranslationContext";
+import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import Characters from "./pages/Characters";
 import Daos from "./pages/Daos";
@@ -40,6 +41,7 @@ import Settings from "./pages/Settings";
 import Voidy from "./pages/VoidyChat";
 import News from "./pages/News";
 import Watch from "./pages/Watch";
+import WatchDetail from "./pages/WatchDetail";
 import About from "./pages/About";
 import DMCA from "./pages/DMCA";
 import SearchAnalytics from "./pages/SearchAnalytics";
@@ -89,6 +91,7 @@ const App = () => (
               <Route path="/voidy" element={<Voidy />} />
               <Route path="/news" element={<News />} />
               <Route path="/watch" element={<Watch />} />
+              <Route path="/watch/:slug" element={<WatchDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/dmca" element={<DMCA />} />
               <Route path="/admin/search-analytics" element={<SearchAnalytics />} />
