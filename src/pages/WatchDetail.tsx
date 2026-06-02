@@ -65,6 +65,11 @@ export default function WatchDetail() {
   const { donghuaId, episodeNumber } = useMemo(() => {
     if (!slug) return { donghuaId: null, episodeNumber: null };
     
+    // Check if the entire slug is a valid donghua ID first
+    if (DONGHUA_SERIES.find(d => d.id === slug)) {
+      return { donghuaId: slug, episodeNumber: null };
+    }
+
     // Try to find if slug ends with -{number}
     const match = slug.match(/(.+)-(\d+)$/);
     if (match) {
@@ -76,11 +81,6 @@ export default function WatchDetail() {
       }
     }
     
-    // Otherwise check if it's just a donghua ID
-    if (DONGHUA_SERIES.find(d => d.id === slug)) {
-      return { donghuaId: slug, episodeNumber: null };
-    }
-    
     return { donghuaId: null, episodeNumber: null };
   }, [slug]);
 
@@ -88,6 +88,15 @@ export default function WatchDetail() {
     DONGHUA_SERIES.find(d => d.id === donghuaId), 
     [donghuaId]
   );
+
+  useEffect(() => {
+    try {
+      const historyStr = localStorage.getItem(`${series?.id}_watch_history`);
+      if (historyStr) setWatchHistory(JSON.parse(historyStr));
+    } catch (e) {
+      console.warn("Failed to load local watch history");
+    }
+  }, [series?.id]);
 
   useEffect(() => {
     if (!series) {
@@ -158,6 +167,11 @@ export default function WatchDetail() {
   }, [search, allEpisodes]);
 
   const handleEpisodeSelect = (num: number) => {
+    setWatchHistory(prev => {
+      const next = { ...prev, [num]: true };
+      localStorage.setItem(`${series?.id}_watch_history`, JSON.stringify(next));
+      return next;
+    });
     navigate(`/watch/${series?.id}-${num}`);
   };
 
@@ -397,10 +411,15 @@ export default function WatchDetail() {
                           key={ep.number}
                           onClick={() => handleEpisodeSelect(ep.number)}
                           className={`aspect-video relative rounded border flex items-center justify-center text-[10px] font-body transition-colors ${
-                            episodeNumber === ep.number ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50"
+                            episodeNumber === ep.number 
+                              ? "border-primary bg-primary/10 text-primary" 
+                              : "border-border hover:border-primary/50"
                           }`}
                         >
                           EP {ep.number}
+                          {watchHistory[ep.number] && episodeNumber !== ep.number && (
+                            <Eye size={10} className="absolute top-1 right-1 text-primary/60" />
+                          )}
                         </button>
                       ))}
                     </div>
@@ -410,12 +429,17 @@ export default function WatchDetail() {
                         <button
                           key={ep.number}
                           onClick={() => handleEpisodeSelect(ep.number)}
-                          className={`w-full flex items-center gap-3 p-2 rounded text-left text-xs transition-colors ${
+                          className={`w-full flex items-center justify-between p-2 rounded text-left text-xs transition-colors ${
                             episodeNumber === ep.number ? "bg-primary/10 text-primary" : "hover:bg-muted"
                           }`}
                         >
-                          <Play size={12} />
-                          Episode {ep.number}
+                          <div className="flex items-center gap-3">
+                            <Play size={12} />
+                            Episode {ep.number}
+                          </div>
+                          {watchHistory[ep.number] && episodeNumber !== ep.number && (
+                            <Eye size={12} className="text-primary/60" />
+                          )}
                         </button>
                       ))}
                     </div>

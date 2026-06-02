@@ -303,11 +303,11 @@ export default function WatchPage() {
     );
   }, [search, allEpisodes]);
 
-  const handleEpisodeSelect = (num: number) => {
-    navigate(`/watch/renegade-immortal-${num}`);
-  };
+  const handleSeriesClick = (id: string) => {
+       navigate(`/watch/${id}`);
+     };
 
-  const otherSeries = DONGHUA_SERIES.filter(s => s.id !== "renegade-immortal");
+    const otherSeries = DONGHUA_SERIES.filter(s => s.id !== "renegade-immortal");
 
   const studio = aniData?.studios?.nodes?.[0]?.name;
   const title = aniData?.title?.english || aniData?.title?.romaji || "Renegade Immortal";
@@ -443,11 +443,11 @@ export default function WatchPage() {
                     </p>
                     <div className="flex flex-wrap gap-3 justify-center">
                       <button
-                        onClick={() => handleEpisodeSelect(lastWatched || 1)}
+                        onClick={() => handleSeriesClick("renegade-immortal")}
                         className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-heading tracking-wider hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-primary/20"
                       >
                         <PlaySquare size={18} />
-                        {lastWatched ? `Continue Episode ${lastWatched}` : "Start Watching"}
+                        View Series Info
                       </button>
                     </div>
                   </div>
@@ -543,7 +543,7 @@ export default function WatchPage() {
                             layout
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            onClick={() => handleEpisodeSelect(ep.number)}
+                            onClick={() => handleSeriesClick("renegade-immortal")}
                             className="group relative rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all text-left"
                           >
                             {/* Thumbnail */}
@@ -582,7 +582,7 @@ export default function WatchPage() {
                             layout
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
-                            onClick={() => handleEpisodeSelect(ep.number)}
+                            onClick={() => handleSeriesClick("renegade-immortal")}
                             className="w-full flex items-center gap-3 rounded-lg p-2.5 text-left transition-all border border-transparent hover:bg-muted/40 hover:border-border text-muted-foreground hover:text-foreground"
                           >
                             {ep.thumbnail ? (
