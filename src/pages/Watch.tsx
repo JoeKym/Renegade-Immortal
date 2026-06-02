@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import {
-  Play, Search, Loader2, Star, Calendar, ChevronLeft, ChevronRight,
-  Tv, Clock, List, Grid, Volume2, Eye, PlaySquare
+  Play, Search, Loader2, Star, Calendar,
+  Tv, Clock, List, Grid, Volume2, Eye, PlaySquare, ExternalLink
 } from "lucide-react";
-import { VideoPlayer } from "@/components/watch/VideoPlayer";
 import { useT } from "@/contexts/TranslationContext";
+import { DONGHUA_SERIES } from "@/data/donghuaData";
 
 interface AniListData {
   id: number;
@@ -76,8 +77,8 @@ function formatTimeUntil(seconds: number): string {
 
 export default function WatchPage() {
   const { t } = useT();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [selectedEpisode, setSelectedEpisode] = useState<number | null>(null);
   const [aniData, setAniData] = useState<AniListData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -302,29 +303,11 @@ export default function WatchPage() {
     );
   }, [search, allEpisodes]);
 
-  const selectedData = selectedEpisode
-    ? allEpisodes.find((e) => e.number === selectedEpisode)
-    : null;
-
   const handleEpisodeSelect = (num: number) => {
-    setSelectedEpisode(num);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    
-    setWatchHistory(prev => {
-      const next = { ...prev, [num]: true };
-      localStorage.setItem("renegade_watch_history", JSON.stringify(next));
-      return next;
-    });
-    setLastWatched(num);
-    localStorage.setItem("renegade_last_watched", num.toString());
+    navigate(`/watch/renegade-immortal-${num}`);
   };
 
-  const handlePrev = () => {
-    if (selectedEpisode && selectedEpisode > 1) handleEpisodeSelect(selectedEpisode - 1);
-  };
-  const handleNext = () => {
-    if (selectedEpisode && selectedEpisode < releasedCount) handleEpisodeSelect(selectedEpisode + 1);
-  };
+  const otherSeries = DONGHUA_SERIES.filter(s => s.id !== "renegade-immortal");
 
   const studio = aniData?.studios?.nodes?.[0]?.name;
   const title = aniData?.title?.english || aniData?.title?.romaji || "Renegade Immortal";
@@ -435,101 +418,81 @@ export default function WatchPage() {
 
         {!loading && !error && (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* LEFT: Player + Info */}
-            <div className="flex-1 min-w-0">
-              {selectedEpisode ? (
-                <motion.div
-                  key={selectedEpisode}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  {/* Now playing bar */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-[10px] text-muted-foreground font-body tracking-wider uppercase">Now Playing</p>
-                      <h2 className="text-sm font-heading text-foreground tracking-wide">
-                        Episode {selectedEpisode} — {selectedData?.arc}
-                      </h2>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handlePrev}
-                        disabled={selectedEpisode <= 1}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors"
-                      >
-                        <ChevronLeft size={14} /> Prev
-                      </button>
-                      <button
-                        onClick={handleNext}
-                        disabled={selectedEpisode >= releasedCount}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors"
-                      >
-                        Next <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <VideoPlayer episode={selectedEpisode} onEnded={handleNext} />
-
-                  {/* Description */}
-                  {aniData?.description && (
-                    <div className="mt-4 p-4 gradient-card border border-border rounded-lg">
-                      <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">About</h3>
-                      <p className="text-sm font-body text-muted-foreground leading-relaxed line-clamp-4">
-                        {aniData.description.replace(/<[^>]*>/g, "")}
-                      </p>
-                    </div>
+            {/* LEFT: Featured + More Donghua */}
+            <div className="flex-1 min-w-0 space-y-8">
+              {/* Featured Series Hub */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="gradient-card border border-border rounded-xl overflow-hidden"
+              >
+                <div className="relative w-full aspect-video sm:aspect-[21/9] overflow-hidden">
+                  {aniData?.bannerImage ? (
+                    <img src={aniData.bannerImage} alt={title} className="w-full h-full object-cover opacity-60" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-background" />
                   )}
-                </motion.div>
-              ) : (
-                /* No episode selected — show cover card */
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="gradient-card border border-border rounded-xl overflow-hidden"
-                >
-                  <div
-                    className="relative w-full flex items-center justify-center"
-                    style={{ paddingBottom: "56.25%" }}
-                  >
-                    <div className="absolute inset-0">
-                      {aniData?.bannerImage ? (
-                        <img src={aniData.bannerImage} alt="banner" className="w-full h-full object-cover opacity-40" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-muted to-card" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="mb-4 p-3 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-sm">
+                      <Play size={40} className="text-primary fill-primary/20" />
                     </div>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                      <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-                        <Play size={36} className="text-primary ml-1" />
-                      </div>
-                      <div>
-                        <p className="text-foreground font-heading tracking-wider text-lg mb-1">Select an Episode</p>
-                        <p className="text-muted-foreground font-body text-sm">
-                          Choose any of the {releasedCount} released episodes from the list
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <button
-                          onClick={() => handleEpisodeSelect(1)}
-                          className="px-6 py-2.5 bg-muted/60 text-foreground hover:bg-muted rounded-lg text-sm font-heading tracking-wider transition-colors border border-border"
-                        >
-                          Start from Episode 1
-                        </button>
-                        {lastWatched && (
-                          <button
-                            onClick={() => handleEpisodeSelect(lastWatched)}
-                            className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-heading tracking-wider hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
-                          >
-                            <PlaySquare size={16} /> Continue Ep {lastWatched}
-                          </button>
-                        )}
-                      </div>
+                    <h2 className="text-2xl sm:text-3xl font-heading text-foreground mb-2 tracking-widest">RENEGADE IMMORTAL</h2>
+                    <p className="text-sm text-muted-foreground font-body max-w-lg mb-6 line-clamp-2 sm:line-clamp-none">
+                      {aniData?.description?.replace(/<[^>]*>/g, "") || "Follow Wang Lin's journey to immortality."}
+                    </p>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <button
+                        onClick={() => handleEpisodeSelect(lastWatched || 1)}
+                        className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-heading tracking-wider hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-primary/20"
+                      >
+                        <PlaySquare size={18} />
+                        {lastWatched ? `Continue Episode ${lastWatched}` : "Start Watching"}
+                      </button>
                     </div>
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </motion.div>
+
+              {/* More Donghua Series */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-heading text-foreground tracking-wider flex items-center gap-2">
+                    <Volume2 size={20} className="text-primary" />
+                    More Donghua Series
+                  </h3>
+                  <Link to="/donghua" className="text-xs text-primary hover:underline font-body">View All</Link>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {otherSeries.map((series) => (
+                    <Link
+                      key={series.id}
+                      to={`/watch/${series.id}`}
+                      className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all shadow-lg bg-card"
+                    >
+                      <img
+                        src={series.thumbnail}
+                        alt={series.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <p className="text-[10px] text-primary font-body uppercase tracking-tighter mb-0.5">Series</p>
+                        <h4 className="text-xs font-heading text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                          {series.title}
+                        </h4>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center scale-90 group-hover:scale-100 transition-transform">
+                          <ExternalLink size={18} className="text-primary-foreground" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* RIGHT: Episode List */}
@@ -572,7 +535,6 @@ export default function WatchPage() {
 
                 {/* Episodes scrollable */}
                 <div ref={episodeListRef} className="overflow-y-auto flex-1 p-3">
-                  <AnimatePresence mode="popLayout">
                     {viewMode === "grid" ? (
                       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filtered.map((ep) => (
@@ -582,11 +544,7 @@ export default function WatchPage() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             onClick={() => handleEpisodeSelect(ep.number)}
-                            className={`group relative rounded-lg overflow-hidden border transition-all text-left ${
-                              selectedEpisode === ep.number
-                                ? "ring-2 ring-primary border-primary"
-                                : "border-border hover:border-primary/50"
-                            }`}
+                            className="group relative rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all text-left"
                           >
                             {/* Thumbnail */}
                             <div className="aspect-video bg-muted relative overflow-hidden">
@@ -625,11 +583,7 @@ export default function WatchPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             onClick={() => handleEpisodeSelect(ep.number)}
-                            className={`w-full flex items-center gap-3 rounded-lg p-2.5 text-left transition-all border ${
-                              selectedEpisode === ep.number
-                                ? "bg-primary/10 border-primary/40 text-foreground"
-                                : "border-transparent hover:bg-muted/40 hover:border-border text-muted-foreground hover:text-foreground"
-                            }`}
+                            className="w-full flex items-center gap-3 rounded-lg p-2.5 text-left transition-all border border-transparent hover:bg-muted/40 hover:border-border text-muted-foreground hover:text-foreground"
                           >
                             {ep.thumbnail ? (
                               <img
@@ -646,9 +600,6 @@ export default function WatchPage() {
                             <div className="min-w-0 flex-1 flex flex-col">
                               <div className="flex justify-between items-center">
                                 <p className="text-xs font-heading tracking-wide text-inherit flex items-center gap-1.5">
-                                  {selectedEpisode === ep.number && (
-                                    <span className="text-primary">▶</span>
-                                  )}
                                   Episode {ep.number}
                                 </p>
                                 {watchHistory[ep.number] && (
@@ -662,7 +613,6 @@ export default function WatchPage() {
                         ))}
                       </div>
                     )}
-                  </AnimatePresence>
 
                   {filtered.length === 0 && (
                     <p className="text-center text-muted-foreground text-xs font-body py-8">

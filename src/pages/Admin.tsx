@@ -391,7 +391,6 @@ const countryFlagMap: Record<string, string> = {
   "Chad": "",
   "Guinea": "",
   "South Sudan": "",
-  "Rwanda": "",
   "Benin": "",
   "Burundi": "",
   "Togo": "",
