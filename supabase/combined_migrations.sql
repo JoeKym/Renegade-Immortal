@@ -47,6 +47,21 @@ RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
   DELETE FROM public.active_visitors WHERE last_seen < now() - interval '5 minutes';
 $$;
 
+-- Admin check function - needed for admin-only access
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE user_id = auth.uid() AND role = 'admin'
+  );
+END;
+$$;
+
 DO $$
 BEGIN
   PERFORM 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'comments';
