@@ -124,6 +124,12 @@ export default function WatchDetail() {
             src={aniData?.coverImage?.large || series.thumbnail}
             alt={title}
             className="hidden sm:block w-24 h-36 object-cover rounded-lg border border-border shadow-xl flex-shrink-0"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== series.thumbnail) {
+                target.src = series.thumbnail;
+              }
+            }}
           />
           <div className="min-w-0">
             <h1 className="text-2xl sm:text-3xl font-heading text-foreground tracking-wider leading-tight truncate">
@@ -260,8 +266,19 @@ export default function WatchDetail() {
                     <div className="grid grid-cols-3 gap-2">
                       {filtered.map((ep) => (
                         <button key={ep.number} onClick={() => handleEpisodeSelect(ep.number)} className={`aspect-video relative rounded border flex items-center justify-center text-[10px] font-body transition-colors ${episodeNumber === ep.number ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50"}`}>
-                          EP {ep.number}
-                          {watchHistory[ep.number] && episodeNumber !== ep.number && <Eye size={10} className="absolute top-1 right-1 text-primary/60" />}
+                          <img 
+                            src={ep.thumbnail} 
+                            alt={`EP ${ep.number}`} 
+                            className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity rounded" 
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (series?.thumbnail && target.src !== series.thumbnail) {
+                                    target.src = series.thumbnail;
+                                }
+                            }}
+                          />
+                          <span className="relative z-10">EP {ep.number}</span>
+                          {watchHistory[ep.number] && episodeNumber !== ep.number && <Eye size={10} className="absolute top-1 right-1 text-primary/60 z-10" />}
                         </button>
                       ))}
                     </div>
@@ -269,7 +286,22 @@ export default function WatchDetail() {
                     <div className="space-y-1">
                       {filtered.map((ep) => (
                         <button key={ep.number} onClick={() => handleEpisodeSelect(ep.number)} className={`w-full flex items-center justify-between p-2 rounded text-left text-xs transition-colors ${episodeNumber === ep.number ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}>
-                          <div className="flex items-center gap-3"><Play size={12} />Episode {ep.number}</div>
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-10 h-6 overflow-hidden rounded bg-muted flex-shrink-0">
+                                <img 
+                                    src={ep.thumbnail} 
+                                    alt="" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        if (series?.thumbnail && target.src !== series.thumbnail) {
+                                            target.src = series.thumbnail;
+                                        }
+                                    }}
+                                />
+                            </div>
+                            Episode {ep.number}
+                          </div>
                           {watchHistory[ep.number] && episodeNumber !== ep.number && <Eye size={12} className="text-primary/60" />}
                         </button>
                       ))}

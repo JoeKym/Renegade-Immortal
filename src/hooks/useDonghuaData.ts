@@ -71,7 +71,7 @@ export function useDonghuaData(seriesId: string | undefined) {
       setLoading(true);
       setError(null);
       try {
-        const aniRes = await fetch("https://graphql.anilist.co", {
+        let aniRes = await fetch("https://graphql.anilist.co", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify({ 
@@ -79,45 +79,82 @@ export function useDonghuaData(seriesId: string | undefined) {
             variables: { search: series?.anilistSearch }
           }),
         });
-        const aniJson = aniRes.ok ? await aniRes.json() : null;
-        const mediaList: AniListData[] = aniJson?.data?.Page?.media || [];
+        let aniJson = aniRes.ok ? await aniRes.json() : null;
+        let mediaList: AniListData[] = aniJson?.data?.Page?.media || [];
+
+        // Fallback search if pinyin title returns no results
+        if (mediaList.length === 0 && series?.title) {
+            aniRes = await fetch("https://graphql.anilist.co", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify({ 
+                    query: ANILIST_QUERY,
+                    variables: { search: series.title }
+                }),
+            });
+            aniJson = aniRes.ok ? await aniRes.json() : null;
+            mediaList = aniJson?.data?.Page?.media || [];
+        }
         
-        // Find best match based on series.id or title
-        let primary = mediaList[0] || null;
+        // Improved matching logic
+        let primary: AniListData | null = null;
+        
         if (series?.id === "renegade-immortal") {
-            const relevant = mediaList.filter((m) => {
+            primary = mediaList.find(m => {
                 const names = [m.title?.romaji, m.title?.english, m.title?.native].filter(Boolean).join(" ").toLowerCase();
                 return names.includes("xian ni") || names.includes("renegade immortal") || names.includes("仙逆");
-            });
-            primary = relevant.find(m => m.status === "RELEASING") || relevant[0] || mediaList[0];
+            }) || mediaList[0];
+        } else if (series) {
+            // Find the best match by comparing search query or titles
+            primary = mediaList.find(m => {
+                const searchLower = series.anilistSearch.toLowerCase();
+                const titleLower = series.title.toLowerCase();
+                const names = [m.title?.romaji, m.title?.english, m.title?.native].filter(Boolean).map(n => n.toLowerCase());
+                return names.some(n => n.includes(searchLower)) || 
+                       names.some(n => n.includes(titleLower)) ||
+                       searchLower.includes(m.title.romaji.toLowerCase()) ||
+                       titleLower.includes(m.title.romaji.toLowerCase());
+            }) || mediaList[0];
         }
 
         if (!primary) {
-          setError("Could not find data for this series.");
+          setError(`Could not find data for "${series.title}".`);
           return;
         }
 
-        // Jikan Fallback for episode count
+        // Fetch additional data from Jikan with better query
         let jikanTotal = 0;
         try {
           const jRes = await fetch(
-            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(series?.jikanSearch || "")}&limit=5`
+            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(series?.jikanSearch || "")}&limit=10`
           );
           if (jRes.ok) {
             const jData = await jRes.json();
             const jList = jData?.data || [];
-            const jBest = jList[0];
+            // Find best Jikan match
+            const jBest = jList.find((a: any) => {
+                const searchLower = series.jikanSearch.toLowerCase();
+                const names = [a.title, a.title_english, ...a.titles.map((t: any) => t.title)].filter(Boolean).map(n => n.toLowerCase());
+                return names.some(n => n.includes(searchLower));
+            }) || jList[0];
             jikanTotal = jBest?.episodes || 0;
           }
         } catch (_) {}
 
-        // Special logic for Renegade Immortal release cycles
-        let bestNextAiring = primary.nextAiringEpisode;
+        // Episode count logic
         let bestTotal = Math.max(primary.episodes || 0, jikanTotal);
+        let bestNextAiring = primary.nextAiringEpisode;
 
+        // Special logic for RELEASING series to estimate total count
+        if (primary.status === "RELEASING" && primary.nextAiringEpisode) {
+            bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
+        }
+
+        // Special logic for Renegade Immortal release cycles
         if (series?.id === "renegade-immortal") {
             const now = Date.now();
-            const EP_131_RELEASE = new Date("2026-03-08T03:00:00Z").getTime();
+            // EP 131 was released around March 2, 2026 based on previous context, let's adjust
+            const EP_131_RELEASE = new Date("2026-03-02T03:00:00Z").getTime(); 
             const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
             const weeksSince131 = Math.floor((now - EP_131_RELEASE) / ONE_WEEK);
             const mostRecentReleaseTime = EP_131_RELEASE + (weeksSince131 * ONE_WEEK);
@@ -132,6 +169,12 @@ export function useDonghuaData(seriesId: string | undefined) {
                     episode: KNOWN_RELEASED + 1,
                     timeUntilAiring: Math.max(0, Math.floor((nextReleaseTime - now) / 1000))
                 };
+            }
+        } else if (primary.status === "RELEASING") {
+            // For other releasing series, if AniList count is 26 but it's clearly more
+            // we can try to use the nextAiringEpisode as the source of truth for count
+            if (primary.nextAiringEpisode) {
+                bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
             }
         }
 
@@ -174,7 +217,8 @@ export function useDonghuaData(seriesId: string | undefined) {
 
   const allEpisodes = useMemo(() => {
     if (releasedCount === 0) return [];
-    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium;
+    // Use series.thumbnail as the ultimate fallback if AniList images are broken
+    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium || series?.thumbnail;
     
     // Map existing streaming thumbnails if available
     const thumbMap = new Map<number, string>();
@@ -187,11 +231,11 @@ export function useDonghuaData(seriesId: string | undefined) {
       const num = i + 1;
       return {
         number: num,
-        thumbnail: thumbMap.get(num) || fallbackThumbnail,
+        thumbnail: thumbMap.get(num) || fallbackThumbnail || "",
         description: `Episode ${num}`
       };
     });
-  }, [releasedCount, aniData]);
+  }, [releasedCount, aniData, series]);
 
   return { series, aniData, loading, error, countdown, releasedCount, allEpisodes };
 }

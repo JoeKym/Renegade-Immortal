@@ -115,6 +115,12 @@ export default function WatchPage() {
               src={aniData.coverImage.large}
               alt={title}
               className="hidden sm:block w-24 h-36 object-cover rounded-lg border border-border shadow-xl flex-shrink-0"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (series?.thumbnail && target.src !== series.thumbnail) {
+                  target.src = series.thumbnail;
+                }
+              }}
             />
           )}
           <div className="min-w-0">
@@ -361,7 +367,18 @@ export default function WatchPage() {
                           }`}
                         >
                           <div className="aspect-video bg-muted relative overflow-hidden">
-                            <img src={ep.thumbnail} alt={`EP ${ep.number}`} className="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                            <img 
+                                src={ep.thumbnail} 
+                                alt={`EP ${ep.number}`} 
+                                className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                                loading="lazy" 
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (series?.thumbnail && target.src !== series.thumbnail) {
+                                        target.src = series.thumbnail;
+                                    }
+                                }}
+                            />
                             <div className="absolute inset-0 bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <div className="w-8 h-8 rounded-full bg-primary/90 flex items-center justify-center">
                                 <Play size={14} className="text-primary-foreground ml-0.5" />
@@ -387,7 +404,18 @@ export default function WatchPage() {
                           }`}
                         >
                           {ep.thumbnail ? (
-                            <img src={ep.thumbnail} alt={`ep ${ep.number}`} className="w-16 h-10 object-cover rounded flex-shrink-0" loading="lazy" />
+                            <img 
+                                src={ep.thumbnail} 
+                                alt={`ep ${ep.number}`} 
+                                className="w-16 h-10 object-cover rounded flex-shrink-0" 
+                                loading="lazy" 
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (series?.thumbnail && target.src !== series.thumbnail) {
+                                        target.src = series.thumbnail;
+                                    }
+                                }}
+                            />
                           ) : (
                             <div className="w-16 h-10 bg-muted rounded flex-shrink-0 flex items-center justify-center">
                               <Play size={14} className="text-muted-foreground" />
