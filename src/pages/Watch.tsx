@@ -9,46 +9,7 @@ import {
 import { VideoPlayer } from "@/components/watch/VideoPlayer";
 import { useT } from "@/contexts/TranslationContext";
 import { DONGHUA_SERIES } from "@/data/donghuaData";
-
-interface AniListData {
-  id: number;
-  title: { romaji: string; english: string | null; native: string };
-  episodes: number | null;
-  nextAiringEpisode: { airingAt: number; episode: number; timeUntilAiring: number } | null;
-  status: string;
-  averageScore: number | null;
-  meanScore: number | null;
-  coverImage: { extraLarge: string; large: string; medium: string };
-  bannerImage: string | null;
-  description: string | null;
-  genres: string[];
-  streamingEpisodes: { title: string; thumbnail: string; url: string; site: string }[] | null;
-  studios: { nodes: { name: string }[] };
-  trailer?: { id: string; site: string } | null;
-}
-
-const ANILIST_QUERY = `
-  query {
-    Page(perPage: 10) {
-      media(search: "Xian Ni", type: ANIME, sort: POPULARITY_DESC) {
-        id
-        title { romaji english native }
-        episodes
-        nextAiringEpisode { airingAt episode timeUntilAiring }
-        status
-        averageScore
-        meanScore
-        description(asHtml: false)
-        coverImage { extraLarge large medium }
-        bannerImage
-        genres
-        studios { nodes { name } }
-        streamingEpisodes { title thumbnail url site }
-        trailer { id site }
-      }
-    }
-  }
-`;
+import { useDonghuaData } from "@/hooks/useDonghuaData";
 
 const seasonLabels: { maxEp: number; title: string }[] = [
   { maxEp: 39, title: "Heng Yue Sect Arc" },
@@ -66,28 +27,17 @@ function getArcForEpisode(ep: number): string {
   return seasonLabels[seasonLabels.length - 1].title;
 }
 
-function formatTimeUntil(seconds: number): string {
-  const d = Math.floor(seconds / 86400);
-  const h = Math.floor((seconds % 86400) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
 export default function WatchPage() {
   const { t } = useT();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedEpisode, setSelectedEpisode] = useState<number | null>(null);
-  const [aniData, setAniData] = useState<AniListData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState<string>("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
   const [lastWatched, setLastWatched] = useState<number | null>(null);
   const episodeListRef = useRef<HTMLDivElement>(null);
+
+  const { series, aniData, loading, error, countdown, releasedCount, allEpisodes: baseEpisodes } = useDonghuaData("renegade-immortal");
 
   useEffect(() => {
     try {
@@ -101,156 +51,12 @@ export default function WatchPage() {
     }
   }, []);
 
-  // Live countdown timer
-  useEffect(() => {
-    if (!aniData?.nextAiringEpisode) return;
-    
-    const updateCountdown = () => {
-      const now = Date.now();
-      const nextAiring = aniData.nextAiringEpisode;
-      if (!nextAiring) return;
-      
-      const airingAt = nextAiring.airingAt * 1000;
-      const timeUntil = Math.max(0, Math.floor((airingAt - now) / 1000));
-      setCountdown(formatTimeUntil(timeUntil));
-    };
-    
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, [aniData?.nextAiringEpisode]);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const aniRes = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({ query: ANILIST_QUERY }),
-        });
-        const aniJson = aniRes.ok ? await aniRes.json() : null;
-
-        const mediaList: AniListData[] = aniJson?.data?.Page?.media || [];
-        const relevant = mediaList.filter((m) => {
-          const names = [m.title?.romaji, m.title?.english, m.title?.native].filter(Boolean).join(" ").toLowerCase();
-          return names.includes("xian ni") || names.includes("renegade immortal") || names.includes("仙逆");
-        });
-        const pool = relevant.length > 0 ? relevant : mediaList.slice(0, 1);
-
-        if (pool.length === 0) {
-          setError("Could not find Renegade Immortal data.");
-          setLoading(false);
-          return;
-        }
-
-        const primary = pool.find((m) => m.status === "RELEASING") ||
-          pool.reduce((a, b) => (a.episodes || 0) >= (b.episodes || 0) ? a : b);
-
-        const anilistTotal = pool.reduce((sum, m) => sum + (m.episodes || 0), 0);
-        const allStreamingEps = pool.flatMap((m) => m.streamingEpisodes || []);
-
-        let jikanTotal = 0;
-        try {
-          const jRes = await fetch(
-            "https://api.jikan.moe/v4/anime?q=xian+ni&type=ona&limit=25&order_by=popularity&sort=asc"
-          );
-          if (jRes.ok) {
-            const jData = await jRes.json();
-            const jList: { title: string; title_english: string | null; episodes: number | null; status: string; airing: boolean }[] =
-              jData?.data || [];
-            const jRelevant = jList.filter((a) => {
-              const n = [a.title, a.title_english].filter(Boolean).join(" ").toLowerCase();
-              return n.includes("xian ni") || n.includes("renegade immortal");
-            });
-            jikanTotal = jRelevant.reduce((sum, a) => sum + (a.episodes || 0), 0);
-          }
-        } catch (_) { }
-
-        const now = Date.now();
-        const EP_131_RELEASE = new Date("2026-03-08T03:00:00Z").getTime();
-        const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-        const weeksSince131 = Math.floor((now - EP_131_RELEASE) / ONE_WEEK);
-        const mostRecentReleaseTime = EP_131_RELEASE + (weeksSince131 * ONE_WEEK);
-        
-        let KNOWN_RELEASED: number;
-        let nextReleaseTime: number;
-        
-        if (now >= mostRecentReleaseTime) {
-          KNOWN_RELEASED = 131 + weeksSince131;
-          nextReleaseTime = mostRecentReleaseTime + ONE_WEEK;
-        } else {
-          KNOWN_RELEASED = 131 + weeksSince131 - 1;
-          nextReleaseTime = mostRecentReleaseTime;
-        }
-        
-        const synthesizedNextAiring = {
-          airingAt: Math.floor(nextReleaseTime / 1000),
-          episode: KNOWN_RELEASED + 1,
-          timeUntilAiring: Math.max(0, Math.floor((nextReleaseTime - now) / 1000))
-        };
-
-        const apiMax = Math.max(anilistTotal || 0, jikanTotal || 0);
-        const bestTotal = (apiMax >= KNOWN_RELEASED && apiMax <= KNOWN_RELEASED + 5)
-          ? apiMax
-          : KNOWN_RELEASED;
-
-        let bestNextAiring = primary.nextAiringEpisode ?? synthesizedNextAiring;
-        
-        if (primary.nextAiringEpisode) {
-          const aniEpisodeNum = primary.nextAiringEpisode.episode;
-          const synthesizedEpisodeNum = synthesizedNextAiring.episode;
-          if (aniEpisodeNum < synthesizedEpisodeNum || aniEpisodeNum > synthesizedEpisodeNum + 2) {
-            bestNextAiring = synthesizedNextAiring;
-          }
-        }
-
-        setAniData({
-          ...primary,
-          episodes: bestTotal,
-          streamingEpisodes: allStreamingEps.length > 0 ? allStreamingEps : primary.streamingEpisodes,
-          nextAiringEpisode: bestNextAiring,
-        });
-      } catch (e) {
-        console.error("Data fetch failed:", e);
-        setError("Failed to load show data. Please check your connection.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  const releasedCount = useMemo(() => {
-    if (!aniData) return 0;
-    if (aniData.nextAiringEpisode) return aniData.nextAiringEpisode.episode - 1;
-    if (aniData.episodes) return aniData.episodes;
-    return 130;
-  }, [aniData]);
-
-  const thumbnailMap = useMemo(() => {
-    const map = new Map<number, string>();
-    if (aniData?.streamingEpisodes) {
-      for (const se of aniData.streamingEpisodes) {
-        const match = se.title?.match(/Episode\s+(\d+)/i);
-        if (match && se.thumbnail) map.set(parseInt(match[1]), se.thumbnail);
-      }
-    }
-    return map;
-  }, [aniData]);
-
   const allEpisodes = useMemo(() => {
-    if (releasedCount === 0) return [];
-    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium;
-    return Array.from({ length: releasedCount }, (_, i) => {
-      const num = i + 1;
-      return {
-        number: num,
-        arc: getArcForEpisode(num),
-        thumbnail: thumbnailMap.get(num) || fallbackThumbnail,
-        description: `${getArcForEpisode(num)} - Episode ${num}`
-      };
-    });
-  }, [releasedCount, thumbnailMap, aniData]);
+    return baseEpisodes.map(ep => ({
+      ...ep,
+      arc: getArcForEpisode(ep.number)
+    }));
+  }, [baseEpisodes]);
 
   const filtered = useMemo(() => {
     if (!search) return allEpisodes;
@@ -325,6 +131,11 @@ export default function WatchPage() {
               <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
                 <Tv size={12} /> {t("watch.episode_count", { count: releasedCount })}
               </span>
+              {countdown && (
+                <span className="flex items-center gap-1 text-xs text-primary font-body animate-pulse">
+                  <Clock size={12} /> Next: {countdown}
+                </span>
+              )}
               {aniData?.status && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
                   {aniData.status === "RELEASING" ? t("watch.airing") : t("watch.completed")}
