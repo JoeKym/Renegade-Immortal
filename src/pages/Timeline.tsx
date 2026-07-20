@@ -304,7 +304,7 @@ const TimelinePage = () => {
                     ))}
                   </div>
                 </div>
-              </div>            </div>
+              </div>
           </div>
 
           {/* SECOND STEP */}

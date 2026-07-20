@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
-import { syncSeriesReleaseMetadata } from "@/services/releaseMetadata";
 
 export interface AniListData {
   id: number;
@@ -138,7 +137,6 @@ export function useDonghuaData(seriesId: string | undefined) {
         let aniJson = aniRes.ok ? await aniRes.json() : null;
         let mediaList: AniListData[] = aniJson?.data?.Page?.media || [];
 
-        // Fallback search if pinyin title returns no results
         if (mediaList.length === 0 && series?.title) {
             aniRes = await fetch("https://graphql.anilist.co", {
                 method: "POST",
@@ -152,7 +150,6 @@ export function useDonghuaData(seriesId: string | undefined) {
             mediaList = aniJson?.data?.Page?.media || [];
         }
         
-        // Use score + release state + highest released episode to avoid selecting short seasonal entries.
         const primary = pickBestAniMatch(mediaList);
 
         if (!primary) {
@@ -160,7 +157,6 @@ export function useDonghuaData(seriesId: string | undefined) {
           return;
         }
 
-        // Fetch additional data from Jikan with better query
         let jikanTotal = 0;
         try {
           const jRes = await fetch(
@@ -185,30 +181,51 @@ export function useDonghuaData(seriesId: string | undefined) {
             jikanTotal = jBest?.episodes || 0;
           }
         } catch (_err) {
-          // Jikan is a secondary source and may rate-limit requests.
         }
 
-        const releaseMeta = await syncSeriesReleaseMetadata(series, primary, jikanTotal);
-        let bestTotal = releaseMeta.totalEpisodes || Math.max(primary.episodes || 0, jikanTotal);
-        let bestNextAiring = primary.nextAiringEpisode;
+        // --- Next-Episode.net integration for authoritative episode count & release dates
+        let nextEpTotal = 0;
+        let nextEpNextAiring: { airingAt: number; episode: number } | null = null;
+        if (series.nextEpisodeSlug) {
+            try {
+                const nextEpRes = await fetch(
+                    `https://next-episode.net/anime/${encodeURIComponent(series.nextEpisodeSlug)}`,
+                    { headers: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                });
+                if (nextEpRes.ok) {
+                    const html = await nextEpRes.text();
+                    const totalEpMatch = html.match(/Total.*?(\d+)\s*episodes/i);
+                    if (totalEpMatch) nextEpTotal = parseInt(totalEpMatch[1])!
+                    const nextAiringMatch = html.match(/Next.*Episode\s*(\d+).*?(?:airing|date|time)/i);
+                    const nextDateMatch = html.match(/Next.*Episode\s*(\d+).*?(?:airing|date|time).*?(\d{4}-\d{2}-\d{2})/i);
+                    if (nextAiringMatch && nextDateMatch) {
+                        nextEpNextAiring = {
+                            episode: parseInt(nextAiringMatch[1]),
+                            airingAt: Math.floor(new Date(nextDateMatch[2]).getTime() / 1000),
+                        };
+                    }
+                }
+            } catch (_neErr) {
+            }
+        }
 
-        // Prefer authoritative next-episode sync when available.
-        if (releaseMeta.nextAiringAt && releaseMeta.nextEpisode) {
-          const now = Date.now();
-          const timeUntilAiring = Math.max(0, Math.floor((releaseMeta.nextAiringAt * 1000 - now) / 1000));
-          bestNextAiring = {
-            airingAt: releaseMeta.nextAiringAt,
-            episode: releaseMeta.nextEpisode,
-            timeUntilAiring,
-          };
-        } else if (primary.status === "RELEASING" && primary.nextAiringEpisode) {
-          bestTotal = Math.max(bestTotal, primary.nextAiringEpisode.episode - 1);
+        const bestTotal = Math.max(
+            primary.episodes || 0, jikanTotal, nextEpTotal
+        );
+        let bestNextAiring = primary.nextAiringEpisode;
+        if (nextEpNextAiring) {
+            bestNextAiring = {
+                ...nextEpNextAiring,
+                timeUntilAiring: Math.max(0, Math.floor((nextEpNextAiring.airingAt * 1000 - Date.now()) / 1000)),
+            };
         }
 
         setAniData({
-          ...primary,
-          episodes: bestTotal || primary.episodes,
-          nextAiringEpisode: bestNextAiring,
+            ...primary,
+            episodes: bestTotal || primary.episodes,
+            nextAiringEpisode: bestNextAiring,
         });
       } catch (e) {
         console.error("Data fetch failed:", e);
@@ -220,7 +237,6 @@ export function useDonghuaData(seriesId: string | undefined) {
     fetchData();
   }, [series]);
 
-  // Countdown timer
   useEffect(() => {
     if (!aniData?.nextAiringEpisode) return;
     
@@ -244,10 +260,8 @@ export function useDonghuaData(seriesId: string | undefined) {
 
   const allEpisodes = useMemo(() => {
     if (releasedCount === 0) return [];
-    // Use series.thumbnail as the ultimate fallback if AniList images are broken
-    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium || series?.thumbnail;
+    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium || series?.thumbnail || "";
     
-    // Map existing streaming thumbnails if available
     const thumbMap = new Map<number, string>();
     aniData?.streamingEpisodes?.forEach(se => {
         const match = se.title?.match(/Episode\s+(\d+)/i);
@@ -256,9 +270,11 @@ export function useDonghuaData(seriesId: string | undefined) {
 
     return Array.from({ length: releasedCount }, (_, i) => {
       const num = i + 1;
+      let thumbUrl = thumbMap.get(num) || fallbackThumbnail;
+      const proxiedThumb = thumbUrl.startsWith("http") ? `https://wsrv.nl/?url=${encodeURIComponent(thumbUrl)}` : thumbUrl;
       return {
         number: num,
-        thumbnail: thumbMap.get(num) || fallbackThumbnail || "",
+        thumbnail: proxiedThumb,
         description: `Episode ${num}`
       };
     });

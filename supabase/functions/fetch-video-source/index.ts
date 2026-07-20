@@ -11,11 +11,21 @@ interface ServerConfig {
 }
 
 const servers: ServerConfig[] = [
-
+  {
+    name: 'anime4i',
+    label: 'Anime4i',
+    getPageUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
+    extractEmbed: (html) => {
+      // Anime4i-specific extraction: look for player iframes
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed)[^"']*)["'][^>]*>/i);
+      if (iframeMatch) return iframeMatch[1];
+      const genericMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return genericMatch?.[1] || null;
+    },
+  },
   {
     name: 'luciferdonghua',
     label: 'Lucifer Donghua',
-
     getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
     extractEmbed: (html) => {
       // LuciferDonghua uses Dailymotion embeds - look for geo.dailymotion.com player URL
@@ -68,15 +78,6 @@ const servers: ServerConfig[] = [
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
       if (iframeMatch) return iframeMatch[1];
       return null;
-    },
-  },
-  {
-    name: 'anime4i',
-    label: 'Anime4i',
-    getPageUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
-    extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
-      return iframeMatch?.[1] || null;
     },
   },
   {
