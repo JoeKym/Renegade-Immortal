@@ -305,7 +305,6 @@ const TimelinePage = () => {
                   </div>
                 </div>
               </div>
-          </div>
 
           {/* SECOND STEP */}
           <div className="mb-16">
