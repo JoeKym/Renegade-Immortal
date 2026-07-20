@@ -10,86 +10,74 @@ interface ServerConfig {
   extractEmbed: (html: string) => string | null;
 }
 
-const decodeHtml = (value: string) =>
-  value
-    .replace(/&amp;/g, '&')
-    .replace(/&#x2F;/gi, '/')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-
-const normalizeUrl = (value: string | null | undefined): string | null => {
-  if (!value) return null;
-  const decoded = decodeHtml(value.trim());
-  if (!decoded) return null;
-  if (decoded.startsWith('//')) return `https:${decoded}`;
-  if (decoded.startsWith('/')) return null;
-  return decoded;
-};
-
-const firstMatch = (html: string, patterns: RegExp[]): string | null => {
-  for (const pattern of patterns) {
-    const match = html.match(pattern);
-    const candidate = normalizeUrl(match?.[1]);
-    if (candidate) return candidate;
-  }
-  return null;
-};
-
-const parseAnime4i = (html: string) =>
-  firstMatch(html, [
-    /window\.__PLAYER_URL__\s*=\s*["']([^"']+)["']/i,
-    /["']embed(?:_url)?["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']*anime4i[^"']*\/(?:embed|player)[^"']*)["']/i,
-    /<iframe[^>]+src=["']([^"']+)["']/i,
-  ]);
-
-const parseLucifer = (html: string) =>
-  firstMatch(html, [
-    /https:\/\/geo\.dailymotion\.com\/player\.html\?video=([a-zA-Z0-9]+)/i,
-    /dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/i,
-    /["'](?:main|active)?_?player(?:Url)?["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']*(?:dailymotion|embed|player)[^"']*)["']/i,
-  ])?.replace(/^([a-zA-Z0-9_-]+)$/, 'https://geo.dailymotion.com/player.html?video=$1') || null;
-
-const parseDonghuaStream = (html: string) =>
-  firstMatch(html, [
-    /id=["']player_iframe["'][^>]+src=["']([^"']+)["']/i,
-    /["']source["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']*(?:stream|embed|player)[^"']*)["']/i,
-  ]);
-
-const parseEvaSub = (html: string) =>
-  firstMatch(html, [
-    /["']videoUrl["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']+)["']/i,
-  ]);
-
-const parseAnimeCube = (html: string) =>
-  firstMatch(html, [
-    /data-embed=["']([^"']+)["']/i,
-    /["']iframe_url["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']+)["']/i,
-  ]);
-
-const parseMyAnime = (html: string) =>
-  firstMatch(html, [
-    /class=["']jw-video[^>]+src=["']([^"']+)["']/i,
-    /["']stream_url["']\s*:\s*["']([^"']+)["']/i,
-    /<iframe[^>]+src=["']([^"']+)["']/i,
-  ]);
-
 const servers: ServerConfig[] = [
+
+  {
+    name: 'luciferdonghua',
+    label: 'Lucifer Donghua',
+
+    getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
+    extractEmbed: (html) => {
+      // LuciferDonghua uses Dailymotion embeds - look for geo.dailymotion.com player URL
+      const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
+      if (dmMatch) return dmMatch[1];
+      // Also check dailymotion embed format
+      const dmEmbed = html.match(/dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/i);
+      if (dmEmbed) return `https://geo.dailymotion.com/player.html?video=${dmEmbed[1]}`;
+      // Check base64 encoded server options
+      const optionMatch = html.match(/option\s+value="([A-Za-z0-9+/=]{20,})"/g);
+      if (optionMatch) {
+        for (const opt of optionMatch) {
+          const b64 = opt.match(/value="([^"]+)"/)?.[1];
+          if (b64) {
+            try {
+              const decoded = atob(b64);
+              const iframeSrc = decoded.match(/src=["']([^"']+)["']/i);
+              if (iframeSrc) return iframeSrc[1];
+            } catch { /* skip invalid base64 */ }
+          }
+        }
+      }
+      // Generic iframe fallback
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed|video)[^"']*)["']/i);
+      if (iframeMatch) return iframeMatch[1];
+      return null;
+    },
+  },
+  {
+    name: 'luciferdonghua-alt',
+    label: 'Lucifer Donghua (Alt)',
+    getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-subtitles/`,
+    extractEmbed: (html) => {
+      // Same extraction as above
+      const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
+      if (dmMatch) return dmMatch[1];
+      const optionMatch = html.match(/option\s+value="([A-Za-z0-9+/=]{20,})"/g);
+      if (optionMatch) {
+        for (const opt of optionMatch) {
+          const b64 = opt.match(/value="([^"]+)"/)?.[1];
+          if (b64) {
+            try {
+              const decoded = atob(b64);
+              const iframeSrc = decoded.match(/src=["']([^"']+)["']/i);
+              if (iframeSrc) return iframeSrc[1];
+            } catch { /* skip */ }
+          }
+        }
+      }
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      if (iframeMatch) return iframeMatch[1];
+      return null;
+    },
+  },
   {
     name: 'anime4i',
     label: 'Anime4i',
     getPageUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
-    extractEmbed: parseAnime4i,
-  },
-  {
-    name: 'luciferdonghua',
-    label: 'Lucifer Donghua',
-    getPageUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
-    extractEmbed: parseLucifer,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
   },
   {
     name: 'donghuastream',
@@ -99,19 +87,34 @@ const servers: ServerConfig[] = [
       const dsSlug = slug.includes('renegade-immortal') ? 'renegade-immortal' : slug;
       return `https://donghuastream.org/episode/${dsSlug}-episode-${ep}/`;
     },
-    extractEmbed: parseDonghuaStream,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
   },
   {
     name: 'luciferdonghua-in',
     label: 'LuciferDonghua.in',
     getPageUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
-    extractEmbed: parseLucifer,
+    extractEmbed: (html) => {
+      // Similar to luciferdonghua - look for Dailymotion or iframe embeds
+      const dmMatch = html.match(/src=["'](https:\/\/geo\.dailymotion\.com\/player\.html\?video=[^"']+)["']/i);
+      if (dmMatch) return dmMatch[1];
+      const dmEmbed = html.match(/dailymotion\.com\/embed\/video\/([a-zA-Z0-9]+)/i);
+      if (dmEmbed) return `https://geo.dailymotion.com/player.html?video=${dmEmbed[1]}`;
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed|video)[^"']*)["']/i);
+      if (iframeMatch) return iframeMatch[1];
+      return null;
+    },
   },
   {
     name: 'evasub',
     label: 'EvaSub',
     getPageUrl: (ep, slug) => `http://evasub.com/${slug}-episode-${ep}-english-sub/`,
-    extractEmbed: parseEvaSub,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
   },
   {
     name: 'animecube',
@@ -120,7 +123,10 @@ const servers: ServerConfig[] = [
       const cubeSlug = slug.includes('renegade-immortal') ? 'renegade-immortal' : slug;
       return `https://animecube.live/anime/${cubeSlug}?season=tab-1&episode=${cubeSlug}-tab-1-ep-${ep}`;
     },
-    extractEmbed: parseAnimeCube,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
   },
   {
     name: 'myanime',
@@ -131,7 +137,10 @@ const servers: ServerConfig[] = [
        const mySlug = slug.includes('renegade-immortal') ? 'xian-ni-renegade-immortal-2023' : slug;
        return `https://myanime.live/${mySlug}-episode-${ep}-english-sub/`;
     },
-    extractEmbed: parseMyAnime,
+    extractEmbed: (html) => {
+      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      return iframeMatch?.[1] || null;
+    },
   },
 ];
 
@@ -191,11 +200,7 @@ Deno.serve(async (req) => {
         const embedUrl = srv.extractEmbed(html);
 
         if (embedUrl) {
-          const finalUrl = normalizeUrl(embedUrl);
-          if (!finalUrl) {
-            results.push({ server: srv.name, embedUrl: null, error: 'Invalid embed URL format' });
-            continue;
-          }
+          const finalUrl = embedUrl.startsWith('//') ? `https:${embedUrl}` : embedUrl;
           console.log(`${srv.name} embed found: ${finalUrl}`);
           return new Response(
             JSON.stringify({

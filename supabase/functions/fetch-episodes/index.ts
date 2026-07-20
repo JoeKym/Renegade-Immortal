@@ -17,13 +17,13 @@ const ANILIST_QUERY = `
 `;
 
 const extractNumber = (text: string, label: string): number | null => {
-  const regex = new RegExp(`${label}\\s*:?\\s*(\\d+)`, "i");
+  const regex = new RegExp(`\\b${label}\\b\\s*:\\s*(\\d+)`, "i");
   const match = text.match(regex);
   return match ? parseInt(match[1], 10) : null;
 };
 
 const extractDateLine = (text: string, label: string): string | null => {
-  const regex = new RegExp(`${label}\\s*:?\\s*([^\\n]+)`, "i");
+  const regex = new RegExp(`\\b${label}\\b\\s*:\\s*([^\\n]+)`, "i");
   const match = text.match(regex);
   return match?.[1]?.trim() || null;
 };

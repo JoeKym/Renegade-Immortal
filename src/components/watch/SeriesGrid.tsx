@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Volume2, ExternalLink } from "lucide-react";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
 import { useState } from "react";
 
 interface SeriesGridProps {
@@ -18,7 +18,7 @@ export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
           <Volume2 size={20} className="text-primary" />
           More Donghua Series
         </h3>
-        <Link to="/donghua-series/watch-more-donghua" className="text-xs text-primary hover:underline font-body">View All</Link>
+        <Link to="/donghua-series" className="text-xs text-primary hover:underline font-body">View All</Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {otherSeries.slice(0, 4).map((s) => (

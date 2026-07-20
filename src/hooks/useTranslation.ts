@@ -1598,9 +1598,6 @@ const translations: Record<string, Record<string, string>> = {
     "about.title": "Kuhusu",
     "about.description": "Kuhusu mradi huu",
 
-    // Guide
-    "guide.title": "Mwongozo",
-
     // Contact
     "contact.title": "Wasiliana",
     "contact.send": "Tuma Ujumbe",

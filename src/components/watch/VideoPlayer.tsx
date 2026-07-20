@@ -12,7 +12,6 @@ interface Server {
   directUrl: (ep: number, slug: string) => string;
 }
 
-// Priority order: Anime4i first, then fallbacks only when needed.
 const SERVERS: Server[] = [
   {
     name: "anime4i",
@@ -120,7 +119,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
     return () => {
       fetchControllerRef.current?.abort();
     };
-  }, [episode, fetchEmbed]);
+  }, [episode, donghuaSlug, fetchEmbed]);
 
   const handleServerClick = (index: number) => {
     setServerStatuses((prev) => {

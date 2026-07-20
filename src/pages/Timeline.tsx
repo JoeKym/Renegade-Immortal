@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
@@ -82,6 +83,45 @@ const fourthStepArcs = [
   }
 ];
 
+const bookArcs = [
+  {
+    num: "Books 1-4",
+    title: "Foundation & Revenge",
+    subtitle: "The Mediocre Youth & Famous in the Sea of Devils",
+    desc: "Follows Wang Lin's journey from a talentless mortal boy in Zhao Country to a ruthless cultivator. After finding the Heaven Defying Bead and surviving the destruction of his sect, he reconstructs his body in the chaotic Sea of Devils, obtains the inheritance of the 8-star Ancient God Tu Si, and returns to Suzaku to execute his complete revenge against the Teng Clan.",
+    location: "Zhao Country • Sea of Devils • Planet Suzaku",
+    keyEvents: ["Found the Heaven Defying Bead", "Ancient God Land Inheritance", "Teng Clan Annihilation"],
+    characters: ["Wang Lin", "Situ Nan", "Li Muwan", "Teng Huayuan"]
+  },
+  {
+    num: "Books 5-8",
+    title: "The Universe Expands",
+    subtitle: "Cultivation Planet Crystal & Fame Shakes Allheaven",
+    desc: "Wang Lin leaves Planet Suzaku to explore the vast star domains. He enters the Rain Celestial Realm, achieves Soul Formation through mortal comprehension, and moves to the Luotian (Allheaven) Star System. There, he establishes himself as the legendary 'True Thunder Immortal' and participates in massive family wars.",
+    location: "Luotian Star System • Rain Celestial Realm",
+    keyEvents: ["Soul Formation Mortal Arc", "Ascension to Luotian", "True Thunder Immortal Title"],
+    characters: ["Wang Lin", "Qing Shui", "Yao Family Ancestor"]
+  },
+  {
+    num: "Books 9-11",
+    title: "Ascensions & Mysteries",
+    subtitle: "Peak of the Cloud Sea & Mysteries of the Ancient Era",
+    desc: "Wang Lin enters the hidden, beast-filled Cloud Sea Star System, cultivating undercover in the Guiyuan Sect. He uncovers the mysteries of the Realm-Sealing Venerable, reaches the Nirvana Cleanser stage, and serves as the savior of the Inner Realm during the world-shaking war against the Sovereign's Outer Realm forces.",
+    location: "Cloud Sea Star System • Inner/Outer Realm Border",
+    keyEvents: ["Guiyuan Sect Undercover", "Nirvana Cleanser Ascension", "Inner vs. Outer Realm War"],
+    characters: ["Wang Lin", "Sovereign", "Realm-Sealing Venerable"]
+  },
+  {
+    num: "Books 12-13",
+    title: "The Grand Finale",
+    subtitle: "Tenth Sun & Light of the Coming End",
+    desc: "Wang Lin transcends his home universe to enter the Immortal Astral Continent, split between the Celestial and Ancient Clans, in search of a way to resurrect Li Muwan. He climbs the Nine Heaven Trampling Bridges, masters the 14 Essences, and achieves the ultimate Fourth Step of cultivation — Heaven Trampling.",
+    location: "Immortal Astral Continent • Void World",
+    keyEvents: ["Immortal Astral Continent Journey", "Nine Bridges of Heaven Trampling", "Resurrection of Li Muwan"],
+    characters: ["Wang Lin", "Li Muwan", "Celestial Ancestor", "Gu Donglai"]
+  }
+];
+
 const milestones = [
   { title: "Qi Condensation", desc: "First step on cultivation path — 15 layers of spiritual energy absorption." },
   { title: "Core Formation", desc: "Formed golden core — crucial milestone that many never pass." },
@@ -131,6 +171,8 @@ const ArcCard = ({ arc, color }: { arc: ArcData; color: string }) => (
 );
 
 const TimelinePage = () => {
+  const [activeView, setActiveView] = useState<"steps" | "books">("steps");
+
   return (
     <Layout>
       <PageHero title="Story Timeline" subtitle="The Four Steps across increasingly vast geographical scopes" />
@@ -138,7 +180,7 @@ const TimelinePage = () => {
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Intro */}
-          <div className="gradient-card border border-border rounded-lg p-8 mb-12">
+          <div className="gradient-card border border-border rounded-lg p-8 mb-8">
             <p className="font-body text-foreground/80 text-lg leading-relaxed mb-4">
               The narrative of Renegade Immortal is structured into <strong className="text-primary">Four Steps</strong> of cultivation, 
               where each step corresponds to increasingly vast geographical scopes — from a single mortal planet to the boundless universe and beyond.
@@ -149,36 +191,120 @@ const TimelinePage = () => {
             </p>
           </div>
 
-          {/* FIRST STEP */}
-          <div className="mb-16">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center font-heading text-lg text-primary-foreground font-bold">1</div>
-              <div>
-                <h2 className="font-heading text-2xl text-primary tracking-wider">First Step: Mortal Planets</h2>
-                <p className="text-foreground/60 font-body text-sm">Planet Suzaku and the Sealed World</p>
+          {/* Switcher Toggle */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex rounded-lg p-1 bg-muted/60 border border-border">
+              <button
+                onClick={() => setActiveView("steps")}
+                className={`px-4 py-2 text-xs font-heading tracking-wider uppercase rounded-md transition-all ${
+                  activeView === "steps"
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Cultivation Steps
+              </button>
+              <button
+                onClick={() => setActiveView("books")}
+                className={`px-4 py-2 text-xs font-heading tracking-wider uppercase rounded-md transition-all ${
+                  activeView === "books"
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Novel Volume Books
+              </button>
+            </div>
+          </div>
+
+          {activeView === "books" ? (
+            <div className="mb-16">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center font-heading text-lg text-primary-foreground font-bold">📚</div>
+                <div>
+                  <h2 className="font-heading text-2xl text-primary tracking-wider">Novel Volume Books</h2>
+                  <p className="text-foreground/60 font-body text-sm">Chronological narrative books & volume arcs</p>
+                </div>
+              </div>
+              <p className="text-foreground/70 font-body mb-6">
+                Renegade Immortal's story organized by its major publication book volumes, detailing the central plots of each narrative phase.
+              </p>
+              <div className="relative">
+                <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-primary/50 to-crimson" />
+                <div className="space-y-6">
+                  {bookArcs.map((arc, i) => (
+                    <motion.div
+                      key={arc.num}
+                      initial={{ x: -30, opacity: 0 }}
+                      whileInView={{ x: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05 }}
+                      className="relative pl-16 md:pl-20"
+                    >
+                      <div className="absolute left-4 md:left-6 top-6 w-4 h-4 rounded-full border-2 border-primary bg-background z-10" />
+                      <div className={`gradient-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors border-l-2 border-l-primary`}>
+                        <div className="flex items-start justify-between flex-wrap gap-2 mb-1">
+                          <div>
+                            <span className="text-xs font-heading text-primary/70 tracking-widest uppercase block">{arc.num}</span>
+                            <h3 className="font-heading text-lg text-primary tracking-wider">{arc.title}</h3>
+                          </div>
+                          <span className="text-xs font-heading text-muted-foreground tracking-wider">{arc.location}</span>
+                        </div>
+                        <p className="text-xs font-heading text-muted-foreground/80 mb-2 italic">{arc.subtitle}</p>
+                        <p className="text-foreground/80 font-body text-sm leading-relaxed mb-3">{arc.desc}</p>
+                        <div className="mb-3">
+                          <span className="text-xs font-heading text-muted-foreground tracking-wider">Key Events:</span>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {arc.keyEvents.map((e) => (
+                              <span key={e} className="text-xs font-body px-2 py-0.5 rounded bg-muted text-foreground/70">{e}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="text-xs font-heading text-muted-foreground tracking-wider">Characters:</span>
+                          {arc.characters.map((c) => (
+                            <span key={c} className="text-xs font-body px-2 py-0.5 rounded border border-primary/20 text-primary/80">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
-            <p className="text-foreground/70 font-body mb-6">
-              Wang Lin's rise from a mediocre mortal to a peak expert within his home planet. From Zhao Country to becoming the Suzaku title holder.
-            </p>
-            <div className="relative">
-              <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-jade via-jade/50 to-primary/30" />
-              <div className="space-y-6">
-                {firstStepArcs.map((arc, i) => (
-                  <motion.div
-                    key={arc.num}
-                    initial={{ x: -30, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                    className="relative pl-16 md:pl-20"
-                  >
-                    <div className="absolute left-4 md:left-6 top-6 w-4 h-4 rounded-full border-2 border-jade bg-background z-10" />
-                    <ArcCard arc={arc} color="jade" />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+          ) : (
+            <>
+              {/* FIRST STEP */}
+              <div className="mb-16">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center font-heading text-lg text-primary-foreground font-bold">1</div>
+                  <div>
+                    <h2 className="font-heading text-2xl text-primary tracking-wider">First Step: Mortal Planets</h2>
+                    <p className="text-foreground/60 font-body text-sm">Planet Suzaku and the Sealed World</p>
+                  </div>
+                </div>
+                <p className="text-foreground/70 font-body mb-6">
+                  Wang Lin's rise from a mediocre mortal to a peak expert within his home planet. From Zhao Country to becoming the Suzaku title holder.
+                </p>
+                <div className="relative">
+                  <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-jade via-jade/50 to-primary/30" />
+                  <div className="space-y-6">
+                    {firstStepArcs.map((arc, i) => (
+                      <motion.div
+                        key={arc.num}
+                        initial={{ x: -30, opacity: 0 }}
+                        whileInView={{ x: 0, opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.05 }}
+                        className="relative pl-16 md:pl-20"
+                      >
+                        <div className="absolute left-4 md:left-6 top-6 w-4 h-4 rounded-full border-2 border-jade bg-background z-10" />
+                        <ArcCard arc={arc} color="jade" />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>            </div>
           </div>
 
           {/* SECOND STEP */}
