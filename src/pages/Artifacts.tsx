@@ -297,6 +297,44 @@ const items: ArtifactItem[] = [
     storyArc: "Karma Dao Mastery",
     dao: "Karma"
   },
+  {
+    name: "One Thought Cosmos",
+    type: "technique",
+    origin: "Wang Lin's self-created spell",
+    owner: "Wang Lin",
+    power: "Divine skill representing absolute alignment choices. A single thought can birth or destroy an entire cosmos — the apex of Wang Lin's self-created magic.",
+    firstAppearance: "Fourth Step",
+    storyArc: "Original Spell Creation",
+    dao: "Absolute Beginning/Absolute End"
+  },
+  {
+    name: "Shrink the Earth to an Inch",
+    type: "technique",
+    origin: "High-level movement technique",
+    owner: "Wang Lin",
+    power: "Spatial-folding movement ability covering thousands of li in an instant. Enables near-teleportation speed without needing spatial tears.",
+    firstAppearance: "Mid cultivation arcs",
+    storyArc: "Space/Time Dao",
+    dao: "Space/Time"
+  },
+  {
+    name: "Ancient God Finger",
+    type: "technique",
+    origin: "Ancient God bloodline magic",
+    owner: "Wang Lin",
+    power: "Summons a colossal Ancient God finger to crush opponents with overwhelming brute force, shattering formations and cultivators alike.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient God Integration"
+  },
+  {
+    name: "Ancient God Fist",
+    type: "technique",
+    origin: "Ancient God Tu Si inheritance",
+    owner: "Wang Lin",
+    power: "Massive physical attack channeling pure Ancient God power. Delivers a giant punch that can shatter star-system level defenses.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient God Integration"
+  },
 ];
 
 const types = ["All", "artifact", "technique"];

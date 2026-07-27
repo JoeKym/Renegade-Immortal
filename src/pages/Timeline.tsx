@@ -409,6 +409,8 @@ const TimelinePage = () => {
               </div>
             </div>
           </div>
+            </>
+          )}
 
           {/* Milestones */}
           <h2 className="font-heading text-2xl text-primary text-center mt-16 mb-8 tracking-wider">Heaven-Defying Milestones</h2>
