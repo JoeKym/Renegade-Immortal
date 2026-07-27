@@ -1,6 +1,7 @@
 import { Star, Tv, Clock } from "lucide-react";
 import { AniListData } from "@/hooks/useDonghuaData";
 import { DonghuaSeries } from "@/data/donghuaData";
+import { proxyImageUrl } from "@/lib/utils";
 
 interface WatchBannerProps {
   aniData: AniListData | null;
@@ -15,7 +16,7 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
     <div
       className="relative h-48 sm:h-64 overflow-hidden"
       style={{
-        backgroundImage: aniData?.bannerImage ? `url(${aniData.bannerImage})` : undefined,
+        backgroundImage: aniData?.bannerImage ? `url(${proxyImageUrl(aniData.bannerImage)})` : undefined,
         backgroundSize: "cover",
         backgroundPosition: "center 30%",
         backgroundColor: "hsl(228 15% 7%)",
@@ -24,7 +25,7 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 flex items-end gap-5">
         <img
-          src={aniData?.coverImage?.large || series.thumbnail}
+          src={proxyImageUrl(aniData?.coverImage?.large || series.thumbnail)}
           alt={title}
           className="hidden sm:block w-24 h-36 object-cover rounded-lg border border-border shadow-xl flex-shrink-0"
           onError={(e) => {

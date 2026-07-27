@@ -5,6 +5,7 @@ import { DONGHUA_SERIES, DONGHUA_SECTIONS } from "@/data/donghuaData";
 import { Link, useParams } from "react-router-dom";
 import { Play, Volume2 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { proxyImageUrl } from "@/lib/utils";
 
 export default function DonghuaSeriesList() {
   const { sectionId } = useParams<{ sectionId?: string }>();
@@ -67,7 +68,7 @@ export default function DonghuaSeriesList() {
                 className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all shadow-lg bg-card"
               >
                 <img
-                  src={brokenThumbs[series.id] ? "/placeholder.svg" : series.thumbnail}
+                  src={brokenThumbs[series.id] ? "/placeholder.svg" : proxyImageUrl(series.thumbnail)}
                   alt={series.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"

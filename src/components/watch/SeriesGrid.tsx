@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Volume2, ExternalLink } from "lucide-react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
 import { useState } from "react";
+import { proxyImageUrl } from "@/lib/utils";
 
 interface SeriesGridProps {
   currentSeriesId: string;
@@ -28,7 +29,7 @@ export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
             className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all shadow-lg bg-card"
           >
             <img
-              src={brokenThumbs[s.id] ? "/placeholder.svg" : s.thumbnail}
+              src={brokenThumbs[s.id] ? "/placeholder.svg" : proxyImageUrl(s.thumbnail)}
               alt={s.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"

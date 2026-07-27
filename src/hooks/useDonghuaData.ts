@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { proxyImageUrl } from "@/lib/utils";
 
 export interface AniListData {
   id: number;
@@ -191,20 +192,38 @@ export function useDonghuaData(seriesId: string | undefined) {
                 const nextEpRes = await fetch(
                     `https://next-episode.net/anime/${encodeURIComponent(series.nextEpisodeSlug)}`,
                     { headers: {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
                     }
                 });
                 if (nextEpRes.ok) {
                     const html = await nextEpRes.text();
-                    const totalEpMatch = html.match(/Total.*?(\d+)\s*episodes/i);
-                    if (totalEpMatch) nextEpTotal = parseInt(totalEpMatch[1])!
-                    const nextAiringMatch = html.match(/Next.*Episode\s*(\d+).*?(?:airing|date|time)/i);
-                    const nextDateMatch = html.match(/Next.*Episode\s*(\d+).*?(?:airing|date|time).*?(\d{4}-\d{2}-\d{2})/i);
-                    if (nextAiringMatch && nextDateMatch) {
-                        nextEpNextAiring = {
-                            episode: parseInt(nextAiringMatch[1]),
-                            airingAt: Math.floor(new Date(nextDateMatch[2]).getTime() / 1000),
-                        };
+                    const totalEpMatch =
+                      html.match(/Total.*?(\d+)\s*episodes/i) ||
+                      html.match(/<span[^>]*total.*?<\/span>.*?(\d+)\s*episodes?/is) ||
+                      html.match(/(\d+)\s*episodes?\s*(?:\(.*?\))?\s*Total/is);
+                    if (totalEpMatch) nextEpTotal = parseInt(totalEpMatch[1], 10) || 0;
+
+                    const nextRowStart = html.match(/Next.*?Episode/i);
+                    let nextHtmlSlice = nextRowStart
+                      ? html.slice(nextRowStart.index || 0, Math.min(html.length, (nextRowStart.index || 0) + 2500))
+                      : html.slice(0, 3000);
+
+                    const epMatch =
+                      nextHtmlSlice.match(/(?:Next.*?Episode|Episode)\s*(?:Nr\.?|#)?\s*(\d+)/i) ||
+                      nextHtmlSlice.match(/Next.*?(\d+)/is);
+                    const dateMatch =
+                      nextHtmlSlice.match(/(\d{4}-\d{2}-\d{2})/) ||
+                      nextHtmlSlice.match(/((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})/i);
+
+                    if (epMatch && dateMatch) {
+                        const candidateDate = new Date(dateMatch[0]);
+                        if (Number.isFinite(candidateDate.getTime())) {
+                            nextEpNextAiring = {
+                                episode: parseInt(epMatch[1], 10),
+                                airingAt: Math.floor(candidateDate.getTime() / 1000),
+                            };
+                        }
                     }
                 }
             } catch (_neErr) {
@@ -271,10 +290,9 @@ export function useDonghuaData(seriesId: string | undefined) {
     return Array.from({ length: releasedCount }, (_, i) => {
       const num = i + 1;
       let thumbUrl = thumbMap.get(num) || fallbackThumbnail;
-      const proxiedThumb = thumbUrl.startsWith("http") ? `https://wsrv.nl/?url=${encodeURIComponent(thumbUrl)}` : thumbUrl;
       return {
         number: num,
-        thumbnail: proxiedThumb,
+        thumbnail: proxyImageUrl(thumbUrl),
         description: `Episode ${num}`
       };
     });

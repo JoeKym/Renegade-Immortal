@@ -1,5 +1,6 @@
 import { Search, Grid, List, Play, Eye } from "lucide-react";
 import { motion } from "framer-motion";
+import { proxyImageUrl } from "@/lib/utils";
 
 interface Episode {
   number: number;
@@ -58,7 +59,7 @@ export function EpisodeSidebar({
                 className={`aspect-video relative rounded border overflow-hidden flex items-center justify-center text-[10px] font-body transition-colors ${selectedEpisode === ep.number ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50"}`}
               >
                 <img
-                  src={ep.thumbnail}
+                  src={proxyImageUrl(ep.thumbnail)}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity"
                   onError={(e) => {
@@ -82,7 +83,7 @@ export function EpisodeSidebar({
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-6 overflow-hidden rounded bg-muted flex-shrink-0">
                     <img
-                      src={ep.thumbnail}
+                      src={proxyImageUrl(ep.thumbnail)}
                       alt=""
                       className="w-full h-full object-cover"
                       onError={(e) => {

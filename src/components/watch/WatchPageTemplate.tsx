@@ -9,6 +9,7 @@ import { WatchBanner } from "./WatchBanner";
 import { EpisodeSidebar } from "./EpisodeSidebar";
 import { SeriesGrid } from "./SeriesGrid";
 import NotFound from "@/pages/NotFound";
+import { proxyImageUrl } from "@/lib/utils";
 
 interface WatchPageTemplateProps {
   seriesId: string;
@@ -94,7 +95,7 @@ export function WatchPageTemplate({
     ? `${title} Episode ${episodeNumber} - Watch Online`
     : `${title} - All Episodes`;
   const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
-  const pageImage = aniData?.coverImage?.extraLarge || series.thumbnail;
+  const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
 
   return (
     <Layout>
