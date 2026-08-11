@@ -5,6 +5,7 @@ import { Tv, BookOpen, Clock, Calendar, Play, ChevronRight, TrendingUp, Loader2,
 import { getDonghuaStats, getDonghuaArcs, type DonghuaArc } from "@/services/donghua";
 import { ReleaseTimeline } from "@/components/donghua/ReleaseTimeline";
 import { ChapterConverter } from "@/components/donghua/ChapterConverter";
+import { DonghuaTrackingList } from "@/components/donghua/DonghuaTrackingList";
 import { useState, useEffect } from "react";
 
 const totalChapters = 2100;
@@ -194,6 +195,9 @@ const DonghuaPage = () => {
               <Info className="w-3 h-3" /> Numbers are approximate based on fan-adaptation tracking. Actual studio pace may vary.
             </p>
           </div>
+
+          {/* Donghua Tracking & Weekly Release Schedule */}
+          <DonghuaTrackingList />
 
           {/* Release Timeline */}
           <ReleaseTimeline />
