@@ -11,8 +11,9 @@ const fuse = new Fuse(searchableData, {
     { name: "title", weight: 2 },
     { name: "category", weight: 1 },
     { name: "description", weight: 0.8 },
+    { name: "keywords", weight: 0.6 },
   ],
-  threshold: 0.4,
+  threshold: 0.45,
   includeScore: true,
   ignoreLocation: true,
   minMatchCharLength: 2,
@@ -95,8 +96,13 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 autoFocus
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search characters, daos, artifacts, locations..."
+                placeholder="Search characters, lore, pages, locations, artifacts..."
                 className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-body text-lg"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && results.length > 0) {
+                    handleSelect(results[0], 0);
+                  }
+                }}
               />
               <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
                 <X size={18} />

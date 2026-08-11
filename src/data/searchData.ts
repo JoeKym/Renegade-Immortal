@@ -3,6 +3,7 @@ export interface SearchResult {
   category: string;
   description: string;
   path: string;
+  keywords?: string[];
 }
 
 export const searchableData: SearchResult[] = [
@@ -13,8 +14,9 @@ export const searchableData: SearchResult[] = [
   { title: "Ma Liang", category: "Character", description: "Wang Lin's alias after possessing a War Shrine disciple's body", path: "/characters?q=Wang+Lin" },
   { title: "Master Demon", category: "Character", description: "Wang Lin's infamous nickname earned through massacres and ruthless killing intent", path: "/characters?q=Wang+Lin" },
   { title: "Tu Si", category: "Character", description: "Supreme being of the Ancient God lineage", path: "/characters?q=Tu+Si" },
-  { title: "Tou Sen", category: "Character", description: "Legendary Ancient Demon with god-origin hybrid essence", path: "/characters?q=Tou+Sen" },
-  { title: "Ta Jia", category: "Character", description: "Master of the Ancient Devil ways", path: "/characters?q=Ta+Jia" },
+  { title: "Tou Sen", category: "Character", description: "Legendary Ancient Demon with god-origin hybrid essence", path: "/characters?q=Tou+Sen", keywords: ["Ancient Demon", "Tu Si inner devil", "Tuo Sen"] },
+  { title: "Bei Luo", category: "Character", description: "Ancient Demon commander of Sky Demon Country who allies with Wang Lin and seeks to regain his ancient power", path: "/characters?q=Bei+Luo", keywords: ["Ancient Demon", "BeiLuo", "Bei Luo", "Sky Demon Country", "Royal Ancient Demon", "Soul fragment"] },
+  { title: "Ta Jia", category: "Character", description: "Master of the Ancient Devil ways", path: "/characters?q=Ta+Jia", keywords: ["Ancient Devil", "devil arts"] },
   { title: "Teng Huayuan", category: "Character", description: "Patriarch of Teng Clan — catalyst for Wang Lin's revenge. Massacred Wang Lin's family, later faced tower of heads retribution", path: "/characters?q=Teng+Huayuan" },
   { title: "All-Seer", category: "Character", description: "Tian Yunzi — Purple Fragment of Three Souls Seven Fragments. Wang Lin's most persistent enemy who manipulated disciples to devour them", path: "/characters?q=All-Seer" },
   { title: "Liu Mei", category: "Character", description: "Indigo Fragment of love and hate. Early rival who sought to use Wang Lin for Dao of Heartless Love", path: "/characters?q=Liu+Mei" },
@@ -85,4 +87,24 @@ export const searchableData: SearchResult[] = [
   { title: "Beginner Guide", category: "Guide", description: "Start here — introduction to Renegade Immortal", path: "/guide" },
   { title: "Reading Order", category: "Guide", description: "Recommended order for Er Gen's novels", path: "/guide" },
   { title: "Watching Order", category: "Guide", description: "Donghua episode guide and season breakdown", path: "/guide" },
+  { title: "Characters", category: "Page", description: "Browse the full character compendium", path: "/characters", keywords: ["character index", "heroes", "villains"] },
+  { title: "Artifacts", category: "Page", description: "Browse artifacts, treasures, and techniques", path: "/artifacts", keywords: ["treasures", "techniques", "equipment"] },
+  { title: "Daos", category: "Page", description: "Explore the Daos, essences, and cultivation powers", path: "/daos", keywords: ["essences", "cultivation", "powers"] },
+  { title: "Look up daos", category: "Page", description: "Explore the Daos, essences, and cultivation powers", path: "/daos", keywords: ["essences", "cultivation", "powers"] },
+  { title: "Lore", category: "Page", description: "Learn about worldbuilding, races, and history", path: "/lore", keywords: ["world lore", "history", "ancient races"] },
+  { title: "Locations", category: "Page", description: "Explore the planets, realms, and key story locations", path: "/locations", keywords: ["world map", "realms", "places"] },
+  { title: "Watch", category: "Page", description: "Watch the donghua adaptation and episode guide", path: "/watch", keywords: ["anime", "donghua", "series"] },
+  { title: "Multiverse", category: "Page", description: "Discover the multiverse connections across Er Gen's works", path: "/multiverse", keywords: ["parallel worlds", "crossover", "shared universe"] },
+  { title: "Timeline", category: "Page", description: "View Wang Lin's story progression and major arcs", path: "/timeline", keywords: ["story arc", "timeline", "story path"] },
+  { title: "About", category: "Page", description: "Learn about the website and Renegade Immortal project", path: "/about", keywords: ["about", "project info", "website"] },
+  { title: "Support", category: "Page", description: "Contact support and get help with the site", path: "/support", keywords: ["help", "support", "contact"] },
+  { title: "Contact", category: "Page", description: "Send a message to the site team", path: "/contact", keywords: ["contact", "email", "support"] },
+  { title: "Privacy Policy", category: "Page", description: "Review the website's privacy and data policies", path: "/privacy", keywords: ["privacy", "data", "policy"] },
+  { title: "Terms of Service", category: "Page", description: "Review the website's terms and rules", path: "/terms", keywords: ["terms", "service", "rules"] },
+  { title: "Profile", category: "Page", description: "View and edit your user profile", path: "/profile", keywords: ["account", "profile", "settings"] },
+  { title: "Settings", category: "Page", description: "Manage your website preferences and account", path: "/settings", keywords: ["preferences", "account", "settings"] },
+  { title: "Messages", category: "Page", description: "Read and send messages", path: "/messages", keywords: ["chat", "messages", "inbox"] },
+  { title: "Communities", category: "Page", description: "Browse groups and community discussions", path: "/communities", keywords: ["groups", "communities", "forums"] },
+  { title: "Feed", category: "Page", description: "Browse the latest updates and posts", path: "/feed", keywords: ["feed", "updates", "news"] },
+  { title: "Admin", category: "Page", description: "Admin dashboard and analytics tools", path: "/admin", keywords: ["admin", "dashboard", "analytics"] },
 ];

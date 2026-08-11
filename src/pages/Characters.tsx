@@ -79,11 +79,29 @@ const CharactersPage = () => {
   }, [user, favorites, refreshProfile]);
 
   const filtered = useMemo(() => {
+    const lowerSearch = search.toLowerCase();
+
     return characters.filter((c) => {
-      const matchSearch =
-        !search ||
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.description.toLowerCase().includes(search.toLowerCase());
+      const composite = [
+        c.name,
+        c.subtitle,
+        c.description,
+        c.alias,
+        c.sect,
+        c.master,
+        ...(c.nicknames ?? []),
+        ...(c.titles ?? []),
+        ...(c.tags ?? []),
+        ...(c.enemies ?? []),
+        ...(c.majorBattles ?? []),
+        ...(c.techniques ?? []),
+        ...(c.artifacts ?? []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const matchSearch = !search || composite.includes(lowerSearch);
       const matchRace = race === "All Races" || c.race === race;
       const matchAlign = alignment === "All Roles" || c.alignment === alignment;
       return matchSearch && matchRace && matchAlign;

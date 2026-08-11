@@ -42,7 +42,7 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx137653-1wHbCVvABGOr.png",
     serverSlug: "renegade-immortal-xian-ni",
     knownTotalEpisodes: 128,
-    episodesSeason: "1–128+ episodes | Ongoing (Nian Fan)",
+    episodesSeason: "1–153+ episodes | Ongoing (Nian Fan)",
     releaseSchedule: "Mondays at 10:00 AM (GMT+8)",
     releaseDay: "Monday",
     releaseTime: "10:00 AM (GMT+8)",
