@@ -231,7 +231,10 @@ export function useDonghuaData(seriesId: string | undefined) {
         }
 
         const bestTotal = Math.max(
-            primary.episodes || 0, jikanTotal, nextEpTotal
+            series?.knownTotalEpisodes || 0,
+            primary.episodes || 0,
+            jikanTotal,
+            nextEpTotal
         );
         let bestNextAiring = primary.nextAiringEpisode;
         if (nextEpNextAiring) {
@@ -272,10 +275,13 @@ export function useDonghuaData(seriesId: string | undefined) {
   }, [aniData?.nextAiringEpisode]);
 
   const releasedCount = useMemo(() => {
-    if (!aniData) return 0;
-    if (aniData.nextAiringEpisode) return aniData.nextAiringEpisode.episode - 1;
-    return aniData.episodes || 0;
-  }, [aniData]);
+    const known = series?.knownTotalEpisodes || 0;
+    if (!aniData) return known;
+    const aniCount = aniData.nextAiringEpisode
+      ? Math.max(0, aniData.nextAiringEpisode.episode - 1)
+      : aniData.episodes || 0;
+    return Math.max(known, aniCount);
+  }, [aniData, series]);
 
   const allEpisodes = useMemo(() => {
     if (releasedCount === 0) return [];
