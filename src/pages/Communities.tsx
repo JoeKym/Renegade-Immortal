@@ -103,25 +103,36 @@ export default function CommunitiesPage() {
   };
 
   const fetchMembers = async () => {
+    const { data: memberLinks } = await supabase
+      .from("community_members")
+      .select("user_id")
+      .order("joined_at", { ascending: false });
+
+    const userIds = Array.from(new Set(memberLinks?.map((m: any) => m.user_id) || []));
+    if (userIds.length === 0) {
+      setMembers([]);
+      setMembersLoading(false);
+      return;
+    }
+
     const { data } = await supabase
       .from("profiles")
       .select("user_id, display_name, username, avatar_url, bio, reading_progress, created_at")
+      .in("user_id", userIds)
       .order("created_at", { ascending: false });
+
     if (data) {
       setMembers(data as MemberProfile[]);
-      const userIds = data.map((m) => m.user_id);
-      if (userIds.length > 0) {
-        const { data: rolesData } = await supabase
-          .from("user_roles")
-          .select("user_id, role")
-          .in("user_id", userIds);
-        if (rolesData) {
-          const map: Record<string, string> = {};
-          rolesData.forEach((r) => {
-            if (!map[r.user_id] || r.role === "admin") map[r.user_id] = r.role;
-          });
-          setRoles(map);
-        }
+      const { data: rolesData } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("user_id", userIds);
+      if (rolesData) {
+        const map: Record<string, string> = {};
+        rolesData.forEach((r) => {
+          if (!map[r.user_id] || r.role === "admin") map[r.user_id] = r.role;
+        });
+        setRoles(map);
       }
     }
     setMembersLoading(false);
@@ -135,22 +146,40 @@ export default function CommunitiesPage() {
   const handleCreate = async () => {
     if (!newName.trim() || !user) return;
     setCreating(true);
-    const { error } = await supabase.from("communities").insert({
-      name: newName.trim(),
-      description: newDesc.trim(),
-      created_by: user.id,
-      category: newCategory,
-    });
-    if (error) {
+
+    const { data: communityData, error } = await supabase
+      .from("communities")
+      .insert({
+        name: newName.trim(),
+        description: newDesc.trim(),
+        created_by: user.id,
+        category: newCategory,
+      })
+      .select("id")
+      .single();
+
+    if (error || !communityData) {
       toast.error("Failed to create community");
     } else {
-      toast.success("Community created! You are the leader.");
+      const { error: memberError } = await supabase.from("community_members").insert({
+        community_id: communityData.id,
+        user_id: user.id,
+        role: "leader",
+      });
+
+      if (memberError) {
+        toast.error("Community created, but failed to establish leadership membership.");
+      } else {
+        toast.success("Community created! You are the leader.");
+      }
+
       setNewName("");
       setNewDesc("");
       setNewCategory("general");
       setCreateOpen(false);
       fetchCommunities();
     }
+
     setCreating(false);
   };
 

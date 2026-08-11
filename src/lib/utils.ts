@@ -8,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export function proxyImageUrl(url: string | undefined | null): string {
   if (!url) return "/placeholder.svg";
   if (!/^https?:\/\//i.test(url)) return url;
-  if (url.startsWith("https://wsrv.nl/")) return url;
-  return `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+  if (/^https:\/\/(?:wsrv\.nl|images\.weserv\.nl)\//i.test(url)) return url;
+  if (/^https:\/\/s4\.anilist\.co\//i.test(url)) return url;
+  return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
 }
