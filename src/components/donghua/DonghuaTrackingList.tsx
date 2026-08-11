@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { DONGHUA_SERIES, type DonghuaSeries } from "@/data/donghuaData";
-import { Calendar, Clock, ExternalLink, Play, Filter, Tv } from "lucide-react";
+import { Calendar, Clock, ExternalLink, Play, Filter, Tv, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { proxyImageUrl } from "@/lib/utils";
+import { getNextReleaseInfo } from "@/lib/releaseSchedule";
 
 type DayFilter = "All" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 
@@ -22,6 +23,14 @@ export function DonghuaTrackingList() {
   const [selectedDay, setSelectedDay] = useState<DayFilter>("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const filteredSeries = useMemo(() => {
     return DONGHUA_SERIES.filter((series) => {
@@ -81,11 +90,11 @@ export function DonghuaTrackingList() {
           <div className="flex items-center gap-2 mb-1">
             <Tv className="w-5 h-5 text-primary" />
             <h3 className="font-heading text-xl text-primary tracking-wider">
-              Ongoing Donghua Weekly Release Schedule & Tracking
+              Ongoing Donghua Weekly Release Schedule & Live Tracking
             </h3>
           </div>
           <p className="text-xs text-muted-foreground font-body">
-            Real-time episode counts, release times (GMT+8), and direct streaming sources.
+            Real-time episode counts, China Standard Time (CST / GMT+8) release dates, live countdowns, and direct streaming sources.
           </p>
         </div>
 
@@ -106,7 +115,7 @@ export function DonghuaTrackingList() {
         <div className="flex items-center gap-1.5 mb-2">
           <Calendar className="w-3.5 h-3.5 text-primary" />
           <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-            Release Day (GMT+8)
+            Release Day (China CST / GMT+8)
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -156,101 +165,120 @@ export function DonghuaTrackingList() {
 
       {/* Grid of tracked Donghua series */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSeries.map((series, idx) => (
-          <motion.div
-            key={series.id}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.04 }}
-            className="group relative bg-card/60 hover:bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all duration-300 flex flex-col justify-between shadow-md"
-          >
-            <div>
-              {/* Thumbnail + Basic Info */}
-              <div className="flex gap-3.5 mb-3">
-                <img
-                  src={proxyImageUrl(series.thumbnail)}
-                  alt={series.title}
-                  className="w-16 h-22 object-cover rounded-lg border border-border shadow shrink-0 group-hover:scale-105 transition-transform"
-                  loading="lazy"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                    <span
-                      className={`text-[10px] font-heading px-2 py-0.5 rounded border tracking-wider ${getStatusBadge(
-                        series.statusTag
-                      )}`}
-                    >
-                      {series.statusTag || "Ongoing"}
-                    </span>
+        {filteredSeries.map((series, idx) => {
+          const releaseInfo = getNextReleaseInfo(series, now);
+          const isCompleted = series.statusTag?.includes("Completed Special") || (series.statusTag?.includes("Completed") && !series.statusTag?.includes("Ongoing"));
+
+          return (
+            <motion.div
+              key={series.id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.04 }}
+              className="group relative bg-card/60 hover:bg-card border border-border hover:border-primary/40 rounded-xl p-4 transition-all duration-300 flex flex-col justify-between shadow-md"
+            >
+              <div>
+                {/* Thumbnail + Basic Info */}
+                <div className="flex gap-3.5 mb-3">
+                  <img
+                    src={proxyImageUrl(series.thumbnail)}
+                    alt={series.title}
+                    className="w-16 h-22 object-cover rounded-lg border border-border shadow shrink-0 group-hover:scale-105 transition-transform"
+                    loading="lazy"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span
+                        className={`text-[10px] font-heading px-2 py-0.5 rounded border tracking-wider ${getStatusBadge(
+                          series.statusTag
+                        )}`}
+                      >
+                        {series.statusTag || "Ongoing"}
+                      </span>
+                    </div>
+                    <h4 className="font-heading text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                      {series.title}
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground font-body mt-1 line-clamp-2">
+                      {series.episodesSeason}
+                    </p>
                   </div>
-                  <h4 className="font-heading text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                    {series.title}
-                  </h4>
-                  <p className="text-[11px] text-muted-foreground font-body mt-1 line-clamp-2">
-                    {series.episodesSeason}
-                  </p>
+                </div>
+
+                {/* Release Schedule & China Time Live Countdown Box */}
+                <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-muted/30 border border-border/50 text-xs font-body mb-3">
+                  <div className="flex items-center gap-1.5 text-foreground/80">
+                    <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="truncate">{series.releaseSchedule}</span>
+                  </div>
+                  {!isCompleted && (
+                    <div className="flex flex-col gap-0.5 pt-1.5 mt-1 border-t border-border/40 text-[11px]">
+                      <div className="flex items-center justify-between text-primary font-heading tracking-wider">
+                        <span className="flex items-center gap-1">
+                          <Sparkles size={11} className="animate-pulse" /> Next Ep {releaseInfo.nextEpisodeNumber}:
+                        </span>
+                        <span className="font-mono">{releaseInfo.timeUntilFormatted}</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-body flex justify-between items-center">
+                        <span>China Time (CST):</span>
+                        <span>{releaseInfo.chinaTimeDisplay}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Release Schedule Line */}
-              {series.releaseSchedule && (
-                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-muted/30 border border-border/50 text-xs font-body text-foreground/80 mb-3">
-                  <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="truncate">{series.releaseSchedule}</span>
-                </div>
-              )}
-            </div>
+              {/* Actions & Links */}
+              <div className="pt-3 border-t border-border/50 flex flex-col gap-2">
+                <Link
+                  to={`/watch/${series.id}`}
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-heading tracking-wider transition-colors shadow-sm"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" /> Watch on Site
+                </Link>
 
-            {/* Actions & Links */}
-            <div className="pt-3 border-t border-border/50 flex flex-col gap-2">
-              <Link
-                to={`/watch/${series.id}`}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-heading tracking-wider transition-colors shadow-sm"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" /> Watch on Site
-              </Link>
-
-              {/* Streaming Links */}
-              {series.streamingLinks && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider mr-1">
-                    Direct Links:
-                  </span>
-                  {series.streamingLinks.anime4i && (
-                    <a
-                      href={series.streamingLinks.anime4i}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
-                    >
-                      <ExternalLink className="w-2.5 h-2.5" /> Anime4i
-                    </a>
-                  )}
-                  {series.streamingLinks.luciferDonghuaOrg && (
-                    <a
-                      href={series.streamingLinks.luciferDonghuaOrg}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
-                    >
-                      <ExternalLink className="w-2.5 h-2.5" /> Lucifer (.org)
-                    </a>
-                  )}
-                  {series.streamingLinks.luciferDonghuaIn && (
-                    <a
-                      href={series.streamingLinks.luciferDonghuaIn}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
-                    >
-                      <ExternalLink className="w-2.5 h-2.5" /> Lucifer (.in)
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        ))}
+                {/* Streaming Links */}
+                {series.streamingLinks && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider mr-1">
+                      Direct Links:
+                    </span>
+                    {series.streamingLinks.anime4i && (
+                      <a
+                        href={series.streamingLinks.anime4i}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Anime4i
+                      </a>
+                    )}
+                    {series.streamingLinks.luciferDonghuaOrg && (
+                      <a
+                        href={series.streamingLinks.luciferDonghuaOrg}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Lucifer (.org)
+                      </a>
+                    )}
+                    {series.streamingLinks.luciferDonghuaIn && (
+                      <a
+                        href={series.streamingLinks.luciferDonghuaIn}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted hover:bg-muted/80 text-[10px] font-body text-foreground/80 hover:text-primary transition-colors border border-border"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Lucifer (.in)
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {filteredSeries.length === 0 && (
@@ -273,3 +301,4 @@ export function DonghuaTrackingList() {
     </div>
   );
 }
+

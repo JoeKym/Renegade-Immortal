@@ -1,7 +1,9 @@
-import { Star, Tv, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Tv, Clock, Sparkles } from "lucide-react";
 import { AniListData } from "@/hooks/useDonghuaData";
 import { DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
+import { getNextReleaseInfo } from "@/lib/releaseSchedule";
 
 interface WatchBannerProps {
   aniData: AniListData | null;
@@ -12,6 +14,15 @@ interface WatchBannerProps {
 }
 
 export function WatchBanner({ aniData, series, releasedCount, countdown, title }: WatchBannerProps) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const releaseInfo = getNextReleaseInfo(series, now);
+
   return (
     <div
       className="relative h-48 sm:h-64 overflow-hidden"
@@ -48,9 +59,9 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
             <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
               <Tv size={12} /> {releasedCount} Episodes
             </span>
-            {countdown && (
+            {releaseInfo && (
               <span className="flex items-center gap-1 text-xs text-primary font-body animate-pulse">
-                <Clock size={12} /> Next: {countdown}
+                <Clock size={12} /> Next: Ep {releaseInfo.nextEpisodeNumber} in {releaseInfo.timeUntilFormatted} ({releaseInfo.chinaTimeDisplay})
               </span>
             )}
           </div>
@@ -68,3 +79,4 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
     </div>
   );
 }
+
