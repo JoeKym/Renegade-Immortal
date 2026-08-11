@@ -12,41 +12,47 @@ interface Server {
   directUrl: (ep: number, slug: string) => string;
 }
 
+function normalizeSlug(slug: string): string {
+  if (slug === "renegade-immortal-xian-ni") return "renegade-immortal";
+  if (slug === "eclipse-of-illusion") return "eclipse-of-illusion-s1";
+  return slug;
+}
+
 const SERVERS: Server[] = [
   {
     name: "anime4i",
     label: "Anime4i",
-    directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
+    directUrl: (ep, slug) => `https://anime4i.com/${normalizeSlug(slug)}-episode-${ep}-english-subtitles/`,
   },
   {
     name: "luciferdonghua",
-    label: "LuciferDonghua",
+    label: "LuciferDonghua (.org)",
     directUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
   },
   {
     name: "luciferdonghua-in",
-    label: "LuciferDonghua.in",
+    label: "LuciferDonghua (.in)",
     directUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
   },
   {
     name: "donghuastream",
     label: "DonghuaStream",
-    directUrl: (ep, slug) => `https://donghuastream.org/${slug}-episode-${ep}-multiple-subtitles/`,
+    directUrl: (ep, slug) => `https://donghuastream.org/${normalizeSlug(slug)}-episode-${ep}-multiple-subtitles/`,
   },
   {
     name: "evasub",
     label: "EvaSub",
-    directUrl: (ep, slug) => `http://evasub.com/${slug}-episode-${ep}-english-sub/`,
+    directUrl: (ep, slug) => `http://evasub.com/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
   },
   {
     name: "animecube",
     label: "Anime Cube",
-    directUrl: (ep, slug) => `https://animecube.live/anime/${slug}?season=tab-1&episode=${slug}-tab-1-ep-${ep}`,
+    directUrl: (ep, slug) => `https://animecube.live/anime/${normalizeSlug(slug)}?season=tab-1&episode=${normalizeSlug(slug)}-tab-1-ep-${ep}`,
   },
   {
     name: "myanime",
     label: "MyAnime",
-    directUrl: (ep, slug) => `https://myanime.live/${slug}-episode-${ep}-english-sub/`,
+    directUrl: (ep, slug) => `https://myanime.live/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
   },
 ];
 
