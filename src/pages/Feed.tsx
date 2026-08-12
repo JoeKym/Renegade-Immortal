@@ -114,7 +114,6 @@ export default function Feed() {
       const { data: allComs } = await supabase
         .from("communities")
         .select("id, name, avatar_url")
-        .eq("is_active", true)
         .limit(20);
 
       if (allComs && allComs.length > 0) {

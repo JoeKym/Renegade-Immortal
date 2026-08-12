@@ -26,7 +26,6 @@ export function CommunityLeaderboard() {
     const { data: coms } = await supabase
       .from("communities")
       .select("id, name, avatar_url")
-      .eq("is_active", true)
       .limit(50);
 
     if (!coms || coms.length === 0) { setLoading(false); return; }

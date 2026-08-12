@@ -76,7 +76,6 @@ export default function CommunitiesPage() {
       const { data, error } = await supabase
         .from("communities")
         .select("*")
-        .eq("is_active", true)
         .order("created_at", { ascending: false });
       
       if (error) {

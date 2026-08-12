@@ -31,7 +31,6 @@ export function CommunityDiscovery() {
       const { data: comData } = await supabase
         .from("communities")
         .select("id, name, description, avatar_url, category")
-        .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(50);
 
