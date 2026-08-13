@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { FeedbackReviews } from "./FeedbackReviews";
 import { useLocation, Link } from "react-router-dom";
 import { Navbar } from "./Navbar";
@@ -125,14 +126,39 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <Navbar />
       {maintenance && !isAdmin ? (
-        <main className="pt-[60px] relative z-10">
-          <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
-            <Wrench className="h-16 w-16 text-primary mb-6 animate-pulse" />
-            <h1 className="font-heading text-3xl text-foreground mb-3 tracking-wider">Under Maintenance</h1>
-            <p className="font-body text-muted-foreground max-w-md mb-6">
-              We're performing scheduled maintenance to improve your experience. Please check back shortly.
-            </p>
-            {maintenanceEta && <MaintenanceCountdown eta={maintenanceEta} />}
+        <main className="pt-[60px] relative z-10 overflow-hidden">
+          <div className="relative flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
+            <motion.div
+              className="absolute inset-0 opacity-60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute left-[20%] top-[18%] h-40 w-40 rounded-full bg-amber-500/10 blur-3xl" />
+              <div className="absolute right-[18%] top-[28%] h-52 w-52 rounded-full bg-cyan-500/10 blur-3xl" />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative z-10 max-w-xl rounded-2xl border border-primary/20 bg-card/70 p-8 shadow-[0_0_60px_rgba(212,175,55,0.18)] backdrop-blur-xl"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, ease: "linear", repeat: Infinity }}
+                className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-primary/30 bg-primary/10"
+              >
+                <Wrench className="h-10 w-10 text-primary" />
+              </motion.div>
+
+              <p className="mb-3 text-xs font-heading uppercase tracking-[0.35em] text-primary/80">Scheduled maintenance</p>
+              <h1 className="mb-3 font-heading text-3xl tracking-wider text-foreground">Under Maintenance</h1>
+              <p className="mb-6 font-body text-sm text-muted-foreground">
+                We're performing scheduled maintenance to improve your experience. Please check back shortly.
+              </p>
+              {maintenanceEta && <MaintenanceCountdown eta={maintenanceEta} />}
+            </motion.div>
           </div>
         </main>
       ) : (

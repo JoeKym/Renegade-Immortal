@@ -6,13 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
+  ensureDonghuaProgress,
   getDonghuaStats,
   getDonghuaArcs,
   updateDonghuaProgress,
   updateArcStatus,
   type DonghuaArc,
 } from "@/services/donghua";
-import { Loader2, Tv, BookOpen, RefreshCw } from "lucide-react";
+import { Loader2, Tv, BookOpen, RefreshCw, Sparkles } from "lucide-react";
+
+const DEFAULT_PROGRESS = {
+  currentEpisode: 128,
+  totalEpisodes: 350,
+  currentChapter: 850,
+  totalChapters: 2100,
+};
 
 export default function DonghuaAdmin() {
   const [stats, setStats] = useState<{
@@ -25,12 +33,7 @@ export default function DonghuaAdmin() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   
-  const [formData, setFormData] = useState({
-    currentEpisode: 128,
-    totalEpisodes: 350,
-    currentChapter: 850,
-    totalChapters: 2100,
-  });
+  const [formData, setFormData] = useState(DEFAULT_PROGRESS);
 
   // Calculate chapters based on episodes (using ~6.6 chapters per episode as average)
   const calculateChapterFromEpisode = (episode: number) => {
@@ -46,22 +49,44 @@ export default function DonghuaAdmin() {
     try {
       setLoading(true);
       const [statsData, arcsData] = await Promise.all([
-        getDonghuaStats(),
+        getDonghuaStats().catch(async () => {
+          const seeded = await ensureDonghuaProgress();
+          return {
+            currentEpisode: seeded.current_episode,
+            totalEpisodes: seeded.total_episodes,
+            currentChapter: seeded.current_chapter,
+            totalChapters: seeded.total_chapters,
+            episodeProgress: Math.round((seeded.current_episode / seeded.total_episodes) * 100),
+            chapterProgress: Math.round((seeded.current_chapter / seeded.total_chapters) * 100),
+            currentArc: null,
+          };
+        }),
         getDonghuaArcs(),
       ]);
-      
-      if (statsData) {
-        setStats(statsData);
-        setFormData({
-          currentEpisode: statsData.currentEpisode,
-          totalEpisodes: statsData.totalEpisodes,
-          currentChapter: statsData.currentChapter,
-          totalChapters: statsData.totalChapters,
-        });
-      }
+
+      const nextStats = statsData ?? {
+        currentEpisode: DEFAULT_PROGRESS.currentEpisode,
+        totalEpisodes: DEFAULT_PROGRESS.totalEpisodes,
+        currentChapter: DEFAULT_PROGRESS.currentChapter,
+        totalChapters: DEFAULT_PROGRESS.totalChapters,
+        episodeProgress: 36,
+        chapterProgress: 40,
+        currentArc: null,
+      };
+
+      setStats(nextStats);
+      setFormData({
+        currentEpisode: nextStats.currentEpisode,
+        totalEpisodes: nextStats.totalEpisodes,
+        currentChapter: nextStats.currentChapter,
+        totalChapters: nextStats.totalChapters,
+      });
       setArcs(arcsData);
     } catch (error) {
+      console.error("Donghua admin fetch error:", error);
       toast.error("Failed to fetch donghua data");
+      setStats({ ...DEFAULT_PROGRESS, episodeProgress: 36, chapterProgress: 40, currentArc: null });
+      setFormData(DEFAULT_PROGRESS);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useMaintenanceMode() {
@@ -6,22 +6,43 @@ export function useMaintenanceMode() {
   const [maintenanceEta, setMaintenanceEta] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const { data, error } = await supabase
-        .from("site_settings" as any)
-        .select("key, value")
-        .in("key", ["maintenance_mode", "maintenance_eta"]);
-      if (!error && data) {
-        (data as any[]).forEach((row: any) => {
-          if (row.key === "maintenance_mode") setMaintenance(row.value === "true");
-          if (row.key === "maintenance_eta" && row.value) setMaintenanceEta(row.value);
-        });
-      }
-      setLoading(false);
-    };
-    fetchSettings();
+  const refresh = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("site_settings" as any)
+      .select("key, value")
+      .in("key", ["maintenance_mode", "maintenance_eta"]);
+
+    if (!error && data) {
+      (data as any[]).forEach((row: any) => {
+        if (row.key === "maintenance_mode") {
+          const value = row.value;
+          setMaintenance(value === true || value === "true");
+        }
+        if (row.key === "maintenance_eta") {
+          setMaintenanceEta(row.value ? String(row.value) : null);
+        }
+      });
+    }
+
+    setLoading(false);
   }, []);
 
-  return { maintenance, maintenanceEta, loading };
+  useEffect(() => {
+    refresh();
+
+    const channel = supabase
+      .channel("site-settings-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_settings" },
+        () => { void refresh(); }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [refresh]);
+
+  return { maintenance, maintenanceEta, loading, refresh };
 }

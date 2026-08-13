@@ -49,6 +49,7 @@ const readingOrder = [
   { num: 3, title: "I Shall Seal the Heavens", note: "Meng Hao's story — references 'The God'" },
   { num: 4, title: "A Will Eternal", note: "Bai Xiaochun's story — expands the multiverse" },
   { num: 5, title: "A World Worth Protecting", note: "Modern setting — may connect to the multiverse" },
+  { num: 6, title: "Beyond Times' Gaze", note: "Higher Ergenverse story — set in higher cosmic star rings" },
 ];
 
 const GuidePage = () => {
@@ -66,7 +67,7 @@ const GuidePage = () => {
     fetchStats();
   }, []);
 
-  const episodeCount = stats?.currentEpisode || 128;
+  const episodeCount = stats?.currentEpisode || 153;
 
   return (
     <Layout>

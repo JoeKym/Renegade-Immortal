@@ -41,9 +41,9 @@ export default function About() {
   }, []);
 
   const staticStats = [
-    { value: "ss", label: "Streaming Servers" },
-    { value: stats ? `${stats.currentEpisode}+` : "129+", label: "Episodes Covered" },
-    { value: stats ? `${stats.currentChapter}+` : "850+", label: "Chapters Adapted" },
+    { value: "7", label: "Streaming Servers" },
+    { value: stats ? `${stats.currentEpisode}+` : "153+", label: "Episodes Covered" },
+    { value: stats ? `${stats.currentChapter}+` : "1000", label: "Chapters Adapted" },
     { value: "1", label: "Epic Story" },
   ];
 
@@ -80,7 +80,7 @@ export default function About() {
             </p>
             <p className="text-muted-foreground font-body leading-relaxed">
               The donghua (Chinese animated) adaptation by <strong className="text-foreground">Tencent Penguin Pictures</strong> began airing in 2023
-              and is currently ongoing with 180+ episodes released.
+              and is currently ongoing with 153+ episodes released.
             </p>
           </div>
           <div className="space-y-4">
@@ -91,7 +91,7 @@ export default function About() {
                   ["Author", "Er Gen (耳根)"],
                   ["Genre", "Xianxia / Cultivation"],
                   ["Novel Chapters", "2,138"],
-                  ["Status", "Novel Complete · Donghua Ongoing"],
+                  ["Status", "Novel Complete / Donghua Ongoing"],
                   ["Studio", "Tencent Penguin Pictures"],
                   ["First Episode", "2023"],
                   ["Languages", "Chinese (subbed in English)"],

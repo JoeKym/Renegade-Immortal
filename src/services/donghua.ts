@@ -48,6 +48,20 @@ export const getDonghuaArcs = async (): Promise<DonghuaArc[]> => {
   return data || [];
 };
 
+export const ensureDonghuaProgress = async (): Promise<DonghuaProgress> => {
+  const existing = await getDonghuaProgress();
+  if (existing) return existing;
+
+  const fallbackProgress = {
+    current_episode: 153,
+    total_episodes: ~350,
+    current_chapter: 1001,
+    total_chapters: 2138,
+  };
+
+  return updateDonghuaProgress(fallbackProgress);
+};
+
 // Fetch current progress
 export const getDonghuaProgress = async (): Promise<DonghuaProgress | null> => {
   const { data, error } = await supabase

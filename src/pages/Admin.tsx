@@ -1828,18 +1828,27 @@ export default function AdminPage() {
 
   const handleToggleMaintenance = async () => {
     setTogglingMaintenance(true);
-    const newValue = maintenanceMode ? "false" : "true";
-    const { error } = await supabase
-      .from("site_settings" as any)
-      .upsert({ key: "maintenance_mode", value: newValue, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
-    if (error) {
+    const nextState = !maintenanceMode;
+    const newValue = nextState ? "true" : "false";
+
+    try {
+      const { error } = await supabase
+        .from("site_settings" as any)
+        .upsert(
+          { key: "maintenance_mode", value: newValue, updated_at: new Date().toISOString() } as any,
+          { onConflict: "key" }
+        );
+
+      if (error) throw error;
+
+      setMaintenanceMode(nextState);
+      toast.success(nextState ? "Maintenance mode enabled — site is now restricted" : "Maintenance mode disabled");
+    } catch (error) {
       console.error("Maintenance toggle error:", error);
       toast.error("Failed to toggle maintenance mode");
-    } else {
-      setMaintenanceMode(!maintenanceMode);
-      toast.success(maintenanceMode ? "Maintenance mode disabled" : "Maintenance mode enabled — site is now restricted");
+    } finally {
+      setTogglingMaintenance(false);
     }
-    setTogglingMaintenance(false);
   };
 
   const handleUpdateEta = async () => {

@@ -1,3 +1,7 @@
+declare const Deno: {
+  serve: (handler: (req: Request) => Promise<Response>) => void;
+};
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -22,10 +26,53 @@ const normalizeServerSlug = (slug: string): string => {
 
 const getSlugWithSeriesAlias = (slug: string): string => {
   const normalized = normalizeServerSlug(slug);
-  if (normalized.includes('renegade-immortal') || normalized.includes('xian-ni')) {
-    return normalized.replace(/-xian-ni$/, '').replace(/^-xian-ni$/, '') || 'renegade-immortal';
+  if (normalized.includes('renegade-immortal')) {
+    return normalized.includes('xian-ni') ? normalized : `${normalized}-xian-ni`;
+  }
+  if (normalized.includes('xian-ni')) {
+    return normalized.replace(/-xian-ni$/, '') || 'renegade-immortal';
   }
   return normalized;
+};
+
+const buildAnime4iCandidates = (episode: number, slug: string): string[] => {
+  const normalizedSlug = normalizeServerSlug(slug);
+  const baseCandidates = [
+    normalizedSlug,
+    `${normalizedSlug}-xian-ni`,
+    'renegade-immortal',
+    'renegade-immortal-xian-ni',
+  ].filter(Boolean);
+
+  const urls = new Set<string>();
+  for (const base of baseCandidates) {
+    urls.add(`https://anime4i.com/${base}-episode-${episode}-english-subtitles`);
+    urls.add(`https://anime4i.com/${base}-episode-${episode}`);
+    urls.add(`https://anime4i.com/${base}-episode-${episode}-english-sub/`);
+    urls.add(`https://anime4i.com/${base}-xian-ni-episode-${episode}-english-subtitles`);
+  }
+
+  return [...urls];
+};
+
+const extractAnyMediaUrl = (html: string): string | null => {
+  const patternCandidates = [
+    /<iframe[^>]+src=["']([^"']+)["'][^>]*>/i,
+    /<source[^>]+src=["']([^"']+)["'][^>]*>/i,
+    /file\s*:\s*["']([^"']+)["']/i,
+    /src\s*:\s*["']([^"']+)["']/i,
+    /https?:\/\/(?:[^"'\s]+\.(?:m3u8|mp4|mkv|webm|mpd|embed|player|stream|video)[^"'\s]*)/i,
+  ];
+
+  for (const pattern of patternCandidates) {
+    const match = html.match(pattern);
+    if (match && match[1]) {
+      const url = match[1].trim();
+      if (!url.startsWith('data:')) return url.startsWith('//') ? `https:${url}` : url;
+    }
+  }
+
+  return null;
 };
 
 const servers: ServerConfig[] = [
@@ -34,11 +81,9 @@ const servers: ServerConfig[] = [
     label: 'Anime4i',
     getPageUrl: (ep, slug) => `https://anime4i.com/${getSlugWithSeriesAlias(slug)}-episode-${ep}-english-subtitles`,
     extractEmbed: (html) => {
-      // Anime4i-specific extraction: look for player iframes
       const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed)[^"']*)["'][^>]*>/i);
       if (iframeMatch) return iframeMatch[1];
-      const genericMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
-      return genericMatch?.[1] || null;
+      return extractAnyMediaUrl(html);
     },
   },
   {
@@ -193,32 +238,41 @@ Deno.serve(async (req) => {
 
     for (const srv of serversToTry) {
       try {
-        const pageUrl = srv.getPageUrl(episode, slug);
-        console.log(`Fetching ${srv.name}: ${pageUrl}`);
+        const candidateUrls = srv.name === 'anime4i'
+          ? buildAnime4iCandidates(episode, slug)
+          : [srv.getPageUrl(episode, slug)];
 
-        const response = await fetch(pageUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-          },
-          redirect: 'follow',
-        });
+        let foundEmbed: string | null = null;
 
-        if (!response.ok) {
-          await response.text(); // consume body
-          console.log(`${srv.name} returned ${response.status}`);
-          results.push({ server: srv.name, embedUrl: null, error: `HTTP ${response.status}` });
-          continue;
+        for (const pageUrl of candidateUrls) {
+          console.log(`Fetching ${srv.name}: ${pageUrl}`);
+
+          const response = await fetch(pageUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.9',
+            },
+            redirect: 'follow',
+          });
+
+          if (!response.ok) {
+            console.log(`${srv.name} returned ${response.status} for ${pageUrl}`);
+            continue;
+          }
+
+          const html = await response.text();
+          console.log(`${srv.name} HTML length for ${pageUrl}: ${html.length}`);
+
+          const embedUrl = srv.extractEmbed(html);
+          if (embedUrl) {
+            foundEmbed = embedUrl;
+            break;
+          }
         }
 
-        const html = await response.text();
-        console.log(`${srv.name} HTML length: ${html.length}`);
-        
-        const embedUrl = srv.extractEmbed(html);
-
-        if (embedUrl) {
-          const finalUrl = embedUrl.startsWith('//') ? `https:${embedUrl}` : embedUrl;
+        if (foundEmbed) {
+          const finalUrl = foundEmbed.startsWith('//') ? `https:${foundEmbed}` : foundEmbed;
           console.log(`${srv.name} embed found: ${finalUrl}`);
           return new Response(
             JSON.stringify({
@@ -229,10 +283,9 @@ Deno.serve(async (req) => {
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
-        } else {
-          console.log(`${srv.name}: no embed found`);
-          results.push({ server: srv.name, embedUrl: null, error: 'No embed URL found' });
         }
+
+        results.push({ server: srv.name, embedUrl: null, error: 'No embed URL found' });
       } catch (e) {
         const errMsg = e instanceof Error ? e.message : 'Unknown error';
         console.error(`${srv.name} error:`, errMsg);
