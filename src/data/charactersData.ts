@@ -30,16 +30,6 @@ import maLiangImg from "@/assets/ma-liang.jpg";
 import lingTianhouImg from "@/assets/ling-tianhou.jpg";
 import mosquitoBeastImg from "@/assets/mosquito-beast.jpg";
 import thunderToadImg from "@/assets/thunder-toad.jpg";
-import qingLinImg from "@/assets/qing-lin.jpg";
-import xieQingImg from "@/assets/xie-qing.jpg";
-import xiZiFengImg from "@/assets/xi-zi-feng.jpg";
-import hornedThunderBeastImg from "@/assets/horned-thunder-beast.jpg";
-import lianDaofeiImg from "@/assets/lian-daofei.jpg";
-import duJianImg from "@/assets/du-jian.jpg";
-import tieYanImg from "@/assets/tie-yan.jpg";
-import masterFlameSparkImg from "@/assets/yan-leizi.jpg";
-import masterAshenPineImg from "@/assets/ashen-pine.jpg";
-import masterFengHuangImg from "@/assets/feng-huang.jpg";
 import suMingImg from "@/assets/su-ming.jpg";
 
 const characterImg = wangLinImg;
@@ -373,7 +363,7 @@ const rawCharacters: Character[] = [
     status: "Active",
     cultivationRealm: "Third Step (peak)",
     sect: "Brilliant Void Realm (ally)",
-    image: qingLinImg,
+    image: characterImg,
   },
   {
     name: "All-Seer",
@@ -451,8 +441,9 @@ const rawCharacters: Character[] = [
     race: "Mortal",
     alignment: "Ally",
     subtitle: "Mortal • Dream Dao Disciple",
-    description: "The daughter of Dao Master Blue Dream and a notable figure in the Dream Dao branch of the cultivation world. Her connection to Wang Lin is tied to the impossible bargain that once involved marriage and the exchange of powerful arcane knowledge.",
+    description: "The daughter of Dao Master Blue Dream and a notable figure in the Dream Dao branch of the cultivation world. Her connection to Wang Lin is tied to the impossible bargain that once involved marriage and the exchange of powerful arcane knowledge. Her presence reinforces the emotional and political weight of the Dream Dao tradition in the wider story.",
     tags: ["Dream Dao", "Political Marriage", "Cultivation Lineage"],
+    alias: "Li Qianmei",
     status: "Active",
     cultivationRealm: "Third Step",
     image: characterImg,
@@ -488,7 +479,7 @@ const rawCharacters: Character[] = [
     tags: ["Planet Suzaku", "Early Arc", "Fierce Fighter"],
     image: zhouYiImg,
     status: "Active",
-    cultivationRealm: "Ascendant",
+    cultivationRealm: "Core Formation",
   },
   {
     name: "Master Hong Shan",
@@ -952,7 +943,7 @@ const rawCharacters: Character[] = [
     tags: ["Tragic Past", "Karmic Weight", "Dangerous Force"],
     image: qingShuiImg,
     status: "Deceased",
-    cultivationRealm: "Soul Formation",
+    cultivationRealm: "Third Step",
     majorBattles: ["vs. Wang Lin"],
   },
   {
@@ -963,7 +954,7 @@ const rawCharacters: Character[] = [
     description: "Ling Tianhou, also known as the Celestial Lord Ling Tian, is one of the most powerful cultivators in the Alliance Star System and a commander of overwhelming military might. He rules over his own celestial domain with an iron fist, and his cultivation at the Soul Transformation stage makes him nearly untouchable by lesser cultivators. Wang Lin crosses paths with him during the Alliance conflicts, and Ling Tianhou's imposing presence — with his flowing white beard and golden armor adorned with ancient swords — marks him as a figure of immense authority. He represents the political and military establishment that Wang Lin must navigate or overcome.",
     tags: ["Military Power", "Alliance Authority", "Strategic Mind", "Celestial Commander"],
     status: "Active",
-    cultivationRealm: "Soul Transformation",
+    cultivationRealm: "Second step (Nirvana cleanser)",
     image: lingTianhouImg,
   },
 
@@ -1021,7 +1012,7 @@ const rawCharacters: Character[] = [
     description: "The supreme ruler of the celestial realm whose decrees shaped the cultivation world for millennia. His legacy and machinations echo across the ages.",
     tags: ["Supreme Authority", "Ancient Legacy", "Cosmic Influence"],
     status: "Deceased / Legacy remains",
-    cultivationRealm: "Fourth Step",
+    cultivationRealm: "Third Step (peak)",
     bloodline: "Ancient God",
   },
   {
