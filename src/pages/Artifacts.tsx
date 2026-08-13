@@ -82,6 +82,43 @@ const items: ArtifactItem[] = [
     firstAppearance: "Li Muwan death arc",
     storyArc: "The Obsession with Resurrection"
   },
+  {
+    name: "Heaven-Defying Bead / Tian Ni Pearl",
+    type: "artifact",
+    origin: "Ancient origin, spirit-bound treasure",
+    owner: "Wang Lin",
+    power: "The origin treasure of Wang Lin's early cultivation, later refined into a profound Dao vehicle that opens Dream Space and accelerates the comprehension of True Dao. It tests cultivators and later reveals the doorway to the Third Step.",
+    firstAppearance: "Chapter 1 / Third Step awakening",
+    storyArc: "The Bead and the Dao Path",
+    dao: "True Dao"
+  },
+  {
+    name: "Soul-Nurturing Jade",
+    type: "artifact",
+    origin: "Li Muwan soul-vessel tradition",
+    owner: "Zhou Ru / Wang Lin",
+    power: "A nurturing spirit treasure used to stabilize and protect the soul fragment of Li Muwan while allowing Zhou Ru to live in safety under Wang Lin's guardianship.",
+    firstAppearance: "Soul vessel arc",
+    storyArc: "Li Muwan's lingering will"
+  },
+  {
+    name: "Outer Realm Command Token",
+    type: "artifact",
+    origin: "Outer Realm military command",
+    owner: "Palm Lord / Outer Realm forces",
+    power: "A command artifact used to coordinate elite Outer Realm armies and enforce vast military authority over the battlefield.",
+    firstAppearance: "Outer Realm War arc",
+    storyArc: "Outer Realm Invasion"
+  },
+  {
+    name: "Ancient Celestial Boundary Banner",
+    type: "artifact",
+    origin: "Ancient celestial war relic",
+    owner: "Palm Lord / Wang Lin",
+    power: "A grand battlefield banner capable of sealing and controlling territory, amplifying battlefield restriction power and spatial control.",
+    firstAppearance: "Outer Realm War arc",
+    storyArc: "Outer Realm Invasion"
+  },
 
   // ========== STANDARD ARTIFACTS ==========
   { name: "Heaven Rending Sword", type: "artifact", origin: "Ancient battlefield", owner: "Wang Lin", power: "Capable of slicing through spatial barriers and dimensional rifts", firstAppearance: "Mid arcs", storyArc: "Outer Realm Exploration" },
@@ -129,6 +166,66 @@ const items: ArtifactItem[] = [
     firstAppearance: "Mid arcs",
     storyArc: "Underworld Dao Mastery",
     dao: "Underworld"
+  },
+  {
+    name: "Underworld Ascension Method",
+    type: "technique",
+    origin: "Underworld Dao / Situ Nan's inheritance",
+    owner: "Wang Lin",
+    power: "A foundational method taught by Situ Nan for ascending through the Underworld and grasping the deeper law of life and death. It allows the soul to break through the ordinary cycle and enter the realm beyond normal reincarnation.",
+    firstAppearance: "Early cultivation training",
+    storyArc: "Situ Nan's Training",
+    dao: "Underworld"
+  },
+  {
+    name: "Palm of Heaven & Earth",
+    type: "technique",
+    origin: "Outer Realm Emperor art",
+    owner: "Palm Lord",
+    power: "A devastating necessary technique that manifests heaven and earth in a single strike, capable of crushing formations, armies, and cultivators through battlefield-scale pressure.",
+    firstAppearance: "Outer Realm War arc",
+    storyArc: "Outer Realm Conquest",
+    dao: "Outer Realm"
+  },
+  {
+    name: "Absolute Restriction Control",
+    type: "technique",
+    origin: "Restriction Dao / advanced seal arts",
+    owner: "Palm Lord / Wang Lin",
+    power: "An advanced restriction technique that binds space, suppresses power, and prevents enemies from escaping or counterattacking once the seal is engaged.",
+    firstAppearance: "Late arc",
+    storyArc: "Restriction Dao Mastery",
+    dao: "Restriction"
+  },
+  {
+    name: "Sealing Extermination Spells",
+    type: "technique",
+    origin: "Third Step divine manifestation",
+    owner: "Feng Zun / Wang Lin",
+    power: "A set of sealing and extermination methods that destroy a target's essence through Dao-enforced suppression, reaching beyond normal spell frameworks.",
+    firstAppearance: "Third Step awakening",
+    storyArc: "Dao Enlightenment",
+    dao: "Absolute Beginning / Absolute End"
+  },
+  {
+    name: "Five Elements Origin Laws",
+    type: "technique",
+    origin: "True Body fusion / Dao enlightenment",
+    owner: "Wang Lin",
+    power: "A refined law-driven application of the Five Elements that merges the essence of earth, wind, fire, water, and metal into a single origin force, creating world-level control.",
+    firstAppearance: "Third Step / True Body phase",
+    storyArc: "Five Elements True Body",
+    dao: "Five Elements"
+  },
+  {
+    name: "Third Step Dao Manifestation",
+    type: "technique",
+    origin: "Third Step divine awakening",
+    owner: "Wang Lin / Feng Zun",
+    power: "The manifestation of a Dao-form in material reality, enabling immense battlefield pressure and absolute expression of an understood Dao in combat.",
+    firstAppearance: "Third Step arc",
+    storyArc: "Dao Manifestation",
+    dao: "True Dao"
   },
 
   // ========== CELESTIAL EMPEROR SPELLS ==========
@@ -313,7 +410,7 @@ const items: ArtifactItem[] = [
     origin: "High-level movement technique",
     owner: "Wang Lin",
     power: "Spatial-folding movement ability covering thousands of li in an instant. Enables near-teleportation speed without needing spatial tears.",
-    firstAppearance: "Mid cultivation arcs",
+    firstAppearance: "Corporeal Yang arcs",
     storyArc: "Space/Time Dao",
     dao: "Space/Time"
   },
