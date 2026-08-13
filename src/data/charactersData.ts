@@ -30,7 +30,19 @@ import maLiangImg from "@/assets/ma-liang.jpg";
 import lingTianhouImg from "@/assets/ling-tianhou.jpg";
 import mosquitoBeastImg from "@/assets/mosquito-beast.jpg";
 import thunderToadImg from "@/assets/thunder-toad.jpg";
+import qingLinImg from "@/assets/qing-lin.jpg";
+import xieQingImg from "@/assets/xie-qing.jpg";
+import xiZiFengImg from "@/assets/xi-zi-feng.jpg";
+import hornedThunderBeastImg from "@/assets/horned-thunder-beast.jpg";
+import lianDaofeiImg from "@/assets/lian-daofei.jpg";
+import duJianImg from "@/assets/du-jian.jpg";
+import tieYanImg from "@/assets/tie-yan.jpg";
+import masterFlameSparkImg from "@/assets/yan-leizi.jpg";
+import masterAshenPineImg from "@/assets/ashen-pine.jpg";
+import masterFengHuangImg from "@/assets/feng-huang.jpg";
 import suMingImg from "@/assets/su-ming.jpg";
+
+const characterImg = wangLinImg;
 
 export interface Character {
   name: string;
@@ -67,7 +79,7 @@ export interface Character {
   quotes?: string[];
 }
 
-export const characters: Character[] = [
+const rawCharacters: Character[] = [
   // ── PROTAGONIST ──
   {
     name: "Wang Lin",
@@ -327,7 +339,7 @@ export const characters: Character[] = [
     description: "A powerful cultivator who imparts critical knowledge to Wang Lin about higher realm cultivation. His teachings help shape Wang Lin's understanding of the Third Step and beyond.",
     tags: ["Mentorship", "Higher Realm Knowledge", "Wisdom"],
     status: "Active",
-    cultivationRealm: "Third Step",
+    cultivationRealm: "Soul Transformation",
     image: duTianImg,
   },
   {
@@ -335,8 +347,8 @@ export const characters: Character[] = [
     race: "Mortal",
     alignment: "Master",
     subtitle: "Mortal • Formation Master",
-    description: "A skilled formation expert whose teachings on ancient restrictions become invaluable tools in Wang Lin's arsenal. His knowledge of restriction arrays is considered top-tier.",
-    tags: ["Formations", "Restrictions", "Teaching"],
+    description: "A skilled formation expert whose teachings on ancient restrictions become invaluable tools in Wang Lin's arsenal. His knowledge of restriction arrays is considered top-tier, and his insights into array theory help bridge the gap between mortal technique and higher realm combat.",
+    tags: ["Formations", "Restrictions", "Teaching", "Array Theory"],
     status: "Active",
     cultivationRealm: "Soul Transformation",
     image: baiFanImg,
@@ -356,11 +368,12 @@ export const characters: Character[] = [
     race: "Mortal",
     alignment: "Master",
     subtitle: "Mortal • Supreme Elder",
-    description: "A supreme figure who guides cultivators of the Alliance Star System. He spoke with Tuo Sen after his escape and later took Zhou Ru under his care. During the Inner/Outer Realm war, he helped Situ Nan become a Third Step cultivator. One of the most powerful beings in the Sealed Realm.",
-    tags: ["Supreme Authority", "Mentorship", "Alliance Leader"],
+    description: "A supreme figure who guides cultivators of the Alliance Star System. He spoke with Tuo Sen after his escape and later took Zhou Ru under his care. During the Inner/Outer Realm war, he helped Situ Nan become a Third Step cultivator and stands as one of the most powerful figures in the Sealed Realm.",
+    tags: ["Supreme Authority", "Mentorship", "Alliance Leader", "Sealed Realm"],
     status: "Active",
     cultivationRealm: "Third Step (peak)",
     sect: "Brilliant Void Realm (ally)",
+    image: qingLinImg,
   },
   {
     name: "All-Seer",
@@ -427,11 +440,22 @@ export const characters: Character[] = [
     race: "Mortal",
     alignment: "Ally",
     subtitle: "Mortal • Dream Dao Master",
-    description: "A cultivator who has mastered the Dao of Dreams. Father of Li Qian Mei, he offered Wang Lin his spells in exchange for marrying his daughter — but Wang Lin refused, choosing to resurrect Li Muwan instead.",
+    description: "A cultivator who has mastered the Dao of Dreams. Father of Li Qian Mei, he offered Wang Lin his spells in exchange for marrying his daughter — but Wang Lin refused, choosing to resurrect Li Muwan instead. He represents the cultivated aristocratic style of the Dream Dao tradition.",
     tags: ["Dream Dao", "Illusion Mastery", "Strategic Support"],
     status: "Active",
     cultivationRealm: "Soul Transformation",
     disciples: ["Li Qian Mei (daughter)"],
+  },
+  {
+    name: "Li Qian Mei",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Dream Dao Disciple",
+    description: "The daughter of Dao Master Blue Dream and a notable figure in the Dream Dao branch of the cultivation world. Her connection to Wang Lin is tied to the impossible bargain that once involved marriage and the exchange of powerful arcane knowledge.",
+    tags: ["Dream Dao", "Political Marriage", "Cultivation Lineage"],
+    status: "Active",
+    cultivationRealm: "Third Step",
+    image: characterImg,
   },
   {
     name: "Gemini",
@@ -444,12 +468,12 @@ export const characters: Character[] = [
     cultivationRealm: "Nascent Soul",
   },
   {
-    name: "Red Butterfly",
+    name: "Red Butterfly/ Hong Die",
     race: "Mortal",
     alignment: "Ally",
     subtitle: "Mortal • Female Cultivator",
-    description: "Strong female cultivator with important early arc presence and sect-level political relevance on Planet Suzaku.",
-    tags: ["Strong Female Lead", "Political Influence", "Sect Authority"],
+    description: "A strong and influential female cultivator with important early arc presence and significant sect-level political weight on Planet Suzaku. Her composure and sharp judgment make her a memorable ally in the broader cultivation conflict.",
+    tags: ["Strong Female Lead", "Political Influence", "Sect Authority", "Planet Suzaku"],
     image: redButterflyImg,
     alias: "Hong Die",
     status: "Active",
@@ -460,11 +484,11 @@ export const characters: Character[] = [
     race: "Mortal",
     alignment: "Ally",
     subtitle: "Mortal • Core Formation Cultivator",
-    description: "A cultivator from the early arcs who crosses paths with Wang Lin on Planet Suzaku. Known for his fiery determination and distinctive appearance.",
+    description: "A cultivator from the early arcs who crosses paths with Wang Lin on Planet Suzaku. Known for his fiery determination, aggressive attitude, and memorable presence in the early story arcs.",
     tags: ["Planet Suzaku", "Early Arc", "Fierce Fighter"],
     image: zhouYiImg,
     status: "Active",
-    cultivationRealm: "Core Formation",
+    cultivationRealm: "Ascendant",
   },
   {
     name: "Master Hong Shan",
@@ -564,11 +588,184 @@ export const characters: Character[] = [
     race: "Mortal",
     alignment: "Disciple",
     subtitle: "Mortal • Talented Disciple",
-    description: "A talented young cultivator who becomes one of Wang Lin's disciples, showing exceptional potential in cultivation arts.",
+    description: "A talented young cultivator who becomes one of Wang Lin's disciples, showing exceptional potential in cultivation arts and a disciplined, upward-trending growth pattern under Wang Lin's tutelage.",
     tags: ["Talent", "Potential", "Cultivation Prodigy"],
     status: "Active",
     cultivationRealm: "Foundation Establishment",
     master: "Wang Lin",
+    image: characterImg,
+  },
+  {
+    name: "Xi Zi Feng",
+    race: "Mortal",
+    alignment: "Disciple",
+    subtitle: "Mortal • Esteemed Disciple",
+    description: "A capable and devoted disciple who held a close, emotionally charged bond with Wang Lin. Her affection reflects one of the more poignant emotional subplots of Wang Lin's later life, where admiration and longing coexist with his larger cosmic journey.",
+    tags: ["Devotion", "Emotional Weight", "Disciple Bond"],
+    alias: "Xi Zi Feng",
+    status: "Active",
+    cultivationRealm: "Nascent Soul",
+    master: "Wang Lin",
+    image: characterImg,
+  },
+  {
+    name: "Du Jian",
+    race: "Mortal",
+    alignment: "Disciple",
+    subtitle: "Mortal • First Immortal Guard",
+    description: "Wang Lin's first dedicated immortal guard and a powerful cultivator who was transformed into a precise, unwavering protector. He became entrusted with guarding Wang Ping, showing the degree of trust Wang Lin placed in him beyond ordinary disciple status.",
+    tags: ["Immortal Guard", "Protection", "Trust", "Puppet Refinement"],
+    status: "Active",
+    cultivationRealm: "Soul Transformation",
+    master: "Wang Lin",
+    image: characterImg,
+  },
+  {
+    name: "Tie Yan",
+    race: "Mortal",
+    alignment: "Disciple",
+    subtitle: "Mortal • Early Disciple",
+    description: "One of the early disciples who formed part of Wang Lin's first wave of followers. His growth is less dramatic than some of the core disciples, but his loyalty and endurance helped set the tone for Wang Lin's later retinue.",
+    tags: ["Loyalty", "Early Retinue", "Growth"],
+    status: "Active",
+    cultivationRealm: "Core Formation",
+    master: "Wang Lin",
+    image: characterImg,
+  },
+
+  {
+    name: "Li Yuan",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Veteran Cultivator",
+    description: "A capable and seasoned cultivator who contributes a practical, experienced perspective to the wider cultivation world. He is associated with the older generation of powerful fighters who saw the rise and fall of several major powers.",
+    tags: ["Veteran", "Experience", "Battlefield Wisdom"],
+    status: "Active",
+    cultivationRealm: "Soul Transformation",
+    image: characterImg,
+  },
+  {
+    name: "Master Flamespark",
+    race: "Mortal",
+    alignment: "Master",
+    subtitle: "Mortal • Flame Cultivation Master",
+    description: "A notable flame-based cultivator and one of the more respected experts in the wider cultivated world. Yan Leizi's reputation is tied to fire Dao mastery, a terrifying ability in combat and a useful guide for those who walk the path of burning will.",
+    tags: ["Flame Dao", "Fire Mastery", "Combat Specialist"],
+    alias: "Yan Leizi",
+    status: "Active",
+    cultivationRealm: "Soul Transformation",
+    image: characterImg,
+  },
+  {
+    name: "Master Lu Fu",
+    race: "Mortal",
+    alignment: "Master",
+    subtitle: "Mortal • Ancient Expert",
+    description: "A highly accomplished cultivator and respected elder whose name carries weight in matters involving ancient power, forbidden knowledge, and the higher-tier combatants of the star system. His presence often signals that a situation has crossed into truly dangerous territory.",
+    tags: ["Ancient Expert", "Forbidden Knowledge", "High Realm"],
+    status: "Active",
+    cultivationRealm: "Third Step (peak)",
+    image: characterImg,
+  },
+  {
+    name: "Shengong Hu",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Battle Veteran",
+    description: "A hardened cultivator whose experience spans major conflicts and political upheavals. Shengong Hu is the kind of veteran whose battlefield instincts and composure make him a meaningful ally when the stakes are high.",
+    tags: ["Veteran", "Battlefield Instinct", "High-Stakes Combat"],
+    status: "Active",
+    cultivationRealm: "Nascent Soul",
+    image: characterImg,
+  },
+  {
+    name: "Zhan Konglie",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Elite Combatant",
+    description: "A capable elite combatant known for his directness and explosiveness in battle. He represents the fast-moving, brutal style of martial artists who fight beyond simple sect loyalties and instead seek survival and dominance through sheer skill.",
+    tags: ["Elite Fighter", "Direct Combat", "Power Pressure"],
+    status: "Active",
+    cultivationRealm: "Soul Transformation",
+    image: characterImg,
+  },
+  {
+    name: "Tang Yangfeng",
+    race: "Mortal",
+    alignment: "Rival",
+    subtitle: "Mortal • Ambitious Warrior",
+    description: "A cultivated warrior with a strong ego and a stern, combative demeanor. Tang Yangfeng is a dangerous presence in competitive combat, where his aggressive style and overbearing confidence give him a distinct edge.",
+    tags: ["Aggression", "Power Struggle", "Warrior Spirit"],
+    status: "Active",
+    cultivationRealm: "Soul Transformation",
+    image: characterImg,
+  },
+  {
+    name: "Mo Zhi",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Calm Strategist",
+    description: "A disciplined and strategic cultivator whose measured mindset contrasts with the more explosive personalities around him. Mo Zhi's value lies in planning, timing, and keeping a steady hand during tense conflicts.",
+    tags: ["Strategy", "Calm Judgment", "Tactical Mind"],
+    status: "Active",
+    cultivationRealm: "Nascent Soul",
+    image: characterImg,
+  },
+  {
+    name: "Zhu Quezi",
+    race: "Mortal",
+    alignment: "Master",
+    subtitle: "Mortal • Ancient Mentor",
+    description: "A highly respected ancient mentor whose techniques and understanding of cultivation principles continue to influence later generations. Zhu Quezi's teachings carry the weight of deep experience and a connection to older star-system traditions.",
+    tags: ["Ancient Mentor", "Tradition", "High Discipline"],
+    status: "Active",
+    cultivationRealm: "Third Step (peak)",
+    image: characterImg,
+  },
+  {
+    name: "Yun Quezi",
+    race: "Mortal",
+    alignment: "Master",
+    subtitle: "Mortal • High Realm Mentor",
+    description: "A profound high-realm mentor with an ethos rooted in moral discipline and strict cultivation principles. He represents an older tradition of senior masters who value restraint and method over raw aggression.",
+    tags: ["High Realm", "Tradition", "Discipline"],
+    status: "Active",
+    cultivationRealm: "Third Step (peak)",
+    image: characterImg,
+  },
+  {
+    name: "Demon Emperor Gu Yundun",
+    race: "Ancient Demon",
+    alignment: "Antagonist",
+    subtitle: "Ancient Demon • Sovereign of the Dark",
+    description: "A terrifying demon sovereign whose prestige and power place him among the most dangerous ancient rulers in the region. Gu Yundun embodies the ruthless, bloodthirsty logic of the ancient demonic world and represents a force capable of reshaping whole campaigns.",
+    tags: ["Demon Sovereign", "Ancient Bloodline", "Ruthless Power"],
+    status: "Active",
+    cultivationRealm: "Third Step (peak)",
+    image: characterImg,
+  },
+  {
+    name: "Horned Thunder Beast",
+    race: "Spirit Beast",
+    alignment: "Servant",
+    subtitle: "Spirit Beast • Thunder Guardian",
+    description: "A fierce thunder-attuned spirit beast known for its horned silhouette, violent charge, and explosive power. The Horned Thunder Beast is a dangerous mount and fighting companion whose natural domain overlaps perfectly with high-impact martial combat.",
+    tags: ["Thunder Beast", "Guardian", "Explosive Power"],
+    status: "Active",
+    cultivationRealm: "Ascendant",
+    image: characterImg,
+  },
+  {
+    name: "Lu Mo/ Slaughter Clone",
+    race: "Mortal",
+    alignment: "Ally",
+    subtitle: "Mortal • Slaughter-Cultivator",
+    description: "A merciless fighter associated with brutal slaughter-based combat. Lu Mo, also connected with the broader Slaughter path, is a symbol of the darker side of cultivation where power is measured by how much blood and will can be endured.",
+    tags: ["Slaughter", "Merciless Combat", "Dark Path"],
+    alias: "Slaughter",
+    status: "Active",
+    cultivationRealm: "4th Step (peak)",
+    image: characterImg,
   },
 
   // ── MAJOR ANTAGONISTS ──
@@ -864,6 +1061,11 @@ export const characters: Character[] = [
     image: suMingImg,
   },
 ];
+
+export const characters: Character[] = rawCharacters.map((character) => ({
+  ...character,
+  image: character.image ?? characterImg,
+}));
 
 export const races = ["All Races", "Mortal", "Ancient God", "Ancient Demon", "Ancient Devil", "Hybrid", "Spirit Beast"];
 export const alignments = ["All Roles", "Protagonist", "Ally", "Rival", "Antagonist", "Family", "Master", "Disciple", "Servant"];
