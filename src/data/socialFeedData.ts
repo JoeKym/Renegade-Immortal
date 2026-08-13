@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export type SocialFeedType = "post" | "video" | "photo" | "news";
 
 export interface SocialFeedItem {
@@ -11,6 +13,17 @@ export interface SocialFeedItem {
   publishedAt: string;
   tags: string[];
 }
+
+const FALLBACK_IMAGES: Record<string, string> = {
+  YouTube: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80",
+  TikTok: "https://images.unsplash.com/photo-1531746790731-6c087fecd65d?auto=format&fit=crop&w=1200&q=80",
+  Instagram: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80",
+  Facebook: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+  Telegram: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80",
+  "Google News": "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80",
+  "X / Twitter": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+  Web: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80",
+};
 
 export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
   {
@@ -92,8 +105,73 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
   },
 ];
 
+const inferPlatform = (url: string, source?: string): string => {
+  const text = `${source ?? ""} ${url ?? ""}`.toLowerCase();
+
+  if (text.includes("youtube")) return "YouTube";
+  if (text.includes("tiktok")) return "TikTok";
+  if (text.includes("instagram")) return "Instagram";
+  if (text.includes("facebook")) return "Facebook";
+  if (text.includes("telegram") || text.includes("t.me")) return "Telegram";
+  if (text.includes("google")) return "Google News";
+  if (text.includes("x.com") || text.includes("twitter")) return "X / Twitter";
+  if (text.includes("bilibili")) return "Bilibili";
+  if (text.includes("myanimelist") || text.includes("anilist") || text.includes("novelupdates")) return "News";
+
+  return source || "Web";
+};
+
+const inferType = (platform: string): SocialFeedType => {
+  const normalized = platform.toLowerCase();
+
+  if (normalized.includes("youtube") || normalized.includes("tiktok")) return "video";
+  if (normalized.includes("instagram")) return "photo";
+  if (normalized.includes("google") || normalized.includes("news") || normalized.includes("bilibili")) return "news";
+
+  return "post";
+};
+
+const normalizeFirecrawlItem = (item: any, index: number): SocialFeedItem | null => {
+  const url = item?.url || item?.link;
+  if (!url) return null;
+
+  const platform = inferPlatform(url, item?.source);
+  const title = item?.title || `Renegade Immortal update ${index + 1}`;
+  const summary = item?.snippet || item?.description || item?.markdown?.replace(/\s+/g, " ").slice(0, 180) || "Latest Renegade Immortal update from the web.";
+  const publishedAt = item?.date ? new Date(item.date).toISOString() : new Date().toISOString();
+
+  return {
+    id: `${platform}-${url}`,
+    platform,
+    type: inferType(platform),
+    title,
+    summary,
+    url,
+    image: item?.image || FALLBACK_IMAGES[platform] || FALLBACK_IMAGES.Web,
+    publishedAt,
+    tags: [platform.toLowerCase(), "renegade-immortal"],
+  };
+};
+
 export async function fetchRenegadeImmortalFeed(): Promise<SocialFeedItem[]> {
-  await new Promise((resolve) => window.setTimeout(resolve, 250));
+  try {
+    const { data, error } = await supabase.functions.invoke("fetch-news");
+
+    if (!error && data?.success && Array.isArray(data.data) && data.data.length > 0) {
+      const normalized = data.data
+        .map((item: any, index: number) => normalizeFirecrawlItem(item, index))
+        .filter((item): item is SocialFeedItem => Boolean(item));
+
+      if (normalized.length > 0) {
+        return [...normalized].sort(
+          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        );
+      }
+    }
+  } catch (error) {
+    console.warn("Firecrawl feed unavailable, using fallback social feed.", error);
+  }
+
   return [...RENEGADE_IMMORTAL_SOCIAL_FEED].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
