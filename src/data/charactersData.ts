@@ -9,6 +9,7 @@ import hornedThunderbeastImg from "@/assets/thunder-beast.jpg";
 import demonEmperorGuYundunImg from "@/assets/gu-yundun.jpg";
 import tangYanFengImg from "@/assets/tang-yanfeng.jpg";
 import liuMeiImg from "@/assets/liu-mei-new.jpg";
+import luMoImg from "@/assets/lu-mo.jpg";
 import wangPingImg from "@/assets/wang-ping.jpg";
 import tuoSenImg from "@/assets/tuo-sen.jpg";
 import liYaunImg from "@/assets/li-yuan.jpg";
@@ -573,7 +574,7 @@ const rawCharacters: Character[] = [
     alias: "Slaughter, Lu Mo",
     status: "Merged back into Main Body (Wang Lin)",
     cultivationRealm: "Fourth Step (Heaven Trampling)",
-    image: profileImg,
+    image: luMoImg,
   },
 
   // ── OTHER FEMALE LEADS & RIVALS ──
