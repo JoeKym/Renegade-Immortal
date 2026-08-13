@@ -108,11 +108,11 @@ const species = [
   },
   {
     term: "Ancient Demons",
-    def: "One of three primordial races. Represent chaos mixed with intelligence and instinct. Tou Sen represents this race's pinnacle."
+    def: "One of three primordial races. Represent chaos mixed with intelligence and instinct. Ancient Demon Bei Luo represents this race's pinnacle."
   },
   {
     term: "Ancient Devils",
-    def: "One of three primordial races. Embody pure chaos and destruction. Most destructive of the three races."
+    def: "One of three primordial races. Embody pure chaos and destruction. Most destructive of the three races. Ancient Devil Ta Jia represents this race's pinnacle."
   },
   {
     term: "Forsaken Immortal Tribe",

@@ -13,6 +13,8 @@ import qingShuiImg from "@/assets/qing-shui.jpg";
 import hongShanImg from "@/assets/hong-shan.jpg";
 import redButterflyImg from "@/assets/red-butterfly.jpg";
 import taJiaImg from "@/assets/ta-jia.jpg";
+import taShanImg from "@/assets/ta-shan.jpg";
+import beiLuoImg from "@/assets/bei-luo.jpg";
 import zhouYiImg from "@/assets/zhou-yi.jpg";
 import wangZhouImg from "@/assets/wang-zhou.jpg";
 import wangLinParentsImg from "@/assets/wang-lin-parents.jpg";
@@ -653,6 +655,7 @@ export const characters: Character[] = [
     subtitle: "Ancient Demon • Commander of Sky Demon Country",
     description: "An ancient demon soul fragment trapped within the Demon Spirit Land. Bei Luo rules the Sky Demon Country with proud charisma and demonic beauty, wearing bold red robes and carrying a smooth, hairless head. He is calculating and pragmatic, willing to make pacts with powerful cultivators such as Wang Lin in exchange for slaughter chi and freedom.",
     tags: ["Ancient Race", "Demon Ruler", "Scheme Master", "Bold", "Renegade Immortal"],
+    image: beiLuoImg,
     status: "Active — Soul fused / Free from captivity",
     cultivationRealm: "Second Step / Ascendant comparable",
     sect: "Sky Demon Country",

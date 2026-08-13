@@ -21,7 +21,7 @@ const officialSources = [
   { name: "MyAnimeList", url: "https://myanimelist.net/anime/49468/Xian_Ni" },
   { name: "AniList", url: "https://anilist.co/anime/136468/Xian-Ni" },
   { name: "Novel Updates", url: "https://www.novelupdates.com/series/renegade-immortal/" },
-  { name: "Wuxia World", url: "https://www.wuxiaworld.com/" },
+  { name: "Wuxia World", url: "https://www.wuxiaworld.com/novel/renegade-immortal" },
 ];
 
 const staticNews: NewsItem[] = [

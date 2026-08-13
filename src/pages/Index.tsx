@@ -16,8 +16,7 @@ const quotes = [
   { text: "I will not be a slave to fate. I will forge my own Dao.", attr: "Wang Lin's Resolve" },
   { text: "The Ancient God, Demon, and Devil are but steps on my path.", attr: "Wang Lin's Ascension" },
   { text: "Heaven-defying means nothing if it doesn't transcend all.", attr: "Wang Lin's Philosophy" },
-  { text: "In the clash of Daos, I am inevitable.", attr: "Wang Lin's Certainty" },
-  { text: "The God's real name is Wang Lin, the main protagonist of the prequel novel.", attr: "Wang Lin's Legacy" },
+  { text: "I will not be bound by the rules of the world, for I am the one who defines them.", attr: "Wang Lin's Defiance" },
 ];
 
 const daos = [
