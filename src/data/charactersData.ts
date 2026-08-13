@@ -26,7 +26,7 @@ import taJiaImg from "@/assets/ta-jia.jpg";
 import liQianmeiImg from "@/assets/li-qianmei.jpg";
 import moZhiImg from "@/assets/mo-zhi.jpg";
 import yunqueZiImg from "@/assets/yun-quezi.jpg";
-import taShanImg from "@/assets/ta-shan.jpg";
+import taShanImg from "@/assets/profileImg.jpg";
 import beiLuoImg from "@/assets/bei-luo.jpg";
 import zhouYiImg from "@/assets/zhou-yi.jpg";
 import wangZhouImg from "@/assets/wang-zhou.jpg";
