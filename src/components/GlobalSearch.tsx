@@ -67,8 +67,25 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
       results.length,
       "suggestion_click"
     );
-    
+
     navigate(result.path);
+    setQuery("");
+    onClose();
+  }, [navigate, onClose, query, results.length, trackResultClick]);
+
+  const handleSearchAll = useCallback(() => {
+    const cleanQuery = query.trim();
+    if (!cleanQuery) return;
+
+    trackResultClick(
+      cleanQuery,
+      { title: "Search all results", path: `/search?q=${encodeURIComponent(cleanQuery)}`, category: "Site" },
+      0,
+      results.length || 1,
+      "click"
+    );
+
+    navigate(`/search?q=${encodeURIComponent(cleanQuery)}`);
     setQuery("");
     onClose();
   }, [navigate, onClose, query, results.length, trackResultClick]);
@@ -96,11 +113,15 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                 autoFocus
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search characters, lore, pages, locations, artifacts..."
+                placeholder="Search anything in the site: characters, daos, artifacts, pages, news, episodes..."
                 className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-body text-lg"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && results.length > 0) {
-                    handleSelect(results[0], 0);
+                  if (e.key === "Enter") {
+                    if (results.length > 0) {
+                      handleSelect(results[0], 0);
+                    } else if (query.trim()) {
+                      handleSearchAll();
+                    }
                   }
                 }}
               />
@@ -128,7 +149,15 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
               </div>
             )}
             {query && results.length === 0 && (
-              <p className="p-4 text-center text-muted-foreground font-body">No results found</p>
+              <div className="space-y-3 p-4">
+                <p className="text-center text-muted-foreground font-body">No exact matches found</p>
+                <button
+                  onClick={handleSearchAll}
+                  className="mx-auto block rounded-md border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-heading text-primary transition-colors hover:bg-primary/15"
+                >
+                  Search all site results for “{query.trim()}”
+                </button>
+              </div>
             )}
           </motion.div>
         </motion.div>

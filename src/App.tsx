@@ -49,6 +49,7 @@ import DonghuaSeriesList from "./pages/DonghuaSeries";
 import About from "./pages/About";
 import DMCA from "./pages/DMCA";
 import SearchAnalytics from "./pages/SearchAnalytics";
+import SearchPage from "./pages/Search";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,7 @@ const App = () => {
                   <Route path="/about" element={<About />} />
                   <Route path="/dmca" element={<DMCA />} />
                   <Route path="/admin/search-analytics" element={<SearchAnalytics />} />
+                  <Route path="/search" element={<SearchPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
