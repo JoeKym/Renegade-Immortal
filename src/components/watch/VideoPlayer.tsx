@@ -5,9 +5,10 @@ import {
   Maximize2, ExternalLink, ChevronDown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { VideoServerName } from "@/lib/videoSourceSlugs";
 
 interface Server {
-  name: string;
+  name: VideoServerName;
   label: string;
   directUrl: (ep: number, slug: string) => string;
 }
@@ -16,6 +17,10 @@ function normalizeSlug(slug: string): string {
   if (slug === "renegade-immortal-xian-ni") return "renegade-immortal";
   if (slug === "eclipse-of-illusion") return "eclipse-of-illusion-s1";
   return slug.replace(/-s\d+$/i, "");
+}
+
+function resolveServerSlug(serverName: VideoServerName, donghuaSlug: string, serverSlugs?: Partial<Record<VideoServerName, string>>) {
+  return serverSlugs?.[serverName] || normalizeSlug(donghuaSlug);
 }
 
 const SERVERS: Server[] = [
@@ -39,12 +44,20 @@ const SERVERS: Server[] = [
 interface VideoPlayerProps {
   episode: number;
   donghuaSlug?: string;
+  serverSlugs?: Partial<Record<VideoServerName, string>>;
+  seriesTitle?: string;
   onEnded?: () => void;
 }
 
 type LoadState = "loading" | "playing" | "error";
 
-export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni", onEnded }: VideoPlayerProps) {
+export function VideoPlayer({
+  episode,
+  donghuaSlug = "renegade-immortal",
+  serverSlugs,
+  seriesTitle,
+  onEnded,
+}: VideoPlayerProps) {
   const [activeServer, setActiveServer] = useState(0);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -73,7 +86,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
 
     try {
       const { data, error } = await supabase.functions.invoke("fetch-video-source", {
-        body: { episode, server: server.name, donghuaSlug },
+        body: { episode, server: server.name, donghuaSlug, serverSlugs },
       });
 
       if (error) throw new Error(error.message);
@@ -96,7 +109,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
         setLoadState("error");
       }
     }
-  }, [episode, donghuaSlug]);
+  }, [episode, donghuaSlug, serverSlugs]);
 
   useEffect(() => {
     setServerStatuses({});
@@ -105,7 +118,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
     return () => {
       fetchControllerRef.current?.abort();
     };
-  }, [episode, donghuaSlug, fetchEmbed]);
+  }, [episode, donghuaSlug, serverSlugs, fetchEmbed]);
 
   const handleServerClick = (index: number) => {
     setServerStatuses((prev) => {
@@ -177,7 +190,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
               {SERVERS.map((srv) => (
                 <a
                   key={srv.name}
-                  href={srv.directUrl(episode, donghuaSlug)}
+                  href={srv.directUrl(episode, resolveServerSlug(srv.name, donghuaSlug, serverSlugs))}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground rounded text-xs font-body transition-colors border border-border"
@@ -199,7 +212,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             onLoad={handleIframeLoad}
-            title={`Renegade Immortal Episode ${episode}`}
+            title={`${seriesTitle || "Episode"} ${episode}`}
           />
         )}
 
@@ -273,7 +286,7 @@ export function VideoPlayer({ episode, donghuaSlug = "renegade-immortal-xian-ni"
               {SERVERS.map((srv) => (
                 <a
                   key={srv.name}
-                  href={srv.directUrl(episode, donghuaSlug)}
+                  href={srv.directUrl(episode, resolveServerSlug(srv.name, donghuaSlug, serverSlugs))}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"

@@ -35,21 +35,25 @@ const getSlugWithSeriesAlias = (slug: string): string => {
   return normalized;
 };
 
-const buildAnime4iCandidates = (episode: number, slug: string): string[] => {
-  const normalizedSlug = normalizeServerSlug(slug);
-  const baseCandidates = [
-    normalizedSlug,
-    `${normalizedSlug}-xian-ni`,
-    'renegade-immortal',
-    'renegade-immortal-xian-ni',
-  ].filter(Boolean);
+const buildAnime4iCandidates = (episode: number, slug: string, platformSlug?: string): string[] => {
+  const normalizedSlug = normalizeServerSlug(platformSlug || slug);
+  const baseCandidates = [normalizedSlug];
+
+  if (normalizedSlug.includes('renegade-immortal') && !normalizedSlug.includes('xian-ni')) {
+    baseCandidates.push(`${normalizedSlug}-xian-ni`);
+  }
+  if (normalizedSlug.includes('renegade-immortal') || normalizedSlug.includes('xian-ni')) {
+    baseCandidates.push('renegade-immortal', 'renegade-immortal-xian-ni');
+  }
 
   const urls = new Set<string>();
   for (const base of baseCandidates) {
     urls.add(`https://anime4i.com/${base}-episode-${episode}-english-subtitles`);
     urls.add(`https://anime4i.com/${base}-episode-${episode}`);
     urls.add(`https://anime4i.com/${base}-episode-${episode}-english-sub/`);
-    urls.add(`https://anime4i.com/${base}-xian-ni-episode-${episode}-english-subtitles`);
+    if (base.includes('renegade-immortal')) {
+      urls.add(`https://anime4i.com/${base}-xian-ni-episode-${episode}-english-subtitles`);
+    }
   }
 
   return [...urls];
@@ -120,16 +124,29 @@ const extractAnyMediaUrl = (html: string): string | null => {
   return [...candidates][0] || null;
 };
 
-const buildLuciferDonghuaCandidates = (episode: number, slug: string): string[] => {
-  const base = getSlugWithSeriesAlias(slug);
-  const patterns = [
-    `${base}-episode-${episode}-english-sub`,
-    `${base}-episode-${episode}-english-subtitles`,
-    `${base}-episode-${episode}-english-subtitle`,
-    `${base}-episode-${episode}`,
-  ];
+const buildLuciferDonghuaCandidates = (episode: number, slug: string, platformSlug?: string): string[] => {
+  const base = getSlugWithSeriesAlias(platformSlug || slug);
+  const episodeValues = [String(episode), String(episode).padStart(2, '0')];
+  const patterns: string[] = [];
+
+  for (const ep of episodeValues) {
+    patterns.push(
+      `${base}-episode-${ep}-english-sub`,
+      `${base}-episode-${ep}-english-subtitles`,
+      `${base}-episode-${ep}-english-subtitle`,
+      `${base}-episode-${ep}`,
+    );
+  }
 
   return [...new Set(patterns.map((path) => `https://luciferdonghua.org/${path}/`))];
+};
+
+const resolvePlatformSlug = (
+  serverName: string,
+  slug: string,
+  serverSlugs?: Record<string, string>,
+): string => {
+  return serverSlugs?.[serverName] || slug;
 };
 
 const servers: ServerConfig[] = [
@@ -178,8 +195,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { episode, server, donghuaSlug } = await req.json();
-    const slug = donghuaSlug || 'renegade-immortal-xian-ni';
+    const { episode, server, donghuaSlug, serverSlugs } = await req.json();
+    const slug = donghuaSlug || 'renegade-immortal';
 
     if (!episode || typeof episode !== 'number') {
       return new Response(
@@ -203,9 +220,12 @@ Deno.serve(async (req) => {
 
     for (const srv of serversToTry) {
       try {
+        const platformSlug = resolvePlatformSlug(srv.name, slug, serverSlugs);
         const candidateUrls = srv.name === 'anime4i'
-          ? buildAnime4iCandidates(episode, slug)
-          : [srv.getPageUrl(episode, slug)];
+          ? buildAnime4iCandidates(episode, slug, platformSlug)
+          : srv.name === 'luciferdonghua'
+          ? buildLuciferDonghuaCandidates(episode, slug, platformSlug)
+          : [srv.getPageUrl(episode, platformSlug)];
 
         let foundEmbed: string | null = null;
 
@@ -264,7 +284,11 @@ Deno.serve(async (req) => {
         success: false,
         error: 'Could not extract embed from any server',
         results,
-        fallbackUrls: servers.map(s => ({ name: s.name, label: s.label, url: s.getPageUrl(episode, slug) })),
+        fallbackUrls: servers.map((s) => ({
+          name: s.name,
+          label: s.label,
+          url: s.getPageUrl(episode, resolvePlatformSlug(s.name, slug, serverSlugs)),
+        })),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

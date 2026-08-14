@@ -10,6 +10,7 @@ import { EpisodeSidebar } from "./EpisodeSidebar";
 import { SeriesGrid } from "./SeriesGrid";
 import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
+import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
 
 interface WatchPageTemplateProps {
   seriesId: string;
@@ -149,6 +150,8 @@ export function WatchPageTemplate({
                 <VideoPlayer 
                   episode={episodeNumber} 
                   donghuaSlug={series.serverSlug || series.id}
+                  serverSlugs={getVideoServerSlugs(series)}
+                  seriesTitle={series.title}
                   onEnded={() => handleEpisodeSelect(episodeNumber + 1)} 
                 />
 

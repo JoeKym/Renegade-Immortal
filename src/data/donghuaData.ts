@@ -154,7 +154,7 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     releaseSchedule: "Completed (Special 6-episode bridge arc ended July 2026)",
     statusTag: "Completed Special Series",
     streamingLinks: {
-      anime4i: "https://anime4i.com/eclipse-of-illusion-episode-6-english-subtitles",
+      anime4i: "https://anime4i.com/eclipse-of-illusion-special-the-miasma-war-episode-6-english-subtitles",
       luciferDonghuaOrg: "https://luciferdonghua.org/eclipse-of-illusion-special-the-miasma-war-episode-6-english-subtitle/",
       luciferDonghuaIn: "https://luciferdonghua.in/eclipse-of-illusion-special-the-miasma-war-episode-06-lucifer-donghua/",
     },
