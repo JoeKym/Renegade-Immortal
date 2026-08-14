@@ -16,6 +16,7 @@ import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield,
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { isMissingSiteSettingsError } from "@/lib/siteSettings";
 
 interface Profile {
   id: string;
@@ -1651,15 +1652,26 @@ export default function AdminPage() {
       }
 
       // Load maintenance settings
-      const { data: settingsData } = await supabase
-        .from("site_settings" as any)
-        .select("key, value")
-        .in("key", ["maintenance_mode", "maintenance_eta"]);
-      if (settingsData) {
-        (settingsData as any[]).forEach((row: any) => {
-          if (row.key === "maintenance_mode") setMaintenanceMode(row.value === "true");
-          if (row.key === "maintenance_eta") setMaintenanceEta(row.value || "");
-        });
+      try {
+        const { data: settingsData, error: settingsError } = await supabase
+          .from("site_settings" as any)
+          .select("key, value")
+          .in("key", ["maintenance_mode", "maintenance_eta"]);
+
+        if (settingsError && isMissingSiteSettingsError(settingsError)) {
+          setMaintenanceMode(false);
+          setMaintenanceEta("");
+        } else if (settingsData) {
+          (settingsData as any[]).forEach((row: any) => {
+            if (row.key === "maintenance_mode") setMaintenanceMode(row.value === "true" || row.value === true);
+            if (row.key === "maintenance_eta") setMaintenanceEta(row.value || "");
+          });
+        }
+      } catch (error) {
+        if (isMissingSiteSettingsError(error)) {
+          setMaintenanceMode(false);
+          setMaintenanceEta("");
+        }
       }
     };
     loadData();
@@ -1839,7 +1851,13 @@ export default function AdminPage() {
           { onConflict: "key" }
         );
 
-      if (error) throw error;
+      if (error) {
+        if (isMissingSiteSettingsError(error)) {
+          toast.error("Maintenance settings table is not available in this deployment.");
+          return;
+        }
+        throw error;
+      }
 
       setMaintenanceMode(nextState);
       toast.success(nextState ? "Maintenance mode enabled — site is now restricted" : "Maintenance mode disabled");
@@ -1856,6 +1874,10 @@ export default function AdminPage() {
       .from("site_settings" as any)
       .upsert({ key: "maintenance_eta", value: maintenanceEta, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
     if (error) {
+      if (isMissingSiteSettingsError(error)) {
+        toast.error("Maintenance settings table is not available in this deployment.");
+        return;
+      }
       console.error("ETA update error:", error);
       toast.error("Failed to update ETA");
     } else {
