@@ -1341,6 +1341,18 @@ CREATE TABLE IF NOT EXISTS public.donghua_progress (
 );
 
 -- Donghua story arcs
+-- Drop old constraint if it exists (before table creation attempt)
+DO $$
+BEGIN
+  BEGIN
+    ALTER TABLE public.donghua_arcs DROP CONSTRAINT donghua_arcs_status_check;
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.donghua_arcs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
@@ -1354,6 +1366,20 @@ CREATE TABLE IF NOT EXISTS public.donghua_arcs (
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT valid_arc_status CHECK (status IN ('completed', 'airing', 'upcoming'))
 );
+
+-- Ensure correct constraint exists
+DO $$
+BEGIN
+  BEGIN
+    ALTER TABLE public.donghua_arcs DROP CONSTRAINT valid_arc_status;
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+  
+  ALTER TABLE public.donghua_arcs ADD CONSTRAINT valid_arc_status CHECK (status IN ('completed', 'airing', 'upcoming'));
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
 
 -- Enable RLS on donghua tables
 ALTER TABLE public.donghua_progress ENABLE ROW LEVEL SECURITY;
@@ -1400,10 +1426,26 @@ ON CONFLICT DO NOTHING;
 -- CONVERSATIONS/DM TABLES
 -- ============================================================================
 
+-- Drop and recreate conversations table if it has the wrong schema
+DO $$
+BEGIN
+  -- Check if user1_id column exists
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'conversations' AND column_name = 'user1_id'
+  ) THEN
+    -- Drop dependent objects first
+    DROP TABLE IF EXISTS public.messages CASCADE;
+    DROP TABLE IF EXISTS public.conversations CASCADE;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.conversations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user1_id uuid NOT NULL REFERENCES public.profiles(user_id),
-  user2_id uuid NOT NULL REFERENCES public.profiles(user_id),
+  user1_id uuid NOT NULL REFERENCES public.profiles(id),
+  user2_id uuid NOT NULL REFERENCES public.profiles(id),
   last_message_at timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone DEFAULT now(),
   UNIQUE(user1_id, user2_id)
@@ -1412,7 +1454,7 @@ CREATE TABLE IF NOT EXISTS public.conversations (
 CREATE TABLE IF NOT EXISTS public.messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id uuid NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
-  sender_id uuid NOT NULL REFERENCES public.profiles(user_id),
+  sender_id uuid NOT NULL REFERENCES public.profiles(id),
   content text NOT NULL,
   read boolean NOT NULL DEFAULT false,
   created_at timestamp with time zone DEFAULT now()
