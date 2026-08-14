@@ -16,10 +16,10 @@ import {
 import { Loader2, Tv, BookOpen, RefreshCw, Sparkles } from "lucide-react";
 
 const DEFAULT_PROGRESS = {
-  currentEpisode: 128,
-  totalEpisodes: 350,
-  currentChapter: 850,
-  totalChapters: 2100,
+  currentEpisode: 153,
+  totalEpisodes: ~350,
+  currentChapter: 1064,
+  totalChapters: 2138,
 };
 
 export default function DonghuaAdmin() {
