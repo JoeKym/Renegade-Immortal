@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Star, Tv, Clock, Sparkles } from "lucide-react";
+import { Star, Tv, Clock } from "lucide-react";
 import { AniListData } from "@/hooks/useDonghuaData";
 import { DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
 import { getNextReleaseInfo } from "@/lib/releaseSchedule";
-import { isCompletedSeries } from "@/lib/donghuaStatus";
+import { getWatchPageStatusLabel, shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
 
 interface WatchBannerProps {
   aniData: AniListData | null;
@@ -22,8 +22,9 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
     return () => clearInterval(timer);
   }, []);
 
-  const isCompleted = isCompletedSeries(series.statusTag);
+  const statusLabel = getWatchPageStatusLabel(series);
   const releaseInfo = getNextReleaseInfo(series, now);
+  const showCountdown = shouldShowReleaseCountdown(series, aniData?.status) && releaseInfo.showCountdown;
 
   return (
     <div
@@ -61,16 +62,15 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
             <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
               <Tv size={12} /> {releasedCount} Episodes
             </span>
-            {!isCompleted && releaseInfo && (
+            {statusLabel ? (
+              <span className="flex items-center gap-1 text-xs text-emerald-400 font-body">
+                <Clock size={12} /> {statusLabel}
+              </span>
+            ) : showCountdown ? (
               <span className="flex items-center gap-1 text-xs text-primary font-body animate-pulse">
                 <Clock size={12} /> Next: Ep {releaseInfo.nextEpisodeNumber} in {releaseInfo.timeUntilFormatted} ({releaseInfo.chinaTimeDisplay})
               </span>
-            )}
-            {isCompleted && (
-              <span className="flex items-center gap-1 text-xs text-emerald-400 font-body">
-                <Clock size={12} /> Completed
-              </span>
-            )}
+            ) : null}
           </div>
           {aniData?.genres && (
             <div className="flex flex-wrap gap-1.5 mt-2">

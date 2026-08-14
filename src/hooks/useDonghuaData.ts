@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
+import { shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
 
 export interface AniListData {
   id: number;
@@ -237,11 +238,13 @@ export function useDonghuaData(seriesId: string | undefined) {
             nextEpTotal
         );
         let bestNextAiring = primary.nextAiringEpisode;
-        if (nextEpNextAiring) {
+        if (nextEpNextAiring && shouldShowReleaseCountdown(series, primary.status)) {
             bestNextAiring = {
                 ...nextEpNextAiring,
                 timeUntilAiring: Math.max(0, Math.floor((nextEpNextAiring.airingAt * 1000 - Date.now()) / 1000)),
             };
+        } else if (!shouldShowReleaseCountdown(series, primary.status)) {
+            bestNextAiring = null;
         }
 
         setAniData({
@@ -277,7 +280,8 @@ export function useDonghuaData(seriesId: string | undefined) {
   const releasedCount = useMemo(() => {
     const known = series?.knownTotalEpisodes || 0;
     if (!aniData) return known;
-    const aniCount = aniData.nextAiringEpisode
+    const canUseNextAiring = shouldShowReleaseCountdown(series, aniData.status);
+    const aniCount = canUseNextAiring && aniData.nextAiringEpisode
       ? Math.max(0, aniData.nextAiringEpisode.episode - 1)
       : aniData.episodes || 0;
     return Math.max(known, aniCount);

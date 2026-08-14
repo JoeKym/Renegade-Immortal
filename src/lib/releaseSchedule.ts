@@ -1,5 +1,5 @@
 import type { DonghuaSeries } from "@/data/donghuaData";
-import { isCompletedSeries } from "@/lib/donghuaStatus";
+import { shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
 
 export interface NextReleaseInfo {
   nextEpisodeNumber: number;
@@ -8,6 +8,7 @@ export interface NextReleaseInfo {
   timeUntilFormatted: string;     // e.g. "3d 14h 6s"
   fullCountdownString: string;    // e.g. "Next: Ep 261 in 3d 14h 6s (12:00 PM EAT)"
   chinaTimeDisplay: string;       // e.g. "12:00 PM EAT (GMT+3)"
+  showCountdown: boolean;
 }
 
 const DAY_MAP: Record<string, number> = {
@@ -83,7 +84,7 @@ function getReleaseTimezoneMinutes(series: DonghuaSeries): number {
  * Most of the series in this project are scheduled in EAT (UTC+3), not China Standard Time.
  */
 export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()): NextReleaseInfo {
-  if (isCompletedSeries(series.statusTag)) {
+  if (!shouldShowReleaseCountdown(series)) {
     return {
       nextEpisodeNumber: series.knownTotalEpisodes || 0,
       nextAiringDate: new Date(0),
@@ -91,6 +92,7 @@ export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()
       timeUntilFormatted: "Completed",
       fullCountdownString: "Completed",
       chinaTimeDisplay: "Completed",
+      showCountdown: false,
     };
   }
 
@@ -174,5 +176,6 @@ export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()
     timeUntilFormatted,
     fullCountdownString,
     chinaTimeDisplay,
+    showCountdown: true,
   };
 }

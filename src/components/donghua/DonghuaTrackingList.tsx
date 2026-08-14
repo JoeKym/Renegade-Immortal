@@ -168,7 +168,7 @@ export function DonghuaTrackingList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSeries.map((series, idx) => {
           const releaseInfo = getNextReleaseInfo(series, now);
-          const isCompleted = isCompletedSeries(series.statusTag);
+          const showCountdown = releaseInfo.showCountdown;
 
           return (
             <motion.div
@@ -212,7 +212,7 @@ export function DonghuaTrackingList() {
                     <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                     <span className="truncate">{getSeriesReleaseDisplay(series.statusTag, series.releaseSchedule)}</span>
                   </div>
-                  {!isCompleted && (
+                  {showCountdown && (
                     <div className="flex flex-col gap-0.5 pt-1.5 mt-1 border-t border-border/40 text-[11px]">
                       <div className="flex items-center justify-between text-primary font-heading tracking-wider">
                         <span className="flex items-center gap-1">

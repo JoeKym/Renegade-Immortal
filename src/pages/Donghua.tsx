@@ -51,6 +51,7 @@ const DonghuaPage = () => {
   const releaseDays = new Set(ongoingSeries.filter((series) => series.releaseDay).map((series) => series.releaseDay));
   const nextRelease = ongoingSeries
     .map((series) => ({ series, info: getNextReleaseInfo(series) }))
+    .filter(({ info }) => info.showCountdown)
     .sort((a, b) => a.info.nextAiringDate.getTime() - b.info.nextAiringDate.getTime())[0];
 
   const statusColor = (s: string) =>
