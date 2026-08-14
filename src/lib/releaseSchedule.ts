@@ -1,4 +1,5 @@
 import type { DonghuaSeries } from "@/data/donghuaData";
+import { isCompletedSeries } from "@/lib/donghuaStatus";
 
 export interface NextReleaseInfo {
   nextEpisodeNumber: number;
@@ -82,6 +83,17 @@ function getReleaseTimezoneMinutes(series: DonghuaSeries): number {
  * Most of the series in this project are scheduled in EAT (UTC+3), not China Standard Time.
  */
 export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()): NextReleaseInfo {
+  if (isCompletedSeries(series.statusTag)) {
+    return {
+      nextEpisodeNumber: series.knownTotalEpisodes || 0,
+      nextAiringDate: new Date(0),
+      nextAiringFormattedCST: "Completed",
+      timeUntilFormatted: "Completed",
+      fullCountdownString: "Completed",
+      chinaTimeDisplay: "Completed",
+    };
+  }
+
   const currentEpisodes = series.knownTotalEpisodes || 0;
   const nextEpisodeNumber = currentEpisodes + 1;
 

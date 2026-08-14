@@ -8,6 +8,7 @@ import { ChapterConverter } from "@/components/donghua/ChapterConverter";
 import { DonghuaTrackingList } from "@/components/donghua/DonghuaTrackingList";
 import { DONGHUA_SERIES } from "@/data/donghuaData";
 import { getNextReleaseInfo } from "@/lib/releaseSchedule";
+import { isCompletedSeries } from "@/lib/donghuaStatus";
 import { useState, useEffect } from "react";
 
 const DonghuaPage = () => {
@@ -44,10 +45,11 @@ const DonghuaPage = () => {
   }, []);
 
   const trackedSeries = DONGHUA_SERIES;
-  const ongoingCount = trackedSeries.filter((series) => series.statusTag?.includes("Ongoing") || series.statusTag?.includes("Nian Fan")).length;
-  const completedCount = trackedSeries.filter((series) => series.statusTag?.includes("Completed")).length;
-  const releaseDays = new Set(trackedSeries.filter((series) => series.releaseDay).map((series) => series.releaseDay));
-  const nextRelease = trackedSeries
+  const ongoingSeries = trackedSeries.filter((series) => !isCompletedSeries(series.statusTag));
+  const ongoingCount = ongoingSeries.filter((series) => series.statusTag?.includes("Ongoing") || series.statusTag?.includes("Nian Fan")).length;
+  const completedCount = trackedSeries.filter((series) => isCompletedSeries(series.statusTag)).length;
+  const releaseDays = new Set(ongoingSeries.filter((series) => series.releaseDay).map((series) => series.releaseDay));
+  const nextRelease = ongoingSeries
     .map((series) => ({ series, info: getNextReleaseInfo(series) }))
     .sort((a, b) => a.info.nextAiringDate.getTime() - b.info.nextAiringDate.getTime())[0];
 

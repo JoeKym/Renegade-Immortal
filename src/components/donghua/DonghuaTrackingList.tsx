@@ -5,6 +5,7 @@ import { Calendar, Clock, ExternalLink, Play, Filter, Tv, Sparkles } from "lucid
 import { Link } from "react-router-dom";
 import { proxyImageUrl } from "@/lib/utils";
 import { getNextReleaseInfo } from "@/lib/releaseSchedule";
+import { isCompletedSeries, getSeriesReleaseDisplay } from "@/lib/donghuaStatus";
 
 type DayFilter = "All" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 
@@ -167,7 +168,7 @@ export function DonghuaTrackingList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSeries.map((series, idx) => {
           const releaseInfo = getNextReleaseInfo(series, now);
-          const isCompleted = series.statusTag?.includes("Completed Special") || (series.statusTag?.includes("Completed") && !series.statusTag?.includes("Ongoing"));
+          const isCompleted = isCompletedSeries(series.statusTag);
 
           return (
             <motion.div
@@ -209,7 +210,7 @@ export function DonghuaTrackingList() {
                 <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-muted/30 border border-border/50 text-xs font-body mb-3">
                   <div className="flex items-center gap-1.5 text-foreground/80">
                     <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span className="truncate">{series.releaseSchedule}</span>
+                    <span className="truncate">{getSeriesReleaseDisplay(series.statusTag, series.releaseSchedule)}</span>
                   </div>
                   {!isCompleted && (
                     <div className="flex flex-col gap-0.5 pt-1.5 mt-1 border-t border-border/40 text-[11px]">

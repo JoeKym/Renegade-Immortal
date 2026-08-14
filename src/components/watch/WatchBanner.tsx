@@ -4,6 +4,7 @@ import { AniListData } from "@/hooks/useDonghuaData";
 import { DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
 import { getNextReleaseInfo } from "@/lib/releaseSchedule";
+import { isCompletedSeries } from "@/lib/donghuaStatus";
 
 interface WatchBannerProps {
   aniData: AniListData | null;
@@ -21,6 +22,7 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
     return () => clearInterval(timer);
   }, []);
 
+  const isCompleted = isCompletedSeries(series.statusTag);
   const releaseInfo = getNextReleaseInfo(series, now);
 
   return (
@@ -59,9 +61,14 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
             <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
               <Tv size={12} /> {releasedCount} Episodes
             </span>
-            {releaseInfo && (
+            {!isCompleted && releaseInfo && (
               <span className="flex items-center gap-1 text-xs text-primary font-body animate-pulse">
                 <Clock size={12} /> Next: Ep {releaseInfo.nextEpisodeNumber} in {releaseInfo.timeUntilFormatted} ({releaseInfo.chinaTimeDisplay})
+              </span>
+            )}
+            {isCompleted && (
+              <span className="flex items-center gap-1 text-xs text-emerald-400 font-body">
+                <Clock size={12} /> Completed
               </span>
             )}
           </div>

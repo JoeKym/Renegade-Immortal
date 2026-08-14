@@ -15,7 +15,7 @@ interface Server {
 function normalizeSlug(slug: string): string {
   if (slug === "renegade-immortal-xian-ni") return "renegade-immortal";
   if (slug === "eclipse-of-illusion") return "eclipse-of-illusion-s1";
-  return slug;
+  return slug.replace(/-s\d+$/i, "");
 }
 
 const SERVERS: Server[] = [
@@ -26,28 +26,8 @@ const SERVERS: Server[] = [
   },
   {
     name: "luciferdonghua",
-    label: "LuciferDonghua (.org)",
-    directUrl: (ep, slug) => `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
-  },
-  {
-    name: "luciferdonghua-in",
-    label: "LuciferDonghua (.in)",
-    directUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
-  },
-  {
-    name: "donghuastream",
-    label: "DonghuaStream",
-    directUrl: (ep, slug) => `https://donghuastream.org/${normalizeSlug(slug)}-episode-${ep}-multiple-subtitles/`,
-  },
-  {
-    name: "evasub",
-    label: "EvaSub",
-    directUrl: (ep, slug) => `http://evasub.com/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
-  },
-  {
-    name: "animecube",
-    label: "Anime Cube",
-    directUrl: (ep, slug) => `https://animecube.live/anime/${normalizeSlug(slug)}?season=tab-1&episode=${normalizeSlug(slug)}-tab-1-ep-${ep}`,
+    label: "LuciferDonghua",
+    directUrl: (ep, slug) => `https://luciferdonghua.org/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
   },
   {
     name: "myanime",
