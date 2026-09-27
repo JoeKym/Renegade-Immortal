@@ -20,7 +20,7 @@ import tuSiImg from "@/assets/tu-si.jpg";
 import duJianImg from "@/assets/du-jian.jpg";
 import zhouRuImg from "@/assets/zhou-ru-new.jpg";
 import bloodAncestorImg from "@/assets/blood-ancestor.jpg";
-import qingShuiImg from "@/assets/qing-shui.jpg";
+import qingShuiImg from "@/assets/qing-shui.webp";
 import hongShanImg from "@/assets/hong-shan.jpg";
 import redButterflyImg from "@/assets/red-butterfly.jpg";
 import taJiaImg from "@/assets/ta-jia.jpg";
@@ -220,22 +220,22 @@ const rawCharacters: Character[] = [
     image: liMuwanImg,
   },
   {
-  name: "Zhou Ru",
-  race: "Human",
-  alignment: "Family",
-  subtitle: "Soul Vessel of Li Muwan • Protected Junior",
-  description: "A gentle girl born on Planet Suzaku who housed Li Muwan's soul fragment. Raised and guarded by Wang Lin with immense warmth, she represents one of the few pure, untainted bonds in his ruthless journey.",
-  tags: ["Li Muwan Soul Vessel", "Protected Junior", "Emotional Anchor", "Planet Suzaku"],
-  alias: "Little Ru'er",
-  status: "Alive",
-  cultivationRealm: "Core Formation / Nascent Soul",
-  master: "Wang Lin (Guardian & Mentor)",
-  firstAppearance: "Book 3",
-  techniques: ["Nurturing Spirit Spells", "Basic Cloud Sky Pill Arts"],
-  artifacts: ["Soul-Nurturing Jade", "Wang Lin's Protective Restriction Talismans"],
-  image: zhouRuImg, // Import your zhou-ru-new.jpg asset
-},
- {
+    name: "Zhou Ru",
+    race: "Human",
+    alignment: "Family",
+    subtitle: "Soul Vessel of Li Muwan • Protected Junior",
+    description: "A gentle girl born on Planet Suzaku who housed Li Muwan's soul fragment. Raised and guarded by Wang Lin with immense warmth, she represents one of the few pure, untainted bonds in his ruthless journey.",
+    tags: ["Li Muwan Soul Vessel", "Protected Junior", "Emotional Anchor", "Planet Suzaku"],
+    alias: "Little Ru'er",
+    status: "Alive",
+    cultivationRealm: "Core Formation / Nascent Soul",
+    master: "Wang Lin (Guardian & Mentor)",
+    firstAppearance: "Book 3",
+    techniques: ["Nurturing Spirit Spells", "Basic Cloud Sky Pill Arts"],
+    artifacts: ["Soul-Nurturing Jade", "Wang Lin's Protective Restriction Talismans"],
+    image: zhouRuImg, // Import your zhou-ru-new.jpg asset
+  },
+  {
     name: "Li Qianmei",
     race: "Human",
     alignment: "Ally",
@@ -684,21 +684,21 @@ const rawCharacters: Character[] = [
     image: taShanImg,
   },
   {
-  name: "Palm Lord",
-  race: "Human",
-  alignment: "Antagonist",
-  subtitle: "Ruler of the Outer Realm • Master Schemer",
-  description: "The supreme commander of the Outer Realm forces under the Seven Colored Sovereign. A cold and calculating Third Step expert who spent millennia orchestrating the invasion and downfall of the Sealed Realm.",
-  tags: ["Outer Realm Leader", "Third Step Peak", "Sealed Realm War", "Mastermind"],
-  alias: "Zhang Zun",
-  status: "Deceased (Killed by Wang Lin)",
-  cultivationRealm: "Third Step Peak (5th Heaven's Blight)",
-  enemies: ["Wang Lin", "Qing Lin", "Master South Cloud", "Sealed Realm Alliance"],
-  firstAppearance: "Outer Realm War Arc",
-  techniques: ["Palm of Heaven & Earth", "Outer Realm Divine Seal", "Absolute Restriction Control"],
-  artifacts: ["Outer Realm Command Token", "Ancient Celestial Boundary Banner"],
-  image: profileImg, // Standard fallback or your dedicated asset
-},
+    name: "Palm Lord",
+    race: "Human",
+    alignment: "Antagonist",
+    subtitle: "Ruler of the Outer Realm • Master Schemer",
+    description: "The supreme commander of the Outer Realm forces under the Seven Colored Sovereign. A cold and calculating Third Step expert who spent millennia orchestrating the invasion and downfall of the Sealed Realm.",
+    tags: ["Outer Realm Leader", "Third Step Peak", "Sealed Realm War", "Mastermind"],
+    alias: "Zhang Zun",
+    status: "Deceased (Killed by Wang Lin)",
+    cultivationRealm: "Third Step Peak (5th Heaven's Blight)",
+    enemies: ["Wang Lin", "Qing Lin", "Master South Cloud", "Sealed Realm Alliance"],
+    firstAppearance: "Outer Realm War Arc",
+    techniques: ["Palm of Heaven & Earth", "Outer Realm Divine Seal", "Absolute Restriction Control"],
+    artifacts: ["Outer Realm Command Token", "Ancient Celestial Boundary Banner"],
+    image: profileImg, // Standard fallback or your dedicated asset
+  },
 
   // ── MAJOR ANTAGONISTS ──
   {
@@ -744,7 +744,7 @@ const rawCharacters: Character[] = [
     tags: ["Water Dao", "Sealed Realm Antagonist"],
     status: "Deceased",
     cultivationRealm: "Third Step (Nirvana Cleanser)",
-    image:profileImg,
+    image: profileImg,
   },
   {
     name: "Sovereign",
@@ -890,22 +890,22 @@ const rawCharacters: Character[] = [
 
   // ── ANCIENT CELESTIAL FIGURES ──
   {
-  name: "Feng Zun",
-  race: "Human",
-  alignment: "Master",
-  subtitle: "Former Master of Tian Ni Pearl • Third Step Enlightener",
-  description: "The former master of the Heaven-Defying Bead (Tian Ni Pearl). When the bead reached Five Elements perfection, Feng Zun's spirit manifested to test Wang Lin, open the gateway to the Third Step, and impart the fundamental truth of true Dao.",
-  tags: ["Heaven-Defying Bead", "Tian Ni Pearl", "Sealing Exalt", "Third Step Master", "Dao Enlightener"],
-  alias: "Sealing Exalt, Feng Zun",
-  status: "Deceased (Legacy & Enlightenment passed to Wang Lin)",
-  cultivationRealm: "Third Step Peak (Profound Tribulation)",
-  disciples: ["Wang Lin"],
-  enemies: ["Shui Daozi (Daoist Water)"],
-  firstAppearance: "Tian Ni Five Elements Completion Arc",
-  techniques: ["Sealing Extermination Spells", "Five Elements Origin Laws", "Third Step Dao Manifestation"],
-  artifacts: ["Heaven-Defying Bead / Tian Ni Pearl (Former Master)"],
-  image: profileImg,
-},
+    name: "Feng Zun",
+    race: "Human",
+    alignment: "Master",
+    subtitle: "Former Master of Tian Ni Pearl • Third Step Enlightener",
+    description: "The former master of the Heaven-Defying Bead (Tian Ni Pearl). When the bead reached Five Elements perfection, Feng Zun's spirit manifested to test Wang Lin, open the gateway to the Third Step, and impart the fundamental truth of true Dao.",
+    tags: ["Heaven-Defying Bead", "Tian Ni Pearl", "Sealing Exalt", "Third Step Master", "Dao Enlightener"],
+    alias: "Sealing Exalt, Feng Zun",
+    status: "Deceased (Legacy & Enlightenment passed to Wang Lin)",
+    cultivationRealm: "Third Step Peak (Profound Tribulation)",
+    disciples: ["Wang Lin"],
+    enemies: ["Shui Daozi (Daoist Water)"],
+    firstAppearance: "Tian Ni Five Elements Completion Arc",
+    techniques: ["Sealing Extermination Spells", "Five Elements Origin Laws", "Third Step Dao Manifestation"],
+    artifacts: ["Heaven-Defying Bead / Tian Ni Pearl (Former Master)"],
+    image: profileImg,
+  },
   {
     name: "Ye Mo",
     race: "Ancient God",
@@ -967,27 +967,27 @@ export const characters: Character[] = rawCharacters.map((character) => ({
 }));
 
 export const races = [
-  "All Races", 
-  "Human", 
+  "All Races",
+  "Human",
   "Human / Ancient Clan",
-  "Ancient Clan", 
-  "Ancient God", 
-  "Ancient Demon", 
-  "Ancient Devil", 
-  "Spirit Beast", 
+  "Ancient Clan",
+  "Ancient God",
+  "Ancient Demon",
+  "Ancient Devil",
+  "Spirit Beast",
   "Ghost / Sword Spirit",
   "True Body / Avatar"
 ];
 
 export const alignments = [
-  "All Roles", 
-  "Protagonist", 
-  "Ally", 
-  "Rival", 
-  "Antagonist", 
-  "Family", 
-  "Master", 
-  "Disciple", 
+  "All Roles",
+  "Protagonist",
+  "Ally",
+  "Rival",
+  "Antagonist",
+  "Family",
+  "Master",
+  "Disciple",
   "Servant"
 ];
 
