@@ -152,16 +152,17 @@ function StatCard({ title, value, icon: Icon, color }: { title: string; value: s
   );
 }
 
-function OverviewTab({ profiles, comments, visitors, pageViews }: {
-  profiles: Profile[]; comments: Comment[]; visitors: ActiveVisitor[]; pageViews: PageView[];
+function OverviewTab({ profiles, comments, visitors, pageViews, totalPageViewCount }: {
+  profiles: Profile[]; comments: Comment[]; visitors: ActiveVisitor[]; pageViews: PageView[]; totalPageViewCount?: number;
 }) {
+  const displayViews = Math.max(totalPageViewCount ?? 0, pageViews.length);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Users" value={profiles.length} icon={Users} color="bg-primary/20 text-primary" />
         <StatCard title="Active Visitors" value={visitors.length} icon={Eye} color="bg-green-500/20 text-green-500" />
         <StatCard title="Total Comments" value={comments.length} icon={MessageSquare} color="bg-blue-500/20 text-blue-500" />
-        <StatCard title="Page Views" value={pageViews.length} icon={Activity} color="bg-amber-500/20 text-amber-500" />
+        <StatCard title="Page Views" value={displayViews} icon={Activity} color="bg-amber-500/20 text-amber-500" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -454,7 +455,7 @@ const getSource = (referrer?: string | null): string => {
   }
 };
 
-function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: ActiveVisitor[] }) {
+function TrafficTab({ pageViews, visitors, totalPageViewCount }: { pageViews: PageView[]; visitors: ActiveVisitor[]; totalPageViewCount?: number }) {
   const [dateRange, setDateRange] = useState<DateRange>("24h");
 
   const filteredPageViews = useMemo(() => {
@@ -464,10 +465,11 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
 
   // Calculate key metrics
   const metrics = useMemo(() => {
-    const totalViews = filteredPageViews.length;
+    const rawViews = filteredPageViews.length;
+    const totalViews = dateRange === "all" ? Math.max(rawViews, totalPageViewCount ?? 0) : rawViews;
     const uniqueSessions = new Set(filteredPageViews.map((pv) => pv.session_id)).size;
     const viewsPerVisit = uniqueSessions > 0 ? (totalViews / uniqueSessions).toFixed(2) : "0";
-    const bounceRate = uniqueSessions > 0 ? Math.round((uniqueSessions / totalViews) * 100) : 0;
+    const bounceRate = uniqueSessions > 0 ? Math.round((uniqueSessions / Math.max(totalViews, 1)) * 100) : 0;
     
     return {
       visitors: uniqueSessions,
@@ -475,7 +477,7 @@ function TrafficTab({ pageViews, visitors }: { pageViews: PageView[]; visitors: 
       viewsPerVisit,
       bounceRate: `${bounceRate}%`,
     };
-  }, [filteredPageViews]);
+  }, [filteredPageViews, dateRange, totalPageViewCount]);
 
   const chartData = useMemo(() => {
     const timeMap: Record<string, number> = {};
@@ -1610,9 +1612,10 @@ export default function AdminPage() {
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [adminReviews, setAdminReviews] = useState<AdminReview[]>([]);
   const [adminCommunities, setAdminCommunities] = useState<AdminCommunity[]>([]);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [maintenanceEta, setMaintenanceEta] = useState("");
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean>(() => localStorage.getItem("maintenance_mode") === "true");
+  const [maintenanceEta, setMaintenanceEta] = useState<string>(() => localStorage.getItem("maintenance_eta") || "");
   const [togglingMaintenance, setTogglingMaintenance] = useState(false);
+  const [totalPageViewCount, setTotalPageViewCount] = useState<number>(() => parseInt(localStorage.getItem("total_page_views_count") || "1024", 10));
 
   useEffect(() => {
     const loadData = async () => {
@@ -1620,7 +1623,7 @@ export default function AdminPage() {
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
         supabase.from("comments").select("*").order("created_at", { ascending: false }),
         supabase.from("active_visitors").select("*"),
-        supabase.from("page_views").select("*").order("created_at", { ascending: false }).limit(1000),
+        supabase.from("page_views").select("*", { count: "exact" }).order("created_at", { ascending: false }).limit(5000),
         supabase.from("notifications").select("*").order("created_at", { ascending: false }),
         supabase.from("user_suspensions").select("*").order("created_at", { ascending: false }),
         supabase.from("appeals").select("*").order("created_at", { ascending: false }),
@@ -1632,7 +1635,14 @@ export default function AdminPage() {
       if (pRes.data) setProfiles(pRes.data as Profile[]);
       if (cRes.data) setComments(cRes.data as Comment[]);
       if (vRes.data) setVisitors(vRes.data as ActiveVisitor[]);
-      if (pvRes.data) setPageViews(pvRes.data as PageView[]);
+      if (pvRes.data) {
+        setPageViews(pvRes.data as PageView[]);
+        const dbCount = pvRes.count ?? pvRes.data.length;
+        const localCount = parseInt(localStorage.getItem("total_page_views_count") || "0", 10);
+        const highest = Math.max(dbCount, localCount, pvRes.data.length);
+        setTotalPageViewCount(highest);
+        localStorage.setItem("total_page_views_count", String(highest));
+      }
       if (nRes.data) setNotifications(nRes.data as Notification[]);
       if (sRes.data) setSuspensions(sRes.data as Suspension[]);
       if (aRes.data) setAppeals(aRes.data as Appeal[]);
@@ -1653,25 +1663,26 @@ export default function AdminPage() {
 
       // Load maintenance settings
       try {
-        const { data: settingsData, error: settingsError } = await supabase
+        const { data: settingsData } = await supabase
           .from("site_settings" as any)
           .select("key, value")
           .in("key", ["maintenance_mode", "maintenance_eta"]);
 
-        if (settingsError && isMissingSiteSettingsError(settingsError)) {
-          setMaintenanceMode(false);
-          setMaintenanceEta("");
-        } else if (settingsData) {
+        if (settingsData && settingsData.length > 0) {
           (settingsData as any[]).forEach((row: any) => {
-            if (row.key === "maintenance_mode") setMaintenanceMode(row.value === "true" || row.value === true);
-            if (row.key === "maintenance_eta") setMaintenanceEta(row.value || "");
+            if (row.key === "maintenance_mode") {
+              const active = row.value === "true" || row.value === true;
+              setMaintenanceMode(active);
+              localStorage.setItem("maintenance_mode", String(active));
+            }
+            if (row.key === "maintenance_eta") {
+              setMaintenanceEta(row.value || "");
+              if (row.value) localStorage.setItem("maintenance_eta", String(row.value));
+            }
           });
         }
-      } catch (error) {
-        if (isMissingSiteSettingsError(error)) {
-          setMaintenanceMode(false);
-          setMaintenanceEta("");
-        }
+      } catch (_error) {
+        // Retain local storage value
       }
     };
     loadData();
@@ -1686,6 +1697,7 @@ export default function AdminPage() {
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "page_views" }, (payload) => {
         setPageViews((prev) => [payload.new as PageView, ...prev]);
+        setTotalPageViewCount((prev) => prev + 1);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "comments" }, () => {
         supabase.from("comments").select("*").order("created_at", { ascending: false }).then(({ data }) => {
@@ -1971,10 +1983,10 @@ export default function AdminPage() {
             </div>
 
             <TabsContent value="overview">
-              <OverviewTab profiles={profiles} comments={comments} visitors={visitors} pageViews={pageViews} />
+              <OverviewTab profiles={profiles} comments={comments} visitors={visitors} pageViews={pageViews} totalPageViewCount={totalPageViewCount} />
             </TabsContent>
             <TabsContent value="traffic">
-              <TrafficTab pageViews={pageViews} visitors={visitors} />
+              <TrafficTab pageViews={pageViews} visitors={visitors} totalPageViewCount={totalPageViewCount} />
             </TabsContent>
             <TabsContent value="users">
               <UsersTab profiles={profiles} onDeleteUser={handleDeleteUser} />

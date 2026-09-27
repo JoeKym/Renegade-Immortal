@@ -104,6 +104,9 @@ export function Layout({ children }: { children: ReactNode }) {
       sessionId = crypto.randomUUID();
       sessionStorage.setItem("pv_session", sessionId);
     }
+    const currentTotal = parseInt(localStorage.getItem("total_page_views_count") || "1024", 10);
+    localStorage.setItem("total_page_views_count", String(currentTotal + 1));
+
     supabase.from("page_views").insert({
       page_path: location.pathname,
       session_id: sessionId,
@@ -127,6 +130,22 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="fixed inset-0 z-0 bg-background/70 pointer-events-none" />
 
       <Navbar />
+
+      {maintenance && isAdmin && (
+        <div className="bg-amber-500/20 border-b border-amber-500/40 text-amber-300 px-4 py-2 text-xs sm:text-sm flex items-center justify-between z-50 relative backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <span><strong>MAINTENANCE MODE IS ENABLED:</strong> Visitors are seeing the maintenance screen with live animations. You are viewing in Admin bypass mode.</span>
+          </div>
+          <a href="/admin" className="underline hover:text-amber-100 transition-colors font-semibold ml-2 shrink-0">
+            Admin Panel &rarr;
+          </a>
+        </div>
+      )}
+
       {maintenance && !isAdmin ? (
         <main className="pt-[60px] relative z-10 overflow-hidden">
           <div className="relative flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">

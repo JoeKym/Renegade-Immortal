@@ -15,14 +15,14 @@ export interface SocialFeedItem {
 }
 
 const FALLBACK_IMAGES: Record<string, string> = {
-  YouTube: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80",
-  TikTok: "https://images.unsplash.com/photo-1531746790731-6c087fecd65d?auto=format&fit=crop&w=1200&q=80",
-  Instagram: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80",
-  Facebook: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
-  Telegram: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80",
-  "Google News": "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80",
-  "X / Twitter": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
-  Web: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80",
+  YouTube: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx137653-1wHbCVvABGOr.png",
+  TikTok: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx196613-20kz65bVsHl7.jpg",
+  Instagram: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170724-42bSm066wF6q.png",
+  Facebook: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx213356-nYFTX2yeMBd5.jpg",
+  Telegram: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx211181-93dehu3v5xHE.png",
+  "Google News": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx166219-tREIb5l5huVe.png",
+  "X / Twitter": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx198697-UHaozIRuLiEA.png",
+  Web: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx137653-1wHbCVvABGOr.png",
 };
 
 export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
@@ -33,7 +33,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Renegade Immortal episode release recap",
     summary: "Latest fan recap and episode roundup covering the newest Renegade Immortal release cycle and key story beats.",
     url: "https://www.youtube.com/results?search_query=Renegade+Immortal+episode+release",
-    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx137653-1wHbCVvABGOr.png",
     publishedAt: "2026-08-13T15:00:00Z",
     tags: ["episode", "youtube", "recap"],
   },
@@ -44,7 +44,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "TikTok clip: cultivation battle highlights",
     summary: "Short-form clips highlighting notable battles, intense transformations, and fan reactions from the latest episode drop.",
     url: "https://www.tiktok.com/search?q=Renegade%20Immortal",
-    image: "https://images.unsplash.com/photo-1531746790731-6c087fecd65d?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx196613-20kz65bVsHl7.jpg",
     publishedAt: "2026-08-11T10:30:00Z",
     tags: ["tiktok", "fight", "highlights"],
   },
@@ -55,7 +55,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Fan poster drop: Renegade Immortal",
     summary: "Character art, poster edits, and theme-inspired content from the Renegade Immortal fan community.",
     url: "https://www.instagram.com/explore/tags/renegadeimmortal/",
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170724-42bSm066wF6q.png",
     publishedAt: "2026-08-09T18:20:00Z",
     tags: ["fanart", "instagram", "poster"],
   },
@@ -66,7 +66,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Fans discussing the latest episode breakdown",
     summary: "A community thread covering chapter-to-episode comparisons, theories, and the next release expectations.",
     url: "https://www.facebook.com/search/top?q=Renegade%20Immortal",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx213356-nYFTX2yeMBd5.jpg",
     publishedAt: "2026-08-08T12:15:00Z",
     tags: ["discussion", "facebook", "theory"],
   },
@@ -77,7 +77,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Telegram release alert and discussion thread",
     summary: "Broadcast channel updates for the newest episode, release notes, and global watch reminders.",
     url: "https://t.me/s/renegadeimmortalupdates",
-    image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx211181-93dehu3v5xHE.png",
     publishedAt: "2026-08-06T09:45:00Z",
     tags: ["telegram", "release", "watch"],
   },
@@ -88,7 +88,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Renegade Immortal news roundup",
     summary: "A consolidated Google News view for the latest media coverage, fan updates, and release chatter around the series.",
     url: "https://news.google.com/search?q=Renegade%20Immortal",
-    image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx166219-tREIb5l5huVe.png",
     publishedAt: "2026-08-05T07:10:00Z",
     tags: ["news", "google", "coverage"],
   },
@@ -99,11 +99,17 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     title: "Cultivation realm reaction thread",
     summary: "Fan reactions and commentary about the latest episode, cliffhangers, and expected story direction.",
     url: "https://x.com/search?q=Renegade%20Immortal",
-    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+    image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx198697-UHaozIRuLiEA.png",
     publishedAt: "2026-08-03T16:00:00Z",
     tags: ["x", "reaction", "community"],
   },
 ];
+
+const extractYouTubeThumbnail = (url: string): string | null => {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
+};
 
 const inferPlatform = (url: string, source?: string): string => {
   const text = `${source ?? ""} ${url ?? ""}`.toLowerCase();
@@ -140,6 +146,16 @@ const normalizeFirecrawlItem = (item: any, index: number): SocialFeedItem | null
   const summary = item?.snippet || item?.description || item?.markdown?.replace(/\s+/g, " ").slice(0, 180) || "Latest Renegade Immortal update from the web.";
   const publishedAt = item?.date ? new Date(item.date).toISOString() : new Date().toISOString();
 
+  const extractedThumbnail = 
+    item?.thumbnail ||
+    item?.image ||
+    item?.ogImage ||
+    item?.preview ||
+    item?.cover ||
+    item?.pagemap?.cse_image?.[0]?.src ||
+    item?.pagemap?.cse_thumbnail?.[0]?.src ||
+    extractYouTubeThumbnail(url);
+
   return {
     id: `${platform}-${url}`,
     platform,
@@ -147,7 +163,7 @@ const normalizeFirecrawlItem = (item: any, index: number): SocialFeedItem | null
     title,
     summary,
     url,
-    image: item?.image || FALLBACK_IMAGES[platform] || FALLBACK_IMAGES.Web,
+    image: extractedThumbnail || FALLBACK_IMAGES[platform] || FALLBACK_IMAGES.Web,
     publishedAt,
     tags: [platform.toLowerCase(), "renegade-immortal"],
   };

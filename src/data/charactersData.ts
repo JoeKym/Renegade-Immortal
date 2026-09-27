@@ -169,7 +169,7 @@ const rawCharacters: Character[] = [
 
   // ── FAMILY & CORE LOVES ──
   {
-    name: "Wang Lin's Parents",
+    name: "Wang Tian Shui & Zhou Tingsu",
     race: "Human",
     alignment: "Family",
     subtitle: "Mortal • Wang Lin's Parents",
@@ -202,6 +202,17 @@ const rawCharacters: Character[] = [
     status: "Deceased (Died of old age as a mortal)",
     cultivationRealm: "Mortal (Forbidden to cultivate)",
     image: wangPingImg
+  },
+  {
+    name: "Qing Yi",
+    race: "Human",
+    alignment: "Family",
+    subtitle: "Wang Lin's Daughter-in-Law",
+    description: "Wang Lin's daughter-in-law, married to Wang Ping.",
+    tags: ["Family"],
+    status: "Alive",
+    cultivationRealm: "Qi Condensation / Soul Formation",
+    image: profileImg
   },
   {
     name: "Li Muwan",
@@ -374,7 +385,7 @@ const rawCharacters: Character[] = [
     description: "Pair of twin cultivators renowned for synchronized combat abilities.",
     tags: ["Twin Bond", "Synchronized Combat"],
     status: "Active",
-    cultivationRealm: "Nascent Soul",
+    cultivationRealm: "Grand Empyrean",
     image: profileImg,
   },
   {
@@ -386,7 +397,7 @@ const rawCharacters: Character[] = [
     tags: ["Planet Suzaku", "Obsessive Love", "Sword Spirit"],
     image: zhouYiImg,
     status: "Active (As Sword Spirit)",
-    cultivationRealm: "Soul Transformation Equivalent",
+    cultivationRealm: "Soul Transformation / Ascendant / Nirvana Scryer",
   },
   {
     name: "Master Hong Shan",
@@ -406,8 +417,8 @@ const rawCharacters: Character[] = [
     subtitle: "Early Companion",
     description: "An early companion of Wang Lin during his weaker years in Zhao and the Sea of Devils.",
     tags: ["Early Ally", "Mortal Origins"],
-    status: "Active",
-    cultivationRealm: "Foundation Establishment",
+    status: "Active / Deceased(Later)",
+    cultivationRealm: "Late Nascent Soul",
     image: qiuSipingImg,
   },
 
@@ -567,7 +578,7 @@ const rawCharacters: Character[] = [
   },
   {
     name: "Lu Mo / Slaughter",
-    race: "True Body / Essence Avatar",
+    race: "True Body / Avatar",
     alignment: "Protagonist",
     subtitle: "Slaughter True Body • Manifestation of Murder",
     description: "Wang Lin's Slaughter True Body born from his Slaughter and Absolute End Essences. Given independent consciousness and sent back 10,000 years in time to find a way to revive Li Muwan. He lived 36,000 lives with Li Muwan in the Dream Dao before voluntarily merging back into Wang Lin.",
@@ -660,7 +671,7 @@ const rawCharacters: Character[] = [
     description: "A dangerous Ancient Devil master wielding chaotic destruction Daos.",
     tags: ["Ancient Devil", "Chaos Dao"],
     status: "Deceased / Absorbed",
-    cultivationRealm: "Third Step Equivalent",
+    cultivationRealm: "Ascendant / Nirvana Shatterer",
     image: taJiaImg,
   },
   {
@@ -675,13 +686,13 @@ const rawCharacters: Character[] = [
   },
   {
     name: "Ta Shan",
-    race: "Ancient God",
+    race: "Chosen Immortal Clan",
     alignment: "Servant",
     subtitle: "Loyal Divine Guard",
     description: "An Ancient God descendant who pledged absolute loyalty to Wang Lin as his personal guard.",
     tags: ["Ancient God Guard", "Absolute Loyalty"],
     status: "Active",
-    cultivationRealm: "Second Step / Ascendant",
+    cultivationRealm: "Corporeal Yang / Second Step",
     image: taShanImg,
   },
   {
@@ -765,7 +776,7 @@ const rawCharacters: Character[] = [
     description: "Cultivator specialized in severing and destroying the Dao foundations of opponents.",
     tags: ["Dao Severance"],
     status: "Deceased",
-    cultivationRealm: "Soul Transformation",
+    cultivationRealm: "Grand Empyrean",
   },
   {
     name: "Sun Dazhu",
@@ -795,10 +806,10 @@ const rawCharacters: Character[] = [
     race: "Human",
     alignment: "Rival",
     subtitle: "Deceased Cultivator of Sea of Devils",
-    description: "A weak cultivator killed by Wang Lin. Wang Lin assumed his identity in the Sea of Devils, making the name 'Ma Liang' legendary alongside Li Muwan.",
+    description: "A weak cultivator killed by Ge Yang. Wang Lin assumed his identity in the Sea of Devils, making the name 'Ma Liang' legendary alongside Li Muwan.",
     tags: ["Identity Stolen", "Sea of Devils"],
     status: "Deceased",
-    cultivationRealm: "Foundation Establishment",
+    cultivationRealm: "Core Formation/Nascent Soul",
     image: maLiangImg,
   },
   {
@@ -809,7 +820,7 @@ const rawCharacters: Character[] = [
     description: "A noble-minded cultivator who pursued Wang Lin during earlier fleeing arcs.",
     tags: ["Noble Spirit"],
     status: "Active",
-    cultivationRealm: "Soul Transformation",
+    cultivationRealm: "Soul Transformation/ Diety Transformation",
     image: duanmuJiImg,
   },
   {
@@ -915,7 +926,7 @@ const rawCharacters: Character[] = [
     description: "The Royal Ancient God whose left eye and inheritance created the Ancient Tomb where Wang Lin and Tuo Sen fought.",
     tags: ["Ancient Clan Ancestor", "Royal Bloodline"],
     status: "Deceased",
-    cultivationRealm: "Third Step Peak",
+    cultivationRealm: "27 Star Bloodline",
   },
   {
     name: "Ancient Celestial Emperor",
@@ -925,7 +936,7 @@ const rawCharacters: Character[] = [
     description: "Ancient ruler of the Celestial Realm whose decrees shaped star systems for millennia.",
     tags: ["Ancient Celestial", "Supreme Ruler"],
     status: "Deceased",
-    cultivationRealm: "Third Step Peak",
+    cultivationRealm: "Mid Stage Void Tribulation(originally)/ Early Stage Void Tribulation(fragment)",
   },
   {
     name: "Vermillion Bird Divine Emperor",
@@ -1005,7 +1016,7 @@ const rawCharacters: Character[] = [
     tags: ["Traitor", "Water Dao", "Sealed Realm War"],
     alias: "Shui Daozi",
     status: "Deceased (Killed by Wang Lin)",
-    cultivationRealm: "Third Step (Nirvana Cleanser)",
+    cultivationRealm: "Early Stage Nirvana Void",
     techniques: ["Water Realm Extermination", "Traitor's Soul Binding"],
     artifacts: ["Water Dao Pearl"],
   },
