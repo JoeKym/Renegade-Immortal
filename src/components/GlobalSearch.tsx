@@ -8,12 +8,15 @@ import { useSearchTracking } from "@/services/searchTracking";
 
 const fuse = new Fuse(searchableData, {
   keys: [
-    { name: "title", weight: 2 },
-    { name: "category", weight: 1 },
-    { name: "description", weight: 0.8 },
-    { name: "keywords", weight: 0.6 },
+    { name: "title", weight: 3 },
+    { name: "keywords", weight: 2.5 },
+    { name: "tags", weight: 2 },
+    { name: "category", weight: 1.5 },
+    { name: "realm", weight: 1.2 },
+    { name: "alignment", weight: 1.2 },
+    { name: "description", weight: 1 },
   ],
-  threshold: 0.45,
+  threshold: 0.42,
   includeScore: true,
   ignoreLocation: true,
   minMatchCharLength: 2,
