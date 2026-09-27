@@ -15,7 +15,7 @@ const relationships: Relationship[] = [
   { from: "Wang Lin", to: "Ta Jia", type: "enemy", label: "Rival → Absorbed" },
   { from: "Wang Lin", to: "All-Seer", type: "ally", label: "Enemy → Ally" },
   { from: "Wang Lin", to: "Mu Bingmei", type: "ally", label: "Complex Tension" },
-  { from: "Wang Lin", to: "Qing Shui", type: "enemy", label: "Tragic Rival" },
+  { from: "Wang Lin", to: "Qing Shui", type: "ally", label: "Rival → Ally" },
   { from: "Wang Lin", to: "Su Ming", type: "ally", label: "Multiverse Link" },
 ];
 

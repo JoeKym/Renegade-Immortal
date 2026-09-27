@@ -27,7 +27,7 @@ import taJiaImg from "@/assets/ta-jia.jpg";
 import liQianmeiImg from "@/assets/li-qianmei.jpg";
 import moZhiImg from "@/assets/mo-zhi.jpg";
 import yunqueZiImg from "@/assets/yun-quezi.jpg";
-import taShanImg from "@/assets/profileImg.jpg";
+import taShanImg from "@/assets/ta-shan.jpg";
 import beiLuoImg from "@/assets/bei-luo.jpg";
 import zhouYiImg from "@/assets/zhou-yi.jpg";
 import wangZhouImg from "@/assets/wang-zhou.jpg";
@@ -39,6 +39,7 @@ import zhouWutaiImg from "@/assets/zhou-wutai.jpg";
 import qiuSipingImg from "@/assets/qiu-siping.jpg";
 import xuLiguoImg from "@/assets/xu-liguo.jpg";
 import zhuQueziImg from "@/assets/zhu-quezi.jpg";
+import xiZiFengImg from "@/assets/xi-zi-feng.jpg";
 import sunDazhuImg from "@/assets/sun-dazhu.jpg";
 import maLiangImg from "@/assets/ma-liang.jpg";
 import lingTianhouImg from "@/assets/ling-tianhou.jpg";
@@ -528,7 +529,7 @@ const rawCharacters: Character[] = [
     status: "Active",
     cultivationRealm: "Ascendant / Corporeal Yang",
     master: "Wang Lin",
-    image: profileImg,
+    image: xiZiFengImg,
   },
   {
     name: "Mo Zhi",
