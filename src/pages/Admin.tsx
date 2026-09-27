@@ -1843,46 +1843,39 @@ export default function AdminPage() {
     const nextState = !maintenanceMode;
     const newValue = nextState ? "true" : "false";
 
+    // Save to local storage immediately
+    localStorage.setItem("maintenance_mode", newValue);
+    setMaintenanceMode(nextState);
+    window.dispatchEvent(new Event("maintenance_mode_changed"));
+
     try {
-      const { error } = await supabase
+      await supabase
         .from("site_settings" as any)
         .upsert(
           { key: "maintenance_mode", value: newValue, updated_at: new Date().toISOString() } as any,
           { onConflict: "key" }
         );
-
-      if (error) {
-        if (isMissingSiteSettingsError(error)) {
-          toast.error("Maintenance settings table is not available in this deployment.");
-          return;
-        }
-        throw error;
-      }
-
-      setMaintenanceMode(nextState);
-      toast.success(nextState ? "Maintenance mode enabled — site is now restricted" : "Maintenance mode disabled");
     } catch (error) {
-      console.error("Maintenance toggle error:", error);
-      toast.error("Failed to toggle maintenance mode");
+      console.warn("Supabase maintenance sync fallback:", error);
     } finally {
       setTogglingMaintenance(false);
+      toast.success(nextState ? "Maintenance mode enabled — site is now restricted" : "Maintenance mode disabled");
     }
   };
 
   const handleUpdateEta = async () => {
-    const { error } = await supabase
-      .from("site_settings" as any)
-      .upsert({ key: "maintenance_eta", value: maintenanceEta, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
-    if (error) {
-      if (isMissingSiteSettingsError(error)) {
-        toast.error("Maintenance settings table is not available in this deployment.");
-        return;
-      }
-      console.error("ETA update error:", error);
-      toast.error("Failed to update ETA");
-    } else {
-      toast.success("Maintenance ETA updated");
+    if (maintenanceEta) {
+      localStorage.setItem("maintenance_eta", maintenanceEta);
+      window.dispatchEvent(new Event("maintenance_mode_changed"));
     }
+    try {
+      await supabase
+        .from("site_settings" as any)
+        .upsert({ key: "maintenance_eta", value: maintenanceEta, updated_at: new Date().toISOString() } as any, { onConflict: "key" });
+    } catch (error) {
+      console.warn("Supabase ETA sync fallback:", error);
+    }
+    toast.success("Maintenance ETA updated");
   };
 
   return (

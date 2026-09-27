@@ -1669,10 +1669,27 @@ export function useTranslation() {
   });
 
   const setLanguage = useCallback((code: string) => {
-    if (translations[code]) {
-      setLanguageState(code);
-      saveLanguage(code);
-    }
+    setLanguageState(code);
+    saveLanguage(code);
+
+    try {
+      const hostname = window.location.hostname;
+      if (code === "en") {
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${hostname};`;
+      } else {
+        document.cookie = `googtrans=/en/${code}; path=/;`;
+        document.cookie = `googtrans=/en/${code}; path=/; domain=${hostname};`;
+      }
+
+      const selectEl = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
+      if (selectEl) {
+        selectEl.value = code;
+        selectEl.dispatchEvent(new Event("change"));
+      } else if (code !== "en" && !document.cookie.includes(`googtrans=/en/${code}`)) {
+        window.location.reload();
+      }
+    } catch (_e) {}
   }, []);
 
   // Translate function

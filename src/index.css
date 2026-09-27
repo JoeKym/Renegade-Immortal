@@ -221,3 +221,20 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+/* Google Translate Clean Overrides */
+.goog-te-banner-frame,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-te-spinner-pos,
+.goog-te-gadget-icon,
+.VIpgJd-yDsffb-Lg2vi-hJwBfc {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+  position: static !important;
+}
+.goog-te-gadget {
+  display: none !important;
+}

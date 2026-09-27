@@ -312,6 +312,317 @@ const items: ArtifactItem[] = [
     firstAppearance: "Ancient God arc",
     storyArc: "Ancient God Integration"
   },
+  {
+    name: "Ancient God Devouring Art",
+    type: "technique",
+    origin: "Tuo Sen / Tu Si Ancient God inheritance",
+    owner: "Tuo Sen / Wang Lin",
+    power: "An ancient devouring art that extracts origin base energy, soul fragments, and bloodline strength from target cultivators or stars.",
+    firstAppearance: "Land of Ancient God arc",
+    storyArc: "Ancient Race Conflicts"
+  },
+  {
+    name: "Star Extraction Technique",
+    type: "technique",
+    origin: "Ancient God Tu Si technique",
+    owner: "Tuo Sen / Wang Lin",
+    power: "Channels divine sense into a planet or star system to extract core star energy, fueling Ancient God star formation.",
+    firstAppearance: "Ancient God arc",
+    storyArc: "Ancient Race Conflicts"
+  },
+
+  // ========== CHARACTER-SPECIFIC TECHNIQUES & ARTIFACTS ==========
+  {
+    name: "Boundary-Defining Compass",
+    type: "artifact",
+    origin: "Cave World origin treasure",
+    owner: "All-Seer (Tian Yunzi)",
+    power: "A realm-defining compass artifact. All-Seer is the spirit of this compass, using it to manipulate fate threads and calculate future possibilities.",
+    firstAppearance: "Heavenly Fate Sect arc",
+    storyArc: "Fate Dao Mastery",
+    dao: "Fate"
+  },
+  {
+    name: "Emperor's Demonic Sword",
+    type: "artifact",
+    origin: "Sky Demon Country imperial treasury",
+    owner: "Demon Emperor Gu Yundun",
+    power: "Imperial relic of Sky Demon Country. Unleashes waves of demonic aura capable of overpowering high-stage cultivators.",
+    firstAppearance: "Demon Spirit Land arc",
+    storyArc: "Sky Demon Country War"
+  },
+  {
+    name: "Da Luo Immortal Sword",
+    type: "artifact",
+    origin: "Da Luo Sword City inheritance",
+    owner: "Ling Tianhou",
+    power: "A high-tier immortal blade infused with centuries of refined sword intent. Can split spatial barriers.",
+    firstAppearance: "Da Luo Sword City arc",
+    storyArc: "Sword Dao Rivalry"
+  },
+  {
+    name: "Suzaku Feather Blade",
+    type: "artifact",
+    origin: "Planet Suzaku sacred weapon",
+    owner: "Zhu Quezi",
+    power: "Forged from Suzaku divine flames and spiritual feathers. Burns the opponent's soul upon contact.",
+    firstAppearance: "Suzaku Country arc",
+    storyArc: "Planet Suzaku War"
+  },
+  {
+    name: "Star Compass",
+    type: "artifact",
+    origin: "Forsaken Immortal Tribe relic",
+    owner: "Yunque Zi / Wang Lin",
+    power: "A navigation treasure used for inter-planetary void travel and calculating spatial rift paths.",
+    firstAppearance: "Planet Suzaku arc",
+    storyArc: "Outer Realm Travel"
+  },
+  {
+    name: "Blood Soul Pearl",
+    type: "artifact",
+    origin: "Blood Ancestor's life treasure",
+    owner: "Blood Ancestor",
+    power: "Absorbs essence blood from fallen enemies, creating blood avatars and storing infinite vital energy.",
+    firstAppearance: "Blood Ancestor arc",
+    storyArc: "Blood Dao Conflicts"
+  },
+  {
+    name: "Water Dao Pearl",
+    type: "artifact",
+    origin: "Sealed Realm Alliance treasure",
+    owner: "Daoist Water (Shui Daozi)",
+    power: "Channels high-level water origin laws to create suffocating water realms and drown spiritual sense.",
+    firstAppearance: "Sealed Realm War arc",
+    storyArc: "Alliance Betrayal"
+  },
+  {
+    name: "Rose Petal Domain",
+    type: "technique",
+    origin: "Red Butterfly's secret art",
+    owner: "Red Butterfly (Hong Die)",
+    power: "Creates a domain of razor-sharp floral petals that slice through defense barriers and corrupt divine sense.",
+    firstAppearance: "Planet Suzaku battle",
+    storyArc: "Genius Rivalry"
+  },
+  {
+    name: "Five-Colored Rainbow Art",
+    type: "technique",
+    origin: "Suzaku Sect high technique",
+    owner: "Red Butterfly (Hong Die)",
+    power: "Summons elemental rainbow beams of light, each representing a distinct elemental attribute.",
+    firstAppearance: "Planet Suzaku battle",
+    storyArc: "Genius Rivalry"
+  },
+  {
+    name: "Blood Sea Domain",
+    type: "technique",
+    origin: "Blood Ancestor's origin technique",
+    owner: "Blood Ancestor",
+    power: "Envelops the battle space in a sea of blood that corrodes magic treasures and drains enemy lifespan.",
+    firstAppearance: "Blood Ancestor arc",
+    storyArc: "Blood Dao Conflicts"
+  },
+  {
+    name: "Blood Soul Cloning",
+    type: "technique",
+    origin: "Blood Dao secret art",
+    owner: "Blood Ancestor",
+    power: "Splits origin soul into multiple blood clones, allowing survival even if the main body is destroyed.",
+    firstAppearance: "Blood Ancestor arc",
+    storyArc: "Blood Dao Conflicts"
+  },
+  {
+    name: "Teng Clan Blood Curse",
+    type: "technique",
+    origin: "Teng Huayuan / Old Ancestor Teng",
+    owner: "Teng Huayuan",
+    power: "A vicious bloodline curse that tracks and executes relatives of a targeted enemy across vast distances.",
+    firstAppearance: "Zhao Country arc",
+    storyArc: "Teng Clan Vengeance"
+  },
+  {
+    name: "Ghost Head Cultivation",
+    type: "technique",
+    origin: "Teng Clan secret technique",
+    owner: "Teng Huayuan",
+    power: "Refines souls of slain enemies into flying spectral heads that devour enemy origin energy.",
+    firstAppearance: "Zhao Country arc",
+    storyArc: "Teng Clan Vengeance"
+  },
+  {
+    name: "Da Luo Sword Intent",
+    type: "technique",
+    origin: "Ling Tianhou's sword mastery",
+    owner: "Ling Tianhou",
+    power: "Unleashes razor-sharp sword intent that cuts through spiritual domains and physical armor.",
+    firstAppearance: "Da Luo Sword City arc",
+    storyArc: "Sword Dao Rivalry"
+  },
+  {
+    name: "10,000 Sword Formation",
+    type: "technique",
+    origin: "Da Luo Sword City array",
+    owner: "Ling Tianhou",
+    power: "Summons thousands of sword projections to form a lethal surrounding domain.",
+    firstAppearance: "Alliance Star System arc",
+    storyArc: "Sword Dao Rivalry"
+  },
+  {
+    name: "Suzaku Divine Flame",
+    type: "technique",
+    origin: "Planet Suzaku succession",
+    owner: "Zhu Quezi",
+    power: "Sacred fire of the Vermillion Bird that incinerates physical matter and soul bases.",
+    firstAppearance: "Planet Suzaku arc",
+    storyArc: "Suzaku Country War"
+  },
+  {
+    name: "Suzaku Reincarnation Art",
+    type: "technique",
+    origin: "Suzaku Sect secret art",
+    owner: "Zhu Quezi",
+    power: "Allows the user to absorb junior cultivators' fire cultivation to extend their own lifespan.",
+    firstAppearance: "Planet Suzaku arc",
+    storyArc: "Suzaku Country War"
+  },
+  {
+    name: "Tian Yun Seven Color Fate Art",
+    type: "technique",
+    origin: "All-Seer's divine technique",
+    owner: "All-Seer (Tian Yunzi)",
+    power: "Divides fate into seven color strands, manipulating disciples as avatars and calculating outcome paths.",
+    firstAppearance: "Heavenly Fate Sect arc",
+    storyArc: "Fate Dao Mastery",
+    dao: "Fate"
+  },
+  {
+    name: "Boundary Compass Fate Weaving",
+    type: "technique",
+    origin: "Boundary Compass origin spell",
+    owner: "All-Seer (Tian Yunzi)",
+    power: "Weaves cosmic fate threads to lock an enemy's cultivation advancement and manipulate karma outcomes.",
+    firstAppearance: "Heavenly Fate Sect arc",
+    storyArc: "Fate Dao Mastery",
+    dao: "Fate"
+  },
+  {
+    name: "Ruthless Domain of Heartless Love",
+    type: "technique",
+    origin: "Liu Mei / Mu Bingmei secret art",
+    owner: "Liu Mei",
+    power: "A cold domain born from severing worldly emotions, freezing enemy divine sense through heartless intent.",
+    firstAppearance: "Xuan Dao Sect arc",
+    storyArc: "Heartless Love Dao"
+  },
+  {
+    name: "Cloud Sky Pill Refining Art",
+    type: "technique",
+    origin: "Cloud Sky Sect legacy",
+    owner: "Li Muwan",
+    power: "High-level alchemy method for crafting spirit-nourishing and lifespan-extending pills.",
+    firstAppearance: "Cloud Sky Sect arc",
+    storyArc: "Pill Refining Mastery"
+  },
+  {
+    name: "Grand Formation Arrays",
+    type: "technique",
+    origin: "Ancient array arts",
+    owner: "Li Muwan / Bai Fan",
+    power: "Deploys multi-layered defensive and gathering arrays to protect territories and nourish spirit souls.",
+    firstAppearance: "Cloud Sky Sect arc",
+    storyArc: "Formation Mastery"
+  },
+  {
+    name: "Nurturing Spirit Spells",
+    type: "technique",
+    origin: "Cloud Sky / Soul-Nurturing tradition",
+    owner: "Zhou Ru / Li Muwan",
+    power: "Gentle spiritual spells that stabilize fragile soul fragments and protect physical vessels.",
+    firstAppearance: "Soul vessel arc",
+    storyArc: "Li Muwan's Lingering Will"
+  },
+  {
+    name: "Sealed Realm Formation Art",
+    type: "technique",
+    origin: "Master South Cloud's supreme array",
+    owner: "Master South Cloud",
+    power: "Channels star system energy to create impenetrable defensive barriers against Outer Realm armies.",
+    firstAppearance: "Outer Realm War arc",
+    storyArc: "Sealed Realm Defense"
+  },
+  {
+    name: "Heavenly Cloud Barrier",
+    type: "technique",
+    origin: "Sealed Realm Alliance defensive spell",
+    owner: "Master South Cloud",
+    power: "Generates massive cloud barriers that neutralize long-range spell strikes.",
+    firstAppearance: "Outer Realm War arc",
+    storyArc: "Sealed Realm Defense"
+  },
+  {
+    name: "Gu Dao Solar Strike",
+    type: "technique",
+    origin: "Grand Empyrean Gu Dao",
+    owner: "Grand Empyrean Gu Dao",
+    power: "Unleashes a blinding sun-like burst of Ancient power that crushes Third Step domains instantly.",
+    firstAppearance: "Immortal Astral Continent arc",
+    storyArc: "Grand Empyrean Peak"
+  },
+  {
+    name: "Ancient Clan Ancestral Manifestation",
+    type: "technique",
+    origin: "Ancient Clan supreme lineage",
+    owner: "Grand Empyrean Gu Dao",
+    power: "Summons the primordial shadow of the Ancient Ancestor to deliver world-shattering pressure.",
+    firstAppearance: "Immortal Astral Continent arc",
+    storyArc: "Grand Empyrean Peak"
+  },
+  {
+    name: "Water Realm Extermination",
+    type: "technique",
+    origin: "Daoist Water (Shui Daozi)",
+    owner: "Daoist Water",
+    power: "Surges origin water energy to flood enemy bodies and disintegrate their origin bases.",
+    firstAppearance: "Sealed Realm War arc",
+    storyArc: "Alliance Betrayal"
+  },
+  {
+    name: "Traitor's Soul Binding",
+    type: "technique",
+    origin: "Daoist Water secret restriction",
+    owner: "Daoist Water",
+    power: "A insidious soul restriction used to paralyze allies from behind during battle.",
+    firstAppearance: "Sealed Realm War arc",
+    storyArc: "Alliance Betrayal"
+  },
+  {
+    name: "Heavenly Chaos Art",
+    type: "technique",
+    origin: "Situ Nan's original technique",
+    owner: "Situ Nan",
+    power: "Manipulates raw chaos energy to create chaotic forcefields and shatter enemy spells.",
+    firstAppearance: "Early cultivation training",
+    storyArc: "Situ Nan's Training"
+  },
+  {
+    name: "Situ Body Refinement",
+    type: "technique",
+    origin: "Situ Nan's secret body cultivation",
+    owner: "Situ Nan",
+    power: "Hardens the physical body using Underworld energy to withstand high-stage elemental attacks.",
+    firstAppearance: "Early cultivation training",
+    storyArc: "Situ Nan's Training"
+  },
+  {
+    name: "Three Celestial Fingers",
+    type: "technique",
+    origin: "Situ Nan's celestial inheritance",
+    owner: "Situ Nan",
+    power: "The trio of celestial finger arts (Finger of Death, Demonic Finger, Underworld Finger) passed to Wang Lin.",
+    firstAppearance: "Early cultivation training",
+    storyArc: "Situ Nan's Training"
+  },
 
   // ========== DAO DOMAINS & ORIGINAL SPELLS ==========
   {

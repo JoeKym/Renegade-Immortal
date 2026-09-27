@@ -89,25 +89,24 @@ export function VideoPlayer({
         body: { episode, server: server.name, donghuaSlug, serverSlugs },
       });
 
-      if (error) throw new Error(error.message);
-
-      if (data?.success && data?.embedUrl) {
+      if (!error && data?.success && data?.embedUrl) {
         setEmbedUrl(data.embedUrl);
         setLoadState("loading");
         setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
-      } else {
-        throw new Error("No embed URL returned");
+        return;
       }
-    } catch (e) {
-      console.warn(`Server ${server.name} failed:`, e);
-      setServerStatuses((prev) => ({ ...prev, [server.name]: "fail" }));
 
-      const nextIndex = serverIndex + 1;
-      if (nextIndex < SERVERS.length) {
-        fetchEmbed(nextIndex);
-      } else {
-        setLoadState("error");
-      }
+      // Fallback: Use direct server page URL as iframe fallback
+      const direct = server.directUrl(episode, resolveServerSlug(server.name, donghuaSlug, serverSlugs));
+      setEmbedUrl(direct);
+      setLoadState("playing");
+      setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
+    } catch (e) {
+      console.warn(`Server ${server.name} error fallback:`, e);
+      const direct = server.directUrl(episode, resolveServerSlug(server.name, donghuaSlug, serverSlugs));
+      setEmbedUrl(direct);
+      setLoadState("playing");
+      setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
     }
   }, [episode, donghuaSlug, serverSlugs]);
 

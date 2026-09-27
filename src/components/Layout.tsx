@@ -24,6 +24,8 @@ import redditIcon from "@/assets/socials/reddit.svg";
 import whatsappIcon from "@/assets/socials/whatsapp.svg";
 import emailIcon from "@/assets/socials/email.svg";
 
+import { MaintenanceAnimation } from "./MaintenanceAnimation";
+
 function SvgIcon({ src, className }: { src: string; className?: string }) {
   return <img src={src} alt="" className={className} />;
 }
@@ -157,6 +159,9 @@ export function Layout({ children }: { children: ReactNode }) {
               <p className="mb-6 font-body text-sm text-muted-foreground">
                 We're performing scheduled maintenance to improve your experience. Please check back shortly.
               </p>
+              
+              <MaintenanceAnimation />
+
               {maintenanceEta && <MaintenanceCountdown eta={maintenanceEta} />}
             </motion.div>
           </div>
