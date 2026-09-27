@@ -12,11 +12,12 @@ import heroBg from "@/assets/hero-bg.jpg";
 import wangLinImg from "@/assets/wang-lin.jpg";
 
 const quotes = [
-  { text: "I Wang Lin will never bow to the Heavens or pay respect to any Ghost or God, I only bow to my parents and pay respect to Situ Nan.", attr: "Wang Lin's Sheer WillPower" },
-  { text: "I will not be a slave to fate. I will forge my own Dao.", attr: "Wang Lin's Resolve" },
-  { text: "The Ancient God, Demon, and Devil are but steps on my path.", attr: "Wang Lin's Ascension" },
-  { text: "Heaven-defying means nothing if it doesn't transcend all.", attr: "Wang Lin's Philosophy" },
-  { text: "I will not be bound by the rules of the world, for I am the one who defines them.", attr: "Wang Lin's Defiance" },
+  { text: "If the heavens want to wipe me out, I will destroy the heavens! If fate wants to bind me, I will break fate! My path is my own, and no one, not even the heavens, can dictate my life!.", attr: "Wang Lin's Sheer WillPower" },
+  { text: "A cultivator's path is a path against the heavens. Since I, Wang Lin, have chosen this path, I will walk it to the absolute end. Even if my body is torn to pieces and my soul is scattered, my resolve will never waver!", attr: "Wang Lin's Resolve" },
+  { text: "If the world closes its eyes, I still exist! If I can reach a state where I open my eyes, the world closes its eyes, and the world remains dormant as long as I live, then I will have ascended.", attr: "Wang Lin's Ascension" },
+  { text: "The world is a resting place for the living. Time is a guest of the ages. The difference between life and death is like waking from a dream.", attr: "Wang Lin's Philosophy" },
+  { text: "I, Wang Lin, will never bow to the heavens or pay respect to any ghost or god. I only bow to my parents and pay my respects to Situ!", attr: "Wang Lin's Defiance" },
+  { text: "Following the heavens makes one a mortal; defying the heavens makes one an immortal!", attr: "Wang Lin's Reverse cultivation" },
 ];
 
 const daos = [
