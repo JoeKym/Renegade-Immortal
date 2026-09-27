@@ -16,10 +16,10 @@ import {
 import { Loader2, Tv, BookOpen, RefreshCw, Sparkles } from "lucide-react";
 
 const DEFAULT_PROGRESS = {
-  currentEpisode: 153,
-  totalEpisodes: ~350,
-  currentChapter: 1064,
-  totalChapters: 2138,
+  currentEpisode: 160,
+  totalEpisodes: 433,
+  currentChapter: 795,
+  totalChapters: 2137,
 };
 
 export default function DonghuaAdmin() {
@@ -32,7 +32,7 @@ export default function DonghuaAdmin() {
   const [arcs, setArcs] = useState<DonghuaArc[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  
+
   const [formData, setFormData] = useState(DEFAULT_PROGRESS);
 
   // Calculate chapters based on episodes (using ~6.6 chapters per episode as average)
