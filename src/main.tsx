@@ -2,27 +2,20 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Register service worker with update handling
+// Remove any existing service workers and clear stale caches
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { scope: "/" })
-      .then((registration) => {
-        console.log("[SW] Registered:", registration);
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
 
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          if (!newWorker) return;
-
-          newWorker.addEventListener("statechange", () => {
-            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-              console.log("[SW] New version available. Refresh when ready.");
-            }
-          });
-        });
-      })
-      .catch((error) => {
-        console.log("[SW] Registration failed:", error);
-      });
+if ("caches" in window) {
+  caches.keys().then((names) => {
+    for (const name of names) {
+      caches.delete(name);
+    }
   });
 }
 
