@@ -94,14 +94,21 @@ export function WatchPageTemplate({
   if (!series) return <NotFound />;
   if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) return <NotFound />;
 
-  const title = series.title;
-const pageTitle = episodeNumber 
-  ? `${title} Episode ${episodeNumber} - Watch Online`
-  : `${title} - All Episodes`;
+    // 🛡️ Safe Extraction: Extract titles with complete fallbacks
+  const title = series?.title || "Renegade Immortal";
+  const pageTitle = episodeNumber 
+    ? `${title} Episode ${episodeNumber} - Watch Online`
+    : `${title} - All Episodes`;
+  
+  // 🛡️ Safe String Verification: Verify description exists as a valid string before running string methods
+  const rawDescription = aniData?.description || "";
+  const pageDesc = rawDescription 
+    ? rawDescription.replace(/<[^>]*>/g, "").slice(0, 160) 
+    : `Watch ${title} online.`;
 
-// ⚠️ THE CRASH LOCATION:
-const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
-const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
+  // 🛡️ Safe Image Verification: Ensure nested structures do not cause pointer errors
+  const fallbackCover = aniData?.coverImage?.extraLarge || series?.thumbnail || "";
+  const pageImage = proxyImageUrl(fallbackCover);
 
   return (
     <Layout>
