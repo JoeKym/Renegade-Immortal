@@ -32,7 +32,7 @@ class WatchComponentErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-    return this.children;
+    return this.props.children;
   }
 }
 
