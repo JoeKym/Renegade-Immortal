@@ -95,13 +95,13 @@ export function WatchPageTemplate({
   if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) return <NotFound />;
 
   const title = series.title;
-  const pageTitle = episodeNumber 
-    ? `${title} Episode ${episodeNumber} - Watch Online`
-    : `${title} - All Episodes`;
-  
-  // Safe string falling back to default text if AniList fails
-  const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
-  const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
+const pageTitle = episodeNumber 
+  ? `${title} Episode ${episodeNumber} - Watch Online`
+  : `${title} - All Episodes`;
+
+// ⚠️ THE CRASH LOCATION:
+const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
+const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
 
   return (
     <Layout>
