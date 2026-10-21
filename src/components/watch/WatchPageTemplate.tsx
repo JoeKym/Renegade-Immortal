@@ -180,7 +180,7 @@ export function WatchPageTemplate({
                 <div className="mt-4 p-4 gradient-card border border-border rounded-lg">
                   <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">About</h3>
                   <p className="text-sm font-body text-muted-foreground leading-relaxed line-clamp-6">
-                    {aniData?.description?.replace(/<[^>]*>/g, "") || "No external metadata summary available. Stream video assets normally using the episode selectors."}
+                    {rawDescription ? rawDescription.replace(/<[^>]*>/g, "") : "No external metadata summary available. Stream video assets normally using the episode selectors."}
                   </p>
                 </div>
               </motion.div>
