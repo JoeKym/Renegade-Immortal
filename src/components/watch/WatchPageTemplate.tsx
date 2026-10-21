@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Share2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Play, Share2, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import { useDonghuaData } from "@/hooks/useDonghuaData";
@@ -31,6 +31,7 @@ export function WatchPageTemplate({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
 
+  // Fetching data from custom hook. Notice we retain 'error' but handle it defensively below.
   const { series, aniData, loading, error, countdown, releasedCount, allEpisodes: baseEpisodes } = useDonghuaData(seriesId);
 
   useEffect(() => {
@@ -88,13 +89,17 @@ export function WatchPageTemplate({
     );
   }
 
-  if (!series || error) return <NotFound />;
+  // 🛡️ RESTRUCTURING CRITICAL FIX: 
+  // We no longer trigger a 404 if 'error' is true. We only 404 if local series configuration metadata doesn't exist!
+  if (!series) return <NotFound />;
   if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) return <NotFound />;
 
   const title = series.title;
   const pageTitle = episodeNumber 
     ? `${title} Episode ${episodeNumber} - Watch Online`
     : `${title} - All Episodes`;
+  
+  // Safe string falling back to default text if AniList fails
   const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
   const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
 
@@ -124,6 +129,18 @@ export function WatchPageTemplate({
       />
 
       <div className="container mx-auto px-4 max-w-7xl py-6">
+        {/* 🛡️ OPTIONAL ENHANCEMENT: Non-intrusive warning notice alerting users without breaking navigation */}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -4 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-4 mb-6 rounded-lg bg-amber-950/40 border border-amber-800/40 text-amber-200 text-sm font-body"
+          >
+            <AlertCircle size={18} className="text-amber-400 shrink-0" />
+            <span>The external index system (AniList) is currently offline. Stream links and localized arc titles remain fully available.</span>
+          </motion.div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* LEFT: Player or Info */}
           <div className="flex-1 min-w-0">
@@ -158,7 +175,7 @@ export function WatchPageTemplate({
                 <div className="mt-4 p-4 gradient-card border border-border rounded-lg">
                   <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">About</h3>
                   <p className="text-sm font-body text-muted-foreground leading-relaxed line-clamp-6">
-                    {aniData?.description?.replace(/<[^>]*>/g, "")}
+                    {aniData?.description?.replace(/<[^>]*>/g, "") || "No external metadata summary available. Stream video assets normally using the episode selectors."}
                   </p>
                 </div>
               </motion.div>
