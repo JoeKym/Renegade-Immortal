@@ -1,312 +1,215 @@
-import { useState, useEffect, useMemo } from "react";
-import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { useState, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Play, Share2, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Layout } from "@/components/Layout";
+import { Helmet } from "react-helmet-async";
+import { useDonghuaData } from "@/hooks/useDonghuaData";
+import { VideoPlayer } from "@/components/watch/VideoPlayer";
+import { WatchBanner } from "./WatchBanner";
+import { EpisodeSidebar } from "./EpisodeSidebar";
+import { SeriesGrid } from "./SeriesGrid";
+import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
-import { shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
+import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
 
-export interface AniListData {
-  id: number;
-  title: { romaji: string; english: string | null; native: string };
-  episodes: number | null;
-  nextAiringEpisode: { airingAt: number; episode: number; timeUntilAiring: number } | null;
-  status: string;
-  averageScore: number | null;
-  meanScore: number | null;
-  coverImage: { extraLarge: string; large: string; medium: string };
-  bannerImage: string | null;
-  description: string | null;
-  genres: string[];
-  streamingEpisodes: { title: string; thumbnail: string; url: string; site: string }[] | null;
-  studios: { nodes: { name: string }[] };
-  trailer?: { id: string; site: string } | null;
+interface WatchPageTemplateProps {
+  seriesId: string;
+  episodeNumber?: number | null;
+  onEpisodeSelect: (num: number) => void;
+  getCustomEpisodeData?: (ep: any) => any;
+  customFilter?: (ep: any, query: string) => boolean;
 }
 
-interface JikanTitleEntry {
-  title?: string;
-}
+export function WatchPageTemplate({
+  seriesId,
+  episodeNumber,
+  onEpisodeSelect,
+  getCustomEpisodeData,
+  customFilter
+}: WatchPageTemplateProps) {
+  const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
 
-interface JikanAnimeEntry {
-  episodes?: number;
-  title?: string;
-  title_english?: string;
-  titles?: JikanTitleEntry[];
-  airing?: boolean;
-}
-
-const ANILIST_QUERY = `
-  query ($search: String) {
-    Page(perPage: 10) {
-      media(search: $search, type: ANIME, sort: POPULARITY_DESC) {
-        id
-        title { romaji english native }
-        episodes
-        nextAiringEpisode { airingAt episode timeUntilAiring }
-        status
-        averageScore
-        meanScore
-        description(asHtml: false)
-        coverImage { extraLarge large medium }
-        bannerImage
-        genres
-        studios { nodes { name } }
-        streamingEpisodes { title thumbnail url site }
-        trailer { id site }
-      }
-    }
-  }
-`;
-
-function formatTimeUntil(seconds: number): string {
-  const d = Math.floor(seconds / 86400);
-  const h = Math.floor((seconds % 86400) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-export function useDonghuaData(seriesId: string | undefined) {
-  const [aniData, setAniData] = useState<AniListData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState<string>("");
-
-  const series = useMemo(() => 
-    DONGHUA_SERIES.find(d => d.id === seriesId), 
-    [seriesId]
-  );
+  // Fetching data from custom hook. Notice we retain 'error' but handle it defensively below.
+  const { series, aniData, loading, error, countdown, releasedCount, allEpisodes: baseEpisodes } = useDonghuaData(seriesId);
 
   useEffect(() => {
-    if (!series) {
-      setLoading(false);
-      return;
+    try {
+      const historyStr = localStorage.getItem(`${seriesId}_watch_history`);
+      if (historyStr) setWatchHistory(JSON.parse(historyStr));
+    } catch (e) {
+      console.warn("Failed to load local watch history");
     }
-
-    async function fetchData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const canonicalTerms = [
-          series?.title,
-          series?.searchQuery,
-          series?.anilistSearch,
-          ...(series?.aliases || []),
-        ]
-          .filter(Boolean)
-          .map((term) => String(term).toLowerCase());
-
-        const titleMatchScore = (names: string[]) => {
-          const lowered = names.map((n) => n.toLowerCase());
-          let score = 0;
-          for (const name of lowered) {
-            for (const term of canonicalTerms) {
-              if (name === term) score += 6;
-              else if (name.includes(term)) score += 3;
-              else if (term.includes(name)) score += 1;
-            }
-          }
-          return score;
-        };
-
-        const releasedFromAni = (m: AniListData) => {
-          if (m.nextAiringEpisode?.episode) return Math.max(0, m.nextAiringEpisode.episode - 1);
-          return m.episodes || 0;
-        };
-
-        const pickBestAniMatch = (items: AniListData[]) => {
-          return items
-            .map((item) => {
-              const names = [item.title?.romaji, item.title?.english, item.title?.native].filter(Boolean) as string[];
-              const score = titleMatchScore(names);
-              const released = releasedFromAni(item);
-              const isReleasing = item.status === "RELEASING" ? 1 : 0;
-              return { item, score, released, isReleasing };
-            })
-            .sort((a, b) => {
-              if (b.score !== a.score) return b.score - a.score;
-              if (b.isReleasing !== a.isReleasing) return b.isReleasing - a.isReleasing;
-              return b.released - a.released;
-            })[0]?.item || null;
-        };
-
-        let aniRes = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({ 
-            query: ANILIST_QUERY,
-            variables: { search: series?.anilistSearch }
-          }),
-        });
-        let aniJson = aniRes.ok ? await aniRes.json() : null;
-        let mediaList: AniListData[] = aniJson?.data?.Page?.media || [];
-
-        if (mediaList.length === 0 && series?.title) {
-            aniRes = await fetch("https://graphql.anilist.co", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                body: JSON.stringify({ 
-                    query: ANILIST_QUERY,
-                    variables: { search: series.title }
-                }),
-            });
-            aniJson = aniRes.ok ? await aniRes.json() : null;
-            mediaList = aniJson?.data?.Page?.media || [];
-        }
-        
-        const primary = pickBestAniMatch(mediaList);
-
-        if (!primary) {
-          setError(`Could not find data for "${series.title}".`);
-          return;
-        }
-
-        let jikanTotal = 0;
-        try {
-          const jRes = await fetch(
-            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(series?.jikanSearch || "")}&limit=10`
-          );
-          if (jRes.ok) {
-            const jData = await jRes.json();
-            const jList = jData?.data || [];
-            const jBest = jList
-              .map((entry: JikanAnimeEntry) => {
-                const altTitles = (entry.titles || []).map((t: JikanTitleEntry) => t.title).filter(Boolean) as string[];
-                const names = [entry.title, entry.title_english, ...altTitles].filter(Boolean) as string[];
-                const score = titleMatchScore(names);
-                const releasingBonus = entry.airing ? 1 : 0;
-                return { entry, score, releasingBonus, episodes: entry.episodes || 0 };
-              })
-              .sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                if (b.releasingBonus !== a.releasingBonus) return b.releasingBonus - a.releasingBonus;
-                return b.episodes - a.episodes;
-              })[0]?.entry;
-            jikanTotal = jBest?.episodes || 0;
-          }
-        } catch (_err) {
-        }
-
-        // --- Next-Episode.net integration for authoritative episode count & release dates
-        let nextEpTotal = 0;
-        let nextEpNextAiring: { airingAt: number; episode: number } | null = null;
-        if (series.nextEpisodeSlug) {
-            try {
-                const nextEpRes = await fetch(
-                    `https://next-episode.net/anime/${encodeURIComponent(series.nextEpisodeSlug)}`,
-                    { headers: {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-                    }
-                });
-                if (nextEpRes.ok) {
-                    const html = await nextEpRes.text();
-                    const totalEpMatch =
-                      html.match(/Total.*?(\d+)\s*episodes/i) ||
-                      html.match(/<span[^>]*total.*?<\/span>.*?(\d+)\s*episodes?/is) ||
-                      html.match(/(\d+)\s*episodes?\s*(?:\(.*?\))?\s*Total/is);
-                    if (totalEpMatch) nextEpTotal = parseInt(totalEpMatch[1], 10) || 0;
-
-                    const nextRowStart = html.match(/Next.*?Episode/i);
-                    let nextHtmlSlice = nextRowStart
-                      ? html.slice(nextRowStart.index || 0, Math.min(html.length, (nextRowStart.index || 0) + 2500))
-                      : html.slice(0, 3000);
-
-                    const epMatch =
-                      nextHtmlSlice.match(/(?:Next.*?Episode|Episode)\s*(?:Nr\.?|#)?\s*(\d+)/i) ||
-                      nextHtmlSlice.match(/Next.*?(\d+)/is);
-                    const dateMatch =
-                      nextHtmlSlice.match(/(\d{4}-\d{2}-\d{2})/) ||
-                      nextHtmlSlice.match(/((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})/i);
-
-                    if (epMatch && dateMatch) {
-                        const candidateDate = new Date(dateMatch[0]);
-                        if (Number.isFinite(candidateDate.getTime())) {
-                            nextEpNextAiring = {
-                                episode: parseInt(epMatch[1], 10),
-                                airingAt: Math.floor(candidateDate.getTime() / 1000),
-                            };
-                        }
-                    }
-                }
-            } catch (_neErr) {
-            }
-        }
-
-        const bestTotal = Math.max(
-            series?.knownTotalEpisodes || 0,
-            primary.episodes || 0,
-            jikanTotal,
-            nextEpTotal
-        );
-        let bestNextAiring = primary.nextAiringEpisode;
-        if (nextEpNextAiring && shouldShowReleaseCountdown(series, primary.status)) {
-            bestNextAiring = {
-                ...nextEpNextAiring,
-                timeUntilAiring: Math.max(0, Math.floor((nextEpNextAiring.airingAt * 1000 - Date.now()) / 1000)),
-            };
-        } else if (!shouldShowReleaseCountdown(series, primary.status)) {
-            bestNextAiring = null;
-        }
-
-        setAniData({
-            ...primary,
-            episodes: bestTotal || primary.episodes,
-            nextAiringEpisode: bestNextAiring,
-        });
-      } catch (e) {
-        console.error("Data fetch failed:", e);
-        setError("Failed to load show data.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [series]);
-
-  useEffect(() => {
-    if (!aniData?.nextAiringEpisode) return;
-    
-    const updateCountdown = () => {
-      const now = Date.now();
-      const airingAt = aniData.nextAiringEpisode!.airingAt * 1000;
-      const timeUntil = Math.max(0, Math.floor((airingAt - now) / 1000));
-      setCountdown(formatTimeUntil(timeUntil));
-    };
-    
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 60000);
-    return () => clearInterval(interval);
-  }, [aniData?.nextAiringEpisode]);
-
-  const releasedCount = useMemo(() => {
-    const known = series?.knownTotalEpisodes || 0;
-    if (!aniData) return known;
-    const canUseNextAiring = shouldShowReleaseCountdown(series, aniData.status);
-    const aniCount = canUseNextAiring && aniData.nextAiringEpisode
-      ? Math.max(0, aniData.nextAiringEpisode.episode - 1)
-      : aniData.episodes || 0;
-    return Math.max(known, aniCount);
-  }, [aniData, series]);
+  }, [seriesId]);
 
   const allEpisodes = useMemo(() => {
-    if (releasedCount === 0) return [];
-    const fallbackThumbnail = aniData?.coverImage?.large || aniData?.coverImage?.medium || series?.thumbnail || "";
-    
-    const thumbMap = new Map<number, string>();
-    aniData?.streamingEpisodes?.forEach(se => {
-        const match = se.title?.match(/Episode\s+(\d+)/i);
-        if (match) thumbMap.set(parseInt(match[1]), se.thumbnail);
-    });
+    if (!getCustomEpisodeData) return baseEpisodes;
+    return baseEpisodes.map(getCustomEpisodeData);
+  }, [baseEpisodes, getCustomEpisodeData]);
 
-    return Array.from({ length: releasedCount }, (_, i) => {
-      const num = i + 1;
-      let thumbUrl = thumbMap.get(num) || fallbackThumbnail;
-      return {
-        number: num,
-        thumbnail: proxyImageUrl(thumbUrl),
-        description: `Episode ${num}`
-      };
-    });
-  }, [releasedCount, aniData, series]);
+  const filtered = useMemo(() => {
+    if (!search) return allEpisodes;
+    const q = search.toLowerCase();
+    if (customFilter) {
+        return allEpisodes.filter(ep => customFilter(ep, q));
+    }
+    return allEpisodes.filter(ep => ep.number.toString().includes(q));
+  }, [search, allEpisodes, customFilter]);
 
-  return { series, aniData, loading, error, countdown, releasedCount, allEpisodes };
+  const handleEpisodeSelect = (num: number) => {
+    setWatchHistory(prev => {
+      const next = { ...prev, [num]: true };
+      localStorage.setItem(`${seriesId}_watch_history`, JSON.stringify(next));
+      return next;
+    });
+    onEpisodeSelect(num);
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${series?.title} - Episode ${episodeNumber}`,
+        text: `Watch ${series?.title} Episode ${episodeNumber} on Renegade Immortal`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center py-32">
+          <Loader2 size={36} className="animate-spin text-primary mb-4" />
+        </div>
+      </Layout>
+    );
+  }
+
+  // 🛡️ RESTRUCTURING CRITICAL FIX: 
+  // We no longer trigger a 404 if 'error' is true. We only 404 if local series configuration metadata doesn't exist!
+  if (!series) return <NotFound />;
+  if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) return <NotFound />;
+
+  const title = series.title;
+  const pageTitle = episodeNumber 
+    ? `${title} Episode ${episodeNumber} - Watch Online`
+    : `${title} - All Episodes`;
+  
+  // Safe string falling back to default text if AniList fails
+  const pageDesc = aniData?.description?.replace(/<[^>]*>/g, "").slice(0, 160) || `Watch ${title} online.`;
+  const pageImage = proxyImageUrl(aniData?.coverImage?.extraLarge || series.thumbnail);
+
+  return (
+    <Layout>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:image" content={pageImage} />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:type" content="video.other" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content={pageImage} />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
+      <WatchBanner 
+        aniData={aniData} 
+        series={series} 
+        releasedCount={releasedCount} 
+        countdown={countdown} 
+        title={title} 
+      />
+
+      <div className="container mx-auto px-4 max-w-7xl py-6">
+        {/* 🛡️ OPTIONAL ENHANCEMENT: Non-intrusive warning notice alerting users without breaking navigation */}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -4 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-4 mb-6 rounded-lg bg-amber-950/40 border border-amber-800/40 text-amber-200 text-sm font-body"
+          >
+            <AlertCircle size={18} className="text-amber-400 shrink-0" />
+            <span>The external index system (AniList) is currently offline. Stream links and localized arc titles remain fully available.</span>
+          </motion.div>
+        )}
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* LEFT: Player or Info */}
+          <div className="flex-1 min-w-0">
+            {episodeNumber ? (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-body tracking-wider uppercase">Now Playing</p>
+                    <h2 className="text-sm font-heading text-foreground tracking-wide">Episode {episodeNumber}</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={handleShare} className="p-2 rounded bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Share">
+                      <Share2 size={16} />
+                    </button>
+                    <button onClick={() => handleEpisodeSelect(episodeNumber - 1)} disabled={episodeNumber <= 1} className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors">
+                      <ChevronLeft size={14} /> Prev
+                    </button>
+                    <button onClick={() => handleEpisodeSelect(episodeNumber + 1)} disabled={episodeNumber >= releasedCount} className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors">
+                      Next <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <VideoPlayer 
+                  episode={episodeNumber} 
+                  donghuaSlug={series.serverSlug || series.id}
+                  serverSlugs={getVideoServerSlugs(series)}
+                  seriesTitle={series.title}
+                  onEnded={() => handleEpisodeSelect(episodeNumber + 1)} 
+                />
+
+                <div className="mt-4 p-4 gradient-card border border-border rounded-lg">
+                  <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">About</h3>
+                  <p className="text-sm font-body text-muted-foreground leading-relaxed line-clamp-6">
+                    {aniData?.description?.replace(/<[^>]*>/g, "") || "No external metadata summary available. Stream video assets normally using the episode selectors."}
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="gradient-card border border-border rounded-xl p-8 text-center">
+                <Play size={48} className="text-primary mx-auto mb-4 opacity-20" />
+                <h2 className="text-xl font-heading mb-2">Select an Episode</h2>
+                <p className="text-muted-foreground mb-6">Choose from the {releasedCount} available episodes to start watching.</p>
+                <button onClick={() => handleEpisodeSelect(1)} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-heading">
+                  Start from Episode 1
+                </button>
+              </div>
+            )}
+
+            <SeriesGrid currentSeriesId={seriesId} />
+          </div>
+
+          {/* RIGHT: Sidebar */}
+          <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
+            <EpisodeSidebar 
+                releasedCount={releasedCount}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                search={search}
+                setSearch={setSearch}
+                filteredEpisodes={filtered}
+                selectedEpisode={episodeNumber || null}
+                handleEpisodeSelect={handleEpisodeSelect}
+                watchHistory={watchHistory}
+                seriesThumbnail={series.thumbnail}
+            />
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
 }
