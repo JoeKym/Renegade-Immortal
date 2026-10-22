@@ -58,6 +58,9 @@ export function DonghuaTrackingList() {
         if (selectedStatus === "Nian Fan" && !series.statusTag?.includes("Nian Fan")) {
           return false;
         }
+        if (selectedStatus === "Movie" && !series.statusTag?.includes("Movie") && !series.statusTag?.includes("Special")) {
+          return false;
+        }
       }
 
       // Search query
@@ -74,6 +77,9 @@ export function DonghuaTrackingList() {
 
   const getStatusBadge = (statusTag?: string) => {
     if (!statusTag) return "bg-muted text-muted-foreground border-border";
+    if (statusTag.includes("Movie") || statusTag.includes("Special")) {
+      return "bg-purple-500/10 text-purple-400 border-purple-500/30";
+    }
     if (statusTag.includes("Nian Fan")) {
       return "bg-amber-500/10 text-amber-400 border-amber-500/30";
     }
@@ -148,6 +154,7 @@ export function DonghuaTrackingList() {
           { label: "All Series", value: "All" },
           { label: "Ongoing", value: "Ongoing" },
           { label: "Nian Fan (Yearly)", value: "Nian Fan" },
+          { label: "Movies & Specials", value: "Movie" },
           { label: "Completed", value: "Completed" },
         ].map((st) => (
           <button
