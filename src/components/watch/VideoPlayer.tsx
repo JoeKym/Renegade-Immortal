@@ -90,7 +90,7 @@ export function VideoPlayer({
 
     try {
       const { data, error } = await supabase.functions.invoke("fetch-video-source", {
-        body: { episode, server: server.name, donghuaSlug, serverSlugs },
+        body: { episode, server: server.name, donghuaSlug, serverSlugs, seriesTitle },
       });
 
       if (!error && data?.success && data?.embedUrl) {

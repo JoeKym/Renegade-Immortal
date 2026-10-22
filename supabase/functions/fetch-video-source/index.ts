@@ -215,13 +215,27 @@ const servers: ServerConfig[] = [
   },
 ];
 
+const browserHeaders = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { episode, server, donghuaSlug, serverSlugs } = await req.json();
+    const { episode, server, donghuaSlug, serverSlugs, seriesTitle } = await req.json();
     const slug = donghuaSlug || 'renegade-immortal';
 
     if (!episode || typeof episode !== 'number') {
@@ -262,19 +276,7 @@ Deno.serve(async (req) => {
           console.log(`Fetching ${srv.name}: ${pageUrl}`);
 
           const response = await fetch(pageUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.9',
-              'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
-              'Sec-Ch-Ua-Mobile': '?0',
-              'Sec-Ch-Ua-Platform': '"Windows"',
-              'Sec-Fetch-Dest': 'document',
-              'Sec-Fetch-Mode': 'navigate',
-              'Sec-Fetch-Site': 'none',
-              'Sec-Fetch-User': '?1',
-              'Upgrade-Insecure-Requests': '1',
-            },
+            headers: browserHeaders,
             redirect: 'follow',
           });
 
@@ -290,6 +292,64 @@ Deno.serve(async (req) => {
           if (embedUrl) {
             foundEmbed = embedUrl;
             break;
+          }
+        }
+
+        // Dynamic Search Fallback if candidate URLs failed or link structure changed:
+        if (!foundEmbed) {
+          console.log(`Candidate URLs failed for ${srv.name}. Trying dynamic search fallback...`);
+          const searchKeywords = [
+            seriesTitle ? `${seriesTitle} episode ${episode}` : null,
+            `${slug.replace(/[-_]+/g, ' ')} episode ${episode}`,
+          ].filter(Boolean) as string[];
+
+          const searchBaseUrl = srv.name === 'anime4i'
+            ? 'https://anime4i.com'
+            : srv.name === 'luciferdonghuain'
+            ? 'https://luciferdonghua.in'
+            : 'https://luciferdonghua.org';
+
+          for (const query of searchKeywords) {
+            try {
+              const searchUrl = `${searchBaseUrl}/?s=${encodeURIComponent(query)}`;
+              console.log(`Searching ${srv.name}: ${searchUrl}`);
+
+              const searchRes = await fetch(searchUrl, {
+                headers: browserHeaders,
+                redirect: 'follow',
+              });
+
+              if (searchRes.ok) {
+                const searchHtml = await searchRes.text();
+                const linkMatches = [...searchHtml.matchAll(/href=["'](https?:\/\/[^"']+)["']/gi)];
+                const candidateLink = linkMatches.map(m => m[1]).find(url => {
+                  const u = url.toLowerCase();
+                  return (
+                    u.includes(searchBaseUrl.replace('https://', '')) &&
+                    (u.includes(`episode-${episode}`) || u.includes(`episod-${episode}`) || u.includes(`episode-${String(episode).padStart(2, '0')}`))
+                  );
+                });
+
+                if (candidateLink) {
+                  console.log(`Discovered URL via search on ${srv.name}: ${candidateLink}`);
+                  const epRes = await fetch(candidateLink, {
+                    headers: browserHeaders,
+                    redirect: 'follow',
+                  });
+
+                  if (epRes.ok) {
+                    const epHtml = await epRes.text();
+                    const embedUrl = srv.extractEmbed(epHtml);
+                    if (embedUrl) {
+                      foundEmbed = embedUrl;
+                      break;
+                    }
+                  }
+                }
+              }
+            } catch (searchErr) {
+              console.warn(`Search error on ${srv.name}:`, searchErr);
+            }
           }
         }
 
