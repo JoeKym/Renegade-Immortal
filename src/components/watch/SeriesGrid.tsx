@@ -37,7 +37,9 @@ export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
             <div className="absolute bottom-0 left-0 right-0 p-3">
-              <p className="text-[10px] text-primary font-body uppercase tracking-tighter mb-0.5">Series</p>
+              <p className="text-[10px] text-primary font-body uppercase tracking-tighter mb-0.5">
+                {s.statusTag?.toLowerCase().includes("movie") ? "Movie" : "Series"}
+              </p>
               <h4 className="text-xs font-heading text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                 {s.title}
               </h4>

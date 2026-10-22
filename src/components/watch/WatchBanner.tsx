@@ -60,7 +60,12 @@ export function WatchBanner({ aniData, series, releasedCount, countdown, title }
               </span>
             )}
             <span className="flex items-center gap-1 text-xs text-muted-foreground font-body">
-              <Tv size={12} /> {releasedCount} Episodes
+              <Tv size={12} />{" "}
+              {series.statusTag?.toLowerCase().includes("movie")
+                ? series.knownTotalEpisodes && series.knownTotalEpisodes > 1
+                  ? `${series.knownTotalEpisodes} Parts (Movie)`
+                  : "Movie"
+                : `${releasedCount} Episodes`}
             </span>
             {statusLabel ? (
               <span className="flex items-center gap-1 text-xs text-emerald-400 font-body">

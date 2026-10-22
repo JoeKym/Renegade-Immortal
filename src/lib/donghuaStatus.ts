@@ -36,7 +36,7 @@ export function shouldShowReleaseCountdown(
 export function getWatchPageStatusLabel(
   series: Pick<DonghuaSeries, "statusTag" | "releaseSchedule">,
 ): string | null {
-  if (series.statusTag?.toLowerCase().includes("movie")) return "Theatrical Movie";
+  if (series.statusTag?.toLowerCase().includes("movie")) return "Movie";
   if (series.statusTag?.toLowerCase().includes("special")) return "Special Film / Arc";
   if (isBetweenSeasons(series.statusTag)) return "Between Seasons";
   if (isCompletedSeries(series.statusTag)) return "Completed";
@@ -45,8 +45,8 @@ export function getWatchPageStatusLabel(
 }
 
 export function getSeriesReleaseDisplay(statusTag?: string, releaseSchedule?: string): string {
-  if (statusTag?.toLowerCase().includes("movie")) return "Theatrical Movie";
-  if (statusTag?.toLowerCase().includes("special")) return releaseSchedule || "Special Series";
+  if (statusTag?.toLowerCase().includes("movie")) return "Movie";
+  if (statusTag?.toLowerCase().includes("special")) return releaseSchedule || "Special Arc";
   if (isBetweenSeasons(statusTag)) return releaseSchedule || "Between Seasons";
   if (isCompletedSeries(statusTag)) return "Completed";
   if (isReleaseScheduleFinished(releaseSchedule)) return "Completed";

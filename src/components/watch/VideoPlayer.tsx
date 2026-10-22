@@ -214,7 +214,6 @@ export function VideoPlayer({
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            referrerPolicy="no-referrer"
             onLoad={handleIframeLoad}
             title={`${seriesTitle || "Episode"} ${episode}`}
           />

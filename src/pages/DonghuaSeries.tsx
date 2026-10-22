@@ -78,7 +78,9 @@ export default function DonghuaSeriesList() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                 <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="text-[10px] text-primary font-body uppercase tracking-tighter mb-1">Series</p>
+                  <p className="text-[10px] text-primary font-body uppercase tracking-tighter mb-1">
+                    {series.statusTag?.toLowerCase().includes("movie") ? "Movie" : "Series"}
+                  </p>
                   <h4 className="text-sm font-heading text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                     {series.title}
                   </h4>
