@@ -78,7 +78,9 @@ const isAllowedEmbedUrl = (value: string): boolean => {
   if (
     normalized.includes('dm-event.net') ||
     normalized.includes('doubleclick.net') ||
-    normalized.includes('googlesyndication.com')
+    normalized.includes('googlesyndication.com') ||
+    normalized.includes('googleads') ||
+    normalized.includes('adsystem')
   ) {
     return false;
   }
@@ -90,11 +92,18 @@ const isAllowedEmbedUrl = (value: string): boolean => {
     'youtube.com',
     'youtu.be',
     'streamtape.com',
+    'dood',
+    'filelions',
+    'streamwish',
+    'mixdrop',
+    'hxfile',
+    'vidmoly',
     'mp4',
     'm3u8',
     'embed',
     'video',
     'player',
+    'stream',
   ];
 
   return allowedHosts.some((host) => normalized.includes(host));
@@ -102,8 +111,7 @@ const isAllowedEmbedUrl = (value: string): boolean => {
 
 const extractAnyMediaUrl = (html: string): string | null => {
   const patternCandidates = [
-    /<iframe[^>]+src=["']([^"']+)["'][^>]*>/gi,
-    /<iframe[^>]+data-src=["']([^"']+)["'][^>]*>/gi,
+    /<iframe[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*>/gi,
     /<source[^>]+src=["']([^"']+)["'][^>]*>/gi,
     /file\s*:\s*["']([^"']+)["']/gi,
     /src\s*:\s*["']([^"']+)["']/gi,
@@ -125,7 +133,7 @@ const extractAnyMediaUrl = (html: string): string | null => {
 };
 
 const buildLuciferDonghuaCandidates = (episode: number, slug: string, platformSlug?: string): string[] => {
-  const base = getSlugWithSeriesAlias(platformSlug || slug);
+  const base = platformSlug || getSlugWithSeriesAlias(slug);
   const episodeValues = [String(episode), String(episode).padStart(2, '0')];
   const patterns: string[] = [];
 
@@ -134,11 +142,30 @@ const buildLuciferDonghuaCandidates = (episode: number, slug: string, platformSl
       `${base}-episode-${ep}-english-sub`,
       `${base}-episode-${ep}-english-subtitles`,
       `${base}-episode-${ep}-english-subtitle`,
+      `${base}-episod-${ep}-english-subtitle`,
+      `${base}-episod-${ep}-english-sub`,
       `${base}-episode-${ep}`,
     );
   }
 
   return [...new Set(patterns.map((path) => `https://luciferdonghua.org/${path}/`))];
+};
+
+const buildLuciferDonghuaInCandidates = (episode: number, slug: string, platformSlug?: string): string[] => {
+  const base = platformSlug || slug;
+  const episodeValues = [String(episode), String(episode).padStart(2, '0')];
+  const patterns: string[] = [];
+
+  for (const ep of episodeValues) {
+    patterns.push(
+      `https://luciferdonghua.in/${base}-episode-${ep}-lucifer-donghua/`,
+      `https://luciferdonghua.in/${base}-episode-${ep}-english-sub/`,
+      `https://luciferdonghua.in/${base}-episode-${ep}-english-subtitles/`,
+      `https://luciferdonghua.in/${base}-episode-${ep}/`,
+    );
+  }
+
+  return [...new Set(patterns)];
 };
 
 const resolvePlatformSlug = (
@@ -153,9 +180,9 @@ const servers: ServerConfig[] = [
   {
     name: 'anime4i',
     label: 'Anime4i',
-    getPageUrl: (ep, slug) => `https://anime4i.com/${getSlugWithSeriesAlias(slug)}-episode-${ep}-english-subtitles`,
+    getPageUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles`,
     extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+(?:player|embed)[^"']*)["'][^>]*>/i);
+      const iframeMatch = html.match(/<iframe[^>]+(?:src|data-src)=["']([^"']+(?:player|embed|video|ok\.ru|dailymotion|streamtape)[^"']*)["'][^>]*>/i);
       if (iframeMatch) return normalizeMediaUrl(iframeMatch[1]) || null;
       return extractAnyMediaUrl(html);
     },
@@ -165,7 +192,7 @@ const servers: ServerConfig[] = [
     label: 'LuciferDonghua',
     getPageUrl: (ep, slug) => buildLuciferDonghuaCandidates(ep, slug)[0],
     extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
+      const iframeMatch = html.match(/<iframe[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*>/i);
       if (iframeMatch) {
         const normalized = normalizeMediaUrl(iframeMatch[1]);
         if (normalized && isAllowedEmbedUrl(normalized)) return normalized;
@@ -174,17 +201,16 @@ const servers: ServerConfig[] = [
     },
   },
   {
-    name: 'myanime',
-    label: 'MyAnime',
-    getPageUrl: (ep, slug) => {
-      const mySlug = getSlugWithSeriesAlias(slug).includes('renegade-immortal')
-        ? 'xian-ni-renegade-immortal-2023'
-        : getSlugWithSeriesAlias(slug);
-      return `https://myanime.live/${mySlug}-episode-${ep}-english-sub/`;
-    },
+    name: 'luciferdonghuain',
+    label: 'Lucifer (.in Mirror)',
+    getPageUrl: (ep, slug) => buildLuciferDonghuaInCandidates(ep, slug)[0],
     extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+src=["']([^"']+)["'][^>]*>/i);
-      return iframeMatch ? normalizeMediaUrl(iframeMatch[1]) || null : null;
+      const iframeMatch = html.match(/<iframe[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*>/i);
+      if (iframeMatch) {
+        const normalized = normalizeMediaUrl(iframeMatch[1]);
+        if (normalized && isAllowedEmbedUrl(normalized)) return normalized;
+      }
+      return extractAnyMediaUrl(html);
     },
   },
 ];
@@ -205,8 +231,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const serversToTry = server
-      ? servers.filter(s => s.name === server)
+    const targetServerName = server === 'myanime' ? 'luciferdonghuain' : server;
+    const serversToTry = targetServerName
+      ? servers.filter(s => s.name === targetServerName)
       : servers;
 
     if (serversToTry.length === 0) {
@@ -225,6 +252,8 @@ Deno.serve(async (req) => {
           ? buildAnime4iCandidates(episode, slug, platformSlug)
           : srv.name === 'luciferdonghua'
           ? buildLuciferDonghuaCandidates(episode, slug, platformSlug)
+          : srv.name === 'luciferdonghuain'
+          ? buildLuciferDonghuaInCandidates(episode, slug, platformSlug)
           : [srv.getPageUrl(episode, platformSlug)];
 
         let foundEmbed: string | null = null;
@@ -234,9 +263,17 @@ Deno.serve(async (req) => {
 
           const response = await fetch(pageUrl, {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
               'Accept-Language': 'en-US,en;q=0.9',
+              'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+              'Sec-Ch-Ua-Mobile': '?0',
+              'Sec-Ch-Ua-Platform': '"Windows"',
+              'Sec-Fetch-Dest': 'document',
+              'Sec-Fetch-Mode': 'navigate',
+              'Sec-Fetch-Site': 'none',
+              'Sec-Fetch-User': '?1',
+              'Upgrade-Insecure-Requests': '1',
             },
             redirect: 'follow',
           });

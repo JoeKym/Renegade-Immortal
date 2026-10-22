@@ -24,8 +24,11 @@ export function shouldShowReleaseCountdown(
   if (isCompletedSeries(series.statusTag)) return false;
   if (isBetweenSeasons(series.statusTag)) return false;
   if (isReleaseScheduleFinished(series.releaseSchedule)) return false;
-  if (aniStatus === "FINISHED") return false;
   if (!series.releaseDay) return false;
+  if (series.statusTag?.toLowerCase().includes("ongoing") || series.statusTag?.toLowerCase().includes("nian fan")) {
+    return true;
+  }
+  if (aniStatus === "FINISHED") return false;
   return true;
 }
 

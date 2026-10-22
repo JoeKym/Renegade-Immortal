@@ -20,24 +20,28 @@ function normalizeSlug(slug: string): string {
 }
 
 function resolveServerSlug(serverName: VideoServerName, donghuaSlug: string, serverSlugs?: Partial<Record<VideoServerName, string>>) {
-  return serverSlugs?.[serverName] || normalizeSlug(donghuaSlug);
+  if (serverSlugs?.[serverName]) return serverSlugs[serverName]!;
+  return normalizeSlug(donghuaSlug);
 }
 
 const SERVERS: Server[] = [
   {
     name: "anime4i",
     label: "Anime4i",
-    directUrl: (ep, slug) => `https://anime4i.com/${normalizeSlug(slug)}-episode-${ep}-english-subtitles/`,
+    directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles/`,
   },
   {
     name: "luciferdonghua",
-    label: "LuciferDonghua",
-    directUrl: (ep, slug) => `https://luciferdonghua.org/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
+    label: "Lucifer (.org)",
+    directUrl: (ep, slug) =>
+      slug.includes("fights-break-sphere")
+        ? `https://luciferdonghua.org/${slug}-episod-${ep}-english-subtitle/`
+        : `https://luciferdonghua.org/${slug}-episode-${ep}-english-sub/`,
   },
   {
-    name: "myanime",
-    label: "MyAnime",
-    directUrl: (ep, slug) => `https://myanime.live/${normalizeSlug(slug)}-episode-${ep}-english-sub/`,
+    name: "luciferdonghuain",
+    label: "Lucifer (.in Mirror)",
+    directUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
   },
 ];
 
@@ -210,6 +214,7 @@ export function VideoPlayer({
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            referrerPolicy="no-referrer"
             onLoad={handleIframeLoad}
             title={`${seriesTitle || "Episode"} ${episode}`}
           />

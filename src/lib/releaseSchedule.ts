@@ -80,13 +80,74 @@ function getReleaseTimezoneMinutes(series: DonghuaSeries): number {
 }
 
 /**
+ * Automatically calculates how many episodes have been released up to `now`
+ * based on the series' anchorEpisode, anchorDate, and recurring release schedule.
+ * When a scheduled release time arrives, the episode count automatically increments!
+ */
+export function getAutoReleasedEpisodes(series: DonghuaSeries, now: Date = new Date()): number {
+  const fallback = series.knownTotalEpisodes || 0;
+  if (!series.anchorEpisode || !series.anchorDate) {
+    return fallback;
+  }
+
+  const anchorTime = new Date(series.anchorDate).getTime();
+  const nowTime = now.getTime();
+  if (isNaN(anchorTime) || nowTime <= anchorTime) {
+    return Math.max(fallback, series.anchorEpisode);
+  }
+
+  if (series.releaseDay === "Multiple") {
+    const targetHour = getReleaseHour(series);
+    const targetTimezoneMinutes = getReleaseTimezoneMinutes(series);
+    const targetOffsetMs = targetTimezoneMinutes * 60 * 1000;
+    const daysCandidates = parseReleaseDayCandidates(series);
+
+    let count = 0;
+    const current = new Date(anchorTime + 12 * 60 * 60 * 1000);
+    while (current.getTime() <= nowTime) {
+      const targetDateInZone = new Date(current.getTime() + targetOffsetMs);
+      const dayOfWeek = targetDateInZone.getUTCDay();
+      if (daysCandidates.includes(dayOfWeek)) {
+        const releaseTimeUtc = Date.UTC(
+          targetDateInZone.getUTCFullYear(),
+          targetDateInZone.getUTCMonth(),
+          targetDateInZone.getUTCDate(),
+          targetHour,
+          0,
+          0
+        ) - targetOffsetMs;
+
+        if (releaseTimeUtc > anchorTime && releaseTimeUtc <= nowTime) {
+          count++;
+        }
+      }
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+    return Math.max(fallback, series.anchorEpisode + count);
+  }
+
+  // Single weekly release: 7 days per cycle
+  const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+  const elapsedWeeks = Math.floor((nowTime - anchorTime) / MS_PER_WEEK);
+  let total = series.anchorEpisode + Math.max(0, elapsedWeeks);
+
+  if (series.id === "perfect-world") {
+    total = Math.min(288, total);
+  }
+
+  return Math.max(fallback, total);
+}
+
+/**
  * Calculates the next release date and live countdown using the schedule's declared timezone.
  * Most of the series in this project are scheduled in EAT (UTC+3), not China Standard Time.
  */
 export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()): NextReleaseInfo {
+  const currentEpisodes = getAutoReleasedEpisodes(series, now);
+
   if (!shouldShowReleaseCountdown(series)) {
     return {
-      nextEpisodeNumber: series.knownTotalEpisodes || 0,
+      nextEpisodeNumber: currentEpisodes,
       nextAiringDate: new Date(0),
       nextAiringFormattedCST: "Completed",
       timeUntilFormatted: "Completed",
@@ -96,7 +157,6 @@ export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()
     };
   }
 
-  const currentEpisodes = series.knownTotalEpisodes || 0;
   const nextEpisodeNumber = currentEpisodes + 1;
 
   const targetHour = getReleaseHour(series);

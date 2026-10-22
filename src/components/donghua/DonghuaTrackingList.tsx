@@ -201,7 +201,9 @@ export function DonghuaTrackingList() {
                       {series.title}
                     </h4>
                     <p className="text-[11px] text-muted-foreground font-body mt-1 line-clamp-2">
-                      {series.episodesSeason}
+                      {series.statusTag?.includes("Ongoing") && releaseInfo.showCountdown
+                        ? series.episodesSeason?.replace(/1–\d+\+/, `1–${releaseInfo.nextEpisodeNumber - 1}+`)
+                        : series.episodesSeason}
                     </p>
                   </div>
                 </div>

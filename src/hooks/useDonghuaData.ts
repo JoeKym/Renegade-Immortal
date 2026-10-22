@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
 import { shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
+import { getNextReleaseInfo, getAutoReleasedEpisodes } from "@/lib/releaseSchedule";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -151,7 +152,7 @@ function buildFallbackProfile(series: DonghuaSeries): AniListData {
     title: { romaji: series.title, english: series.title, native: "" },
     episodes: series.knownTotalEpisodes || FALLBACK_TOTAL_EPISODES,
     nextAiringEpisode: null,
-    status: "FINISHED",
+    status: series.statusTag?.toLowerCase().includes("completed") ? "FINISHED" : "RELEASING",
     averageScore: null,
     meanScore: null,
     coverImage: {
@@ -361,6 +362,16 @@ export function useDonghuaData(seriesId: string | undefined) {
               episode: source.episode,
               timeUntilAiring: Math.max(0, Math.floor(source.airingAt - Date.now() / 1000)),
             };
+          } else {
+            const localRelease = getNextReleaseInfo(s);
+            if (localRelease.showCountdown && localRelease.nextAiringDate.getTime() > 0) {
+              const airingAtSec = Math.floor(localRelease.nextAiringDate.getTime() / 1000);
+              nextAiringEpisode = {
+                airingAt: airingAtSec,
+                episode: localRelease.nextEpisodeNumber,
+                timeUntilAiring: Math.max(0, Math.floor(airingAtSec - Date.now() / 1000)),
+              };
+            }
           }
         }
 
@@ -405,7 +416,7 @@ export function useDonghuaData(seriesId: string | undefined) {
 
   /* ------------------------------- Derived data ---------------------------- */
   const releasedCount = useMemo(() => {
-    const known = series?.knownTotalEpisodes || 0;
+    const known = series ? getAutoReleasedEpisodes(series, new Date()) : 0;
     if (!aniData) return known;
 
     const aniCount =
