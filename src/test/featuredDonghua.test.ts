@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseWatchSlug, buildWatchUrl } from "@/lib/slugParser";
 import { FEATURED_SERIES_IDS } from "@/components/watch/SmallDonghuaIframeGrid";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { DONGHUA_SERIES, DONGHUA_SECTIONS } from "@/data/donghuaData";
 
 describe("Featured 8 Donghua Series Slugs & Routes", () => {
   const expectedSeries = [
@@ -63,3 +63,45 @@ describe("Featured 8 Donghua Series Slugs & Routes", () => {
   });
 });
 
+describe("Cultivation Universe Movies and Specials", () => {
+  const expectedMovies = [
+    { id: "renegade-immortal-special", name: "Renegade Immortal: Battle of Gods", parent: "renegade-immortal" },
+    { id: "renegade-immortal-immortal-slayer", name: "Renegade Immortal: Battle of Immortal Slayer", parent: "renegade-immortal" },
+    { id: "shrouding-the-heavens-the-movie", name: "Shrouding the Heavens: Imperial Path", parent: "shrouding-the-heavens" },
+    { id: "one-hundred-thousand-years-of-qi-refining-yang-ascendant", name: "Qi Refining: Yang Ascendant", parent: "one-hundred-thousand-years-of-qi-refining" },
+    { id: "swallowed-star-blood-luo-continent", name: "Swallowed Star: Blood Luo Continent", parent: "swallowed-star" },
+    { id: "swallowed-star-battle-on-origin-star", name: "Swallowed Star: Battle on Origin Star", parent: "swallowed-star" },
+    { id: "perfect-world-the-movie", name: "Perfect World: Nine Tribulations Burning Heaven", parent: "perfect-world" },
+    { id: "battle-through-the-heavens-three-year-agreement", name: "BTTH: Three Year Agreement", parent: "battle-through-the-heavens" },
+    { id: "battle-through-the-heavens-origin", name: "BTTH: Origin", parent: "battle-through-the-heavens" },
+  ];
+
+  it("all movies and specials exist in DONGHUA_SERIES with correct parentSeriesId", () => {
+    for (const movie of expectedMovies) {
+      const match = DONGHUA_SERIES.find((s) => s.id === movie.id);
+      expect(match, `Movie ${movie.name} (${movie.id}) must exist`).toBeDefined();
+      expect(match?.parentSeriesId).toBe(movie.parent);
+    }
+  });
+
+  it("theatrical-movies section contains all universe specials and films", () => {
+    const movieSection = DONGHUA_SECTIONS.find((s) => s.id === "theatrical-movies");
+    expect(movieSection).toBeDefined();
+    for (const movie of expectedMovies) {
+      expect(movieSection?.seriesIds).toContain(movie.id);
+    }
+  });
+
+  it("all movies and specials resolve accurately in slug parser", () => {
+    for (const movie of expectedMovies) {
+      const parsed = parseWatchSlug(movie.id);
+      expect(parsed.donghuaId).toBe(movie.id);
+      expect(parsed.episodeNumber).toBeNull();
+
+      // Episode 1 playback
+      const epParsed = parseWatchSlug(`${movie.id}-episode-1`);
+      expect(epParsed.donghuaId).toBe(movie.id);
+      expect(epParsed.episodeNumber).toBe(1);
+    }
+  });
+});

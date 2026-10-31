@@ -41,14 +41,16 @@ export function parseWatchSlug(slug?: string, seriesList: DonghuaSeries[] = DONG
     return { donghuaId: null, episodeNumber: null, isEpisode: false };
   }
 
+  const validSeriesList = (seriesList || []).filter((s): s is DonghuaSeries => Boolean(s && s.id));
+
   // 1. Check for exact series ID matches
-  const exactSeries = seriesList.find((s) => s.id === cleanSlug);
+  const exactSeries = validSeriesList.find((s) => s.id === cleanSlug);
   if (exactSeries) {
     return { donghuaId: exactSeries.id, episodeNumber: null, isEpisode: false };
   }
 
   // 2. Check for exact series alias matches
-  for (const s of seriesList) {
+  for (const s of validSeriesList) {
     if (s.aliases) {
       for (const alias of s.aliases) {
         if (toSlug(alias) === cleanSlug) {
@@ -59,7 +61,7 @@ export function parseWatchSlug(slug?: string, seriesList: DonghuaSeries[] = DONG
   }
 
   // 3. Check for episode patterns, sorting candidate series by length descending
-  const sortedSeries = [...seriesList].sort((a, b) => b.id.length - a.id.length);
+  const sortedSeries = [...validSeriesList].sort((a, b) => b.id.length - a.id.length);
 
   for (const s of sortedSeries) {
     if (cleanSlug.startsWith(s.id)) {

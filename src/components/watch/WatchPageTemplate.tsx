@@ -1,6 +1,16 @@
 import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Share2, ChevronLeft, ChevronRight, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import {
+  Play,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
+  ExternalLink,
+  Film,
+} from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import { useDonghuaData } from "@/hooks/useDonghuaData";
@@ -12,6 +22,7 @@ import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
 import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
 import { buildCanonicalWatchUrl } from "@/lib/slugParser";
+import { DONGHUA_SERIES } from "@/data/donghuaData";
 
 interface WatchPageTemplateProps {
   seriesId: string;
@@ -97,6 +108,19 @@ export function WatchPageTemplate({
     seriesId,
     episodeNumber || (isMainWatchPage ? null : null)
   );
+
+  // Discover movies & specials belonging to this series' universe
+  const relatedSpecialsAndMovies = useMemo(() => {
+    if (!series) return [];
+    if (series.parentSeriesId) {
+      const parent = DONGHUA_SERIES.find((s) => s.id === series.parentSeriesId);
+      const siblings = DONGHUA_SERIES.filter(
+        (s) => s.parentSeriesId === series.parentSeriesId && s.id !== series.id
+      );
+      return parent ? [parent, ...siblings] : siblings;
+    }
+    return DONGHUA_SERIES.filter((s) => s.parentSeriesId === seriesId);
+  }, [seriesId, series]);
 
   const handleShare = () => {
     const currentEpisode = activeEpisode || 1;
@@ -285,7 +309,60 @@ export function WatchPageTemplate({
               </div>
             )}
 
-            {/* Small Embedded i-Frames for Featured Donghua Series */}
+            {/* Universe Theatrical Movies & Specials Section */}
+            {relatedSpecialsAndMovies.length > 0 && (
+              <div className="mt-8 p-4 gradient-card border border-primary/20 rounded-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Film size={18} className="text-primary" />
+                    <h3 className="font-heading text-sm text-foreground tracking-wider uppercase">
+                      {series.parentSeriesId
+                        ? "Universe Films & Main Series"
+                        : "Theatrical Movies & Specials"}
+                    </h3>
+                  </div>
+                  <Link
+                    to="/donghua-series/theatrical-movies"
+                    className="text-xs text-primary hover:underline font-body flex items-center gap-1"
+                  >
+                    View All Movies <ExternalLink size={12} />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {relatedSpecialsAndMovies.map((movie) => (
+                    <Link
+                      key={movie.id}
+                      to={`/watch/${movie.id}`}
+                      className="group relative flex items-center gap-3 p-2.5 rounded-lg border border-border/60 bg-card/60 hover:border-primary/60 transition-all shadow-sm"
+                    >
+                      <div className="relative w-16 h-20 rounded overflow-hidden flex-shrink-0 bg-black/60">
+                        <img
+                          src={proxyImageUrl(movie.thumbnail)}
+                          alt={movie.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-heading uppercase tracking-wider bg-primary/20 text-primary mb-1">
+                          {movie.statusTag || "Movie"}
+                        </span>
+                        <h4 className="text-xs font-heading text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                          {movie.title}
+                        </h4>
+                        <p className="text-[10px] text-muted-foreground font-body mt-1">
+                          {movie.episodesSeason || "Feature Film"}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Small Embedded Cards for Featured Donghua Series */}
             <SmallDonghuaIframeGrid currentSeriesId={seriesId} />
           </div>
 

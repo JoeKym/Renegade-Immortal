@@ -65,12 +65,6 @@ export function SmallDonghuaIframeGrid({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {seriesToDisplay.map((series, idx) => {
-          const streamUrl =
-            series.streamingLinks?.luciferDonghuaOrg ||
-            series.streamingLinks?.anime4i ||
-            series.streamingLinks?.luciferDonghuaIn ||
-            "";
-
           return (
             <motion.div
               key={series.id}
@@ -79,9 +73,9 @@ export function SmallDonghuaIframeGrid({
               transition={{ delay: idx * 0.04, duration: 0.3 }}
               className="group relative flex flex-col rounded-xl overflow-hidden border border-border bg-card/60 hover:border-primary/60 transition-all duration-300 shadow-lg hover:shadow-primary/10"
             >
-              {/* Top: Small Embedded i-Frame with Fallback & Absolute Click Interceptor */}
-              <div className="relative aspect-video w-full bg-black/80 overflow-hidden">
-                {/* Fallback Poster Background */}
+              {/* Media Thumbnail Container with Official AniList / High-Res Cover */}
+              <div className="relative aspect-video w-full bg-black/90 overflow-hidden">
+                {/* Official AniList/High-Res Cover Artwork */}
                 <img
                   src={
                     brokenThumbs[series.id]
@@ -89,43 +83,41 @@ export function SmallDonghuaIframeGrid({
                       : proxyImageUrl(series.thumbnail)
                   }
                   alt={series.title}
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500 filter blur-[1px]"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                   onError={() =>
                     setBrokenThumbs((prev) => ({ ...prev, [series.id]: true }))
                   }
                 />
 
-                {/* Embedded i-Frame */}
-                {streamUrl ? (
-                  <iframe
-                    src={streamUrl}
-                    title={`${series.title} Player Preview`}
-                    className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity"
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
-                ) : null}
-
-                {/* Gradient Shading */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none" />
+                {/* Cinematic Vignette & Gradient Shading */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent pointer-events-none" />
 
                 {/* Status Badge */}
                 <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-heading uppercase tracking-wider bg-black/70 backdrop-blur-md text-primary border border-primary/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-heading uppercase tracking-wider bg-black/75 backdrop-blur-md text-primary border border-primary/30">
                     {series.statusTag || "Ongoing"}
                   </span>
                 </div>
 
-                {/* Hover Play Pill */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                {/* Release Schedule Badge (Top-Right) */}
+                {series.releaseDay && (
+                  <div className="absolute top-2 right-2 z-10 pointer-events-none">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-body bg-black/60 backdrop-blur-md text-foreground/80 border border-white/10">
+                      {series.releaseDay}
+                    </span>
+                  </div>
+                )}
+
+                {/* Hover Play Pill Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 bg-black/40 backdrop-blur-[1px]">
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground font-heading text-xs shadow-lg transform group-hover:scale-105 transition-transform">
                     <Play size={13} fill="currentColor" />
                     <span>Watch Series</span>
                   </div>
                 </div>
 
-                {/* 🛡️ TRANSPARENT CLICK OVERLAY: Intercepts all clicks on the iframe/thumbnail and triggers SPA route */}
+                {/* 🛡️ TRANSPARENT CLICK OVERLAY: Triggers SPA client-side route without full-page reloads */}
                 <div
                   role="button"
                   tabIndex={0}
@@ -168,4 +160,3 @@ export function SmallDonghuaIframeGrid({
     </section>
   );
 }
-
