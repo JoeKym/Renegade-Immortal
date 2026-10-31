@@ -6,6 +6,11 @@ export function isCompletedSeries(statusTag?: string): boolean {
   return lower.includes("completed") || lower.includes("movie") || lower.includes("special");
 }
 
+export function isHiatusSeries(statusTag?: string): boolean {
+  if (!statusTag) return false;
+  return statusTag.toLowerCase().includes("hiatus");
+}
+
 export function isBetweenSeasons(statusTag?: string): boolean {
   if (!statusTag) return false;
   const normalized = statusTag.toLowerCase();
@@ -23,6 +28,7 @@ export function shouldShowReleaseCountdown(
   aniStatus?: string | null,
 ): boolean {
   if (isCompletedSeries(series.statusTag)) return false;
+  if (isHiatusSeries(series.statusTag)) return false;
   if (isBetweenSeasons(series.statusTag)) return false;
   if (isReleaseScheduleFinished(series.releaseSchedule)) return false;
   if (!series.releaseDay) return false;
@@ -36,6 +42,7 @@ export function shouldShowReleaseCountdown(
 export function getWatchPageStatusLabel(
   series: Pick<DonghuaSeries, "statusTag" | "releaseSchedule">,
 ): string | null {
+  if (isHiatusSeries(series.statusTag)) return "Production Hiatus (Resumes Dec 31)";
   if (series.statusTag?.toLowerCase().includes("movie")) return "Movie";
   if (series.statusTag?.toLowerCase().includes("special")) return "Special Film / Arc";
   if (isBetweenSeasons(series.statusTag)) return "Between Seasons";
@@ -45,6 +52,7 @@ export function getWatchPageStatusLabel(
 }
 
 export function getSeriesReleaseDisplay(statusTag?: string, releaseSchedule?: string): string {
+  if (isHiatusSeries(statusTag)) return releaseSchedule || "Production Hiatus (Resumes Dec 31, 2026)";
   if (statusTag?.toLowerCase().includes("movie")) return "Movie";
   if (statusTag?.toLowerCase().includes("special")) return releaseSchedule || "Special Arc";
   if (isBetweenSeasons(statusTag)) return releaseSchedule || "Between Seasons";

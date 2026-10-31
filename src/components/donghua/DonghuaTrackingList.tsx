@@ -55,6 +55,9 @@ export function DonghuaTrackingList() {
         if (selectedStatus === "Completed" && !series.statusTag?.includes("Completed")) {
           return false;
         }
+        if (selectedStatus === "Hiatus" && !series.statusTag?.includes("Hiatus")) {
+          return false;
+        }
         if (selectedStatus === "Nian Fan" && !series.statusTag?.includes("Nian Fan")) {
           return false;
         }
@@ -77,6 +80,9 @@ export function DonghuaTrackingList() {
 
   const getStatusBadge = (statusTag?: string) => {
     if (!statusTag) return "bg-muted text-muted-foreground border-border";
+    if (statusTag.includes("Hiatus")) {
+      return "bg-amber-500/15 text-amber-300 border-amber-500/40 font-semibold";
+    }
     if (statusTag.includes("Movie") || statusTag.includes("Special")) {
       return "bg-purple-500/10 text-purple-400 border-purple-500/30";
     }

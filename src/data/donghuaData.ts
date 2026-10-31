@@ -19,7 +19,7 @@ export interface DonghuaSeries {
   releaseSchedule?: string;
   releaseDay?: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | "Multiple";
   releaseTime?: string;
-  statusTag?: "Ongoing" | "Completed" | "Ongoing (Nian Fan)" | "Completed Special Series" | "Completed / Ongoing Season 2" | "Movie" | "Special";
+  statusTag?: "Ongoing" | "Completed" | "Ongoing (Nian Fan)" | "Completed Special Series" | "Completed / Ongoing Season 2" | "Movie" | "Special" | "Hiatus";
   anchorEpisode?: number;
   anchorDate?: string;
   streamingLinks?: DonghuaStreamingLinks;
@@ -225,21 +225,21 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     anilistSearch: "Perfect World",
     jikanSearch: "Wanmei Shijie",
     nextEpisodeSlug: "perfect-world",
-    aliases: ["wanmei shijie", "perfect world", "完美 world", "完美世界"],
+    aliases: ["wanmei shijie", "perfect world", "完美世界"],
     thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx120218-J6LXCFOHO9cT.jpg",
     serverSlug: "perfect-world",
-    knownTotalEpisodes: 282,
-    episodesSeason: "1–282+ episodes | Finale Ep 288 (December 2026)",
-    releaseSchedule: "Fridays at 1:00 PM (EAT) / 6:00 PM (CST)",
+    knownTotalEpisodes: 288,
+    episodesSeason: "Episodes 1–288 Released | Studio Hiatus",
+    releaseSchedule: "Production Hiatus (13 Weeks) — Resumes Dec 31, 2026 (Double Drop Ep 289–290)",
     releaseDay: "Friday",
     releaseTime: "1:00 PM (EAT)",
-    statusTag: "Ongoing",
-    anchorEpisode: 282,
+    statusTag: "Hiatus",
+    anchorEpisode: 288,
     anchorDate: "2026-10-16T13:00:00+03:00",
     streamingLinks: {
-      anime4i: "https://anime4i.com/perfect-world-episode-282-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/perfect-world-wanmei-shijie-episode-282-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/perfect-world-wanmei-shijie-episode-282-lucifer-donghua/",
+      anime4i: "https://anime4i.com/perfect-world-episode-288-english-subtitles",
+      luciferDonghuaOrg: "https://luciferdonghua.org/perfect-world-wanmei-shijie-episode-288-english-sub/",
+      luciferDonghuaIn: "https://luciferdonghua.in/perfect-world-wanmei-shijie-episode-288-lucifer-donghua/",
     },
   },
   {
