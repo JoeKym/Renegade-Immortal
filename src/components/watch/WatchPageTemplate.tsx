@@ -1,16 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Share2, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Play, Share2, ChevronLeft, ChevronRight, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import { useDonghuaData } from "@/hooks/useDonghuaData";
 import { VideoPlayer } from "@/components/watch/VideoPlayer";
 import { WatchBanner } from "./WatchBanner";
 import { EpisodeSidebar } from "./EpisodeSidebar";
-import { SeriesGrid } from "./SeriesGrid";
+import { SmallDonghuaIframeGrid } from "./SmallDonghuaIframeGrid";
 import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
 import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
+import { buildCanonicalWatchUrl } from "@/lib/slugParser";
 
 interface WatchPageTemplateProps {
   seriesId: string;
@@ -18,6 +19,7 @@ interface WatchPageTemplateProps {
   onEpisodeSelect: (num: number) => void;
   getCustomEpisodeData?: (ep: any) => any;
   customFilter?: (ep: any, query: string) => boolean;
+  isMainWatchPage?: boolean;
 }
 
 export function WatchPageTemplate({
@@ -25,14 +27,23 @@ export function WatchPageTemplate({
   episodeNumber,
   onEpisodeSelect,
   getCustomEpisodeData,
-  customFilter
+  customFilter,
+  isMainWatchPage = false,
 }: WatchPageTemplateProps) {
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
 
-  // Fetching data from custom hook. Notice we retain 'error' but handle it defensively below.
-  const { series, aniData, loading, error, countdown, releasedCount, allEpisodes: baseEpisodes } = useDonghuaData(seriesId);
+  // Fetching series data
+  const {
+    series,
+    aniData,
+    loading,
+    error,
+    countdown,
+    releasedCount,
+    allEpisodes: baseEpisodes,
+  } = useDonghuaData(seriesId);
 
   useEffect(() => {
     try {
@@ -52,29 +63,54 @@ export function WatchPageTemplate({
     if (!search) return allEpisodes;
     const q = search.toLowerCase();
     if (customFilter) {
-        return allEpisodes.filter(ep => customFilter(ep, q));
+      return allEpisodes.filter((ep) => customFilter(ep, q));
     }
-    return allEpisodes.filter(ep => ep.number.toString().includes(q));
+    return allEpisodes.filter((ep) => ep.number.toString().includes(q));
   }, [search, allEpisodes, customFilter]);
 
   const handleEpisodeSelect = (num: number) => {
-    setWatchHistory(prev => {
+    setWatchHistory((prev) => {
       const next = { ...prev, [num]: true };
-      localStorage.setItem(`${seriesId}_watch_history`, JSON.stringify(next));
+      try {
+        localStorage.setItem(`${seriesId}_watch_history`, JSON.stringify(next));
+      } catch (e) {
+        // Ignore quota errors
+      }
       return next;
     });
     onEpisodeSelect(num);
   };
 
+  const title = series?.title || "Renegade Immortal";
+  const maxEpisodes = Math.max(
+    releasedCount,
+    series?.knownTotalEpisodes || 0,
+    series?.anchorEpisode || 0
+  );
+
+  // Determine active playing episode
+  const activeEpisode = isMainWatchPage
+    ? episodeNumber || Math.min(releasedCount || 163, maxEpisodes || 163)
+    : episodeNumber;
+
+  const canonicalUrl = buildCanonicalWatchUrl(
+    seriesId,
+    episodeNumber || (isMainWatchPage ? null : null)
+  );
+
   const handleShare = () => {
+    const currentEpisode = activeEpisode || 1;
+    const shareTitle = `${title} Episode ${currentEpisode} - Watch Online`;
+    const shareText = `Watch ${title} Episode ${currentEpisode} on Renegade Immortal with English subtitles!`;
+
     if (navigator.share) {
       navigator.share({
-        title: `${series?.title} - Episode ${episodeNumber}`,
-        text: `Watch ${series?.title} Episode ${episodeNumber} on Renegade Immortal`,
-        url: window.location.href,
-      });
+        title: shareTitle,
+        text: shareText,
+        url: canonicalUrl,
+      }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(canonicalUrl);
       alert("Link copied to clipboard!");
     }
   };
@@ -89,21 +125,22 @@ export function WatchPageTemplate({
     );
   }
 
-  // 🛡️ RESTRUCTURING CRITICAL FIX: 
-  // We no longer trigger a 404 if 'error' is true. We only 404 if local series configuration metadata doesn't exist!
+  // Defensively 404 only if series does not exist, or requested episode exceeds valid range
   if (!series) return <NotFound />;
-  if (episodeNumber && (episodeNumber > releasedCount || episodeNumber < 1)) return <NotFound />;
+  if (episodeNumber && (episodeNumber > maxEpisodes || episodeNumber < 1)) {
+    return <NotFound />;
+  }
 
-     // 🛡️ Safe Variable Extractions (Place right before your return statement)
-  const title = series?.title || "Renegade Immortal";
-  const pageTitle = episodeNumber 
+  const pageTitle = episodeNumber
     ? `${title} Episode ${episodeNumber} - Watch Online`
-    : `${title} - All Episodes`;
-  
+    : isMainWatchPage
+    ? `${title} - Watch Online Donghua Episodes & Series`
+    : `${title} - All Episodes & Streaming Information`;
+
   const rawDescription = aniData?.description || "";
-  const pageDesc = rawDescription 
-    ? rawDescription.replace(/<[^>]*>/g, "").slice(0, 160) 
-    : `Watch ${title} online.`;
+  const pageDesc = rawDescription
+    ? rawDescription.replace(/<[^>]*>/g, "").slice(0, 160)
+    : `Watch ${title}${episodeNumber ? ` Episode ${episodeNumber}` : ""} online with English subtitles on Renegade Immortal.`;
 
   const fallbackCover = aniData?.coverImage?.extraLarge || series?.thumbnail || "";
   const pageImage = proxyImageUrl(fallbackCover);
@@ -116,101 +153,155 @@ export function WatchPageTemplate({
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDesc} />
         <meta property="og:image" content={pageImage} />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:type" content="video.other" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta
+          property="og:type"
+          content={episodeNumber ? "video.episode" : "video.other"}
+        />
+        <meta property="og:site_name" content="Renegade Immortal" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
         <meta name="twitter:image" content={pageImage} />
-        <link rel="canonical" href={window.location.href} />
+        <link rel="canonical" href={canonicalUrl} />
       </Helmet>
 
-      <WatchBanner 
-        aniData={aniData} 
-        series={series} 
-        releasedCount={releasedCount} 
-        countdown={countdown} 
-        title={title} 
+      <WatchBanner
+        aniData={aniData}
+        series={series}
+        releasedCount={releasedCount}
+        countdown={countdown}
+        title={title}
       />
 
       <div className="container mx-auto px-4 max-w-7xl py-6">
-        {/* 🛡️ OPTIONAL ENHANCEMENT: Non-intrusive warning notice alerting users without breaking navigation */}
         {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -4 }} 
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 p-4 mb-6 rounded-lg bg-amber-950/40 border border-amber-800/40 text-amber-200 text-sm font-body"
           >
             <AlertCircle size={18} className="text-amber-400 shrink-0" />
-            <span>The external index system (AniList) is currently offline. Stream links and localized arc titles remain fully available.</span>
+            <span>
+              External anime directory synchronization is temporarily busy.
+              Local media routes, schedules, and stream links remain fully operational.
+            </span>
           </motion.div>
         )}
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* LEFT: Player or Info */}
+          {/* LEFT: Video Player or Series Overview */}
           <div className="flex-1 min-w-0">
-            {episodeNumber ? (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            {activeEpisode ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-[10px] text-muted-foreground font-body tracking-wider uppercase">Now Playing</p>
-                    <h2 className="text-sm font-heading text-foreground tracking-wide">Episode {episodeNumber}</h2>
+                    <p className="text-[10px] text-primary font-body tracking-wider uppercase font-semibold">
+                      {isMainWatchPage ? "Featured Main Player" : "Now Playing"}
+                    </p>
+                    <h2 className="text-sm font-heading text-foreground tracking-wide">
+                      {title} • Episode {activeEpisode}
+                    </h2>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={handleShare} className="p-2 rounded bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Share">
+                    <button
+                      onClick={handleShare}
+                      className="p-2 rounded bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Share Episode"
+                    >
                       <Share2 size={16} />
                     </button>
-                    <button onClick={() => handleEpisodeSelect(episodeNumber - 1)} disabled={episodeNumber <= 1} className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors">
-                      <ChevronLeft size={14} /> Prev
-                    </button>
-                    <button onClick={() => handleEpisodeSelect(episodeNumber + 1)} disabled={episodeNumber >= releasedCount} className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors">
-                      Next <ChevronRight size={14} />
-                    </button>
+                    {isMainWatchPage ? (
+                      <button
+                        onClick={() => handleEpisodeSelect(activeEpisode)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground text-xs font-heading transition-colors"
+                      >
+                        <ExternalLink size={13} /> Dedicated Page
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEpisodeSelect(activeEpisode - 1)}
+                          disabled={activeEpisode <= 1}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors"
+                        >
+                          <ChevronLeft size={14} /> Prev
+                        </button>
+                        <button
+                          onClick={() => handleEpisodeSelect(activeEpisode + 1)}
+                          disabled={activeEpisode >= maxEpisodes}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-xs font-body transition-colors"
+                        >
+                          Next <ChevronRight size={14} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                <VideoPlayer 
-                  episode={episodeNumber} 
+                <VideoPlayer
+                  episode={activeEpisode}
                   donghuaSlug={series.serverSlug || series.id}
                   serverSlugs={getVideoServerSlugs(series)}
                   seriesTitle={series.title}
-                  onEnded={() => handleEpisodeSelect(episodeNumber + 1)} 
+                  onEnded={() => {
+                    if (activeEpisode < maxEpisodes) {
+                      handleEpisodeSelect(activeEpisode + 1);
+                    }
+                  }}
                 />
 
                 <div className="mt-4 p-4 gradient-card border border-border rounded-lg">
-                  <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">About</h3>
+                  <h3 className="text-xs font-heading text-muted-foreground tracking-wider uppercase mb-2">
+                    About {title}
+                  </h3>
                   <p className="text-sm font-body text-muted-foreground leading-relaxed line-clamp-6">
-                    {rawDescription ? rawDescription.replace(/<[^>]*>/g, "") : "No external metadata summary available. Stream video assets normally using the episode selectors."}
+                    {rawDescription
+                      ? rawDescription.replace(/<[^>]*>/g, "")
+                      : "Experience the thrilling cultivation journey with multi-server streaming and automated weekly release tracking."}
                   </p>
                 </div>
               </motion.div>
             ) : (
               <div className="gradient-card border border-border rounded-xl p-8 text-center">
-                <Play size={48} className="text-primary mx-auto mb-4 opacity-20" />
+                <Play
+                  size={48}
+                  className="text-primary mx-auto mb-4 opacity-20"
+                />
                 <h2 className="text-xl font-heading mb-2">Select an Episode</h2>
-                <p className="text-muted-foreground mb-6">Choose from the {releasedCount} available episodes to start watching.</p>
-                <button onClick={() => handleEpisodeSelect(1)} className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-heading">
+                <p className="text-muted-foreground mb-6">
+                  Choose from the {releasedCount} available episodes to start
+                  watching {title}.
+                </p>
+                <button
+                  onClick={() => handleEpisodeSelect(1)}
+                  className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-heading hover:bg-primary/90 transition-colors"
+                >
                   Start from Episode 1
                 </button>
               </div>
             )}
 
-            <SeriesGrid currentSeriesId={seriesId} />
+            {/* Small Embedded i-Frames for Featured Donghua Series */}
+            <SmallDonghuaIframeGrid currentSeriesId={seriesId} />
           </div>
 
-          {/* RIGHT: Sidebar */}
+          {/* RIGHT: Episode Navigation Sidebar */}
           <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
-            <EpisodeSidebar 
-                releasedCount={releasedCount}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                search={search}
-                setSearch={setSearch}
-                filteredEpisodes={filtered}
-                selectedEpisode={episodeNumber || null}
-                handleEpisodeSelect={handleEpisodeSelect}
-                watchHistory={watchHistory}
-                seriesThumbnail={series.thumbnail}
+            <EpisodeSidebar
+              releasedCount={releasedCount}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              search={search}
+              setSearch={setSearch}
+              filteredEpisodes={filtered}
+              selectedEpisode={activeEpisode || null}
+              handleEpisodeSelect={handleEpisodeSelect}
+              watchHistory={watchHistory}
+              seriesThumbnail={series.thumbnail}
             />
           </div>
         </div>

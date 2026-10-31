@@ -1,9 +1,14 @@
-import { useState, useMemo, useCallback, Component, ErrorInfo, ReactNode } from "react";
+import { useCallback, Component, ErrorInfo, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { WatchPageTemplate } from "@/components/watch/WatchPageTemplate";
+import { buildWatchUrl } from "@/lib/slugParser";
 
-// 🌟 ROBUST SAFETY EXTRA: Local Error Boundary to catch any nested component or network failures
-interface Props { children: ReactNode; }
-interface State { hasError: boolean; }
+interface Props {
+  children: ReactNode;
+}
+interface State {
+  hasError: boolean;
+}
 
 class WatchComponentErrorBoundary extends Component<Props, State> {
   public state: State = { hasError: false };
@@ -53,16 +58,20 @@ function getArcForEpisode(ep: number): string {
 }
 
 export default function WatchPage() {
-  const [selectedEpisode, setSelectedEpisode] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-  const handleEpisodeSelect = useCallback((num: number) => {
-    setSelectedEpisode(num);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  // Restructured flow: selecting an episode navigates seamlessly to its dedicated playback page
+  const handleEpisodeSelect = useCallback(
+    (num: number) => {
+      navigate(buildWatchUrl("renegade-immortal", num));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [navigate]
+  );
 
   const getCustomEpisodeData = useCallback((ep: any) => ({
     ...ep,
-    arc: getArcForEpisode(ep.number)
+    arc: getArcForEpisode(ep.number),
   }), []);
 
   const customFilter = useCallback((ep: any, query: string) => {
@@ -70,11 +79,10 @@ export default function WatchPage() {
   }, []);
 
   return (
-    // 🛡️ Safe-guard wrappers keep the global app router completely unaware of template failures
     <WatchComponentErrorBoundary>
       <WatchPageTemplate
         seriesId="renegade-immortal"
-        episodeNumber={selectedEpisode}
+        isMainWatchPage={true}
         onEpisodeSelect={handleEpisodeSelect}
         getCustomEpisodeData={getCustomEpisodeData}
         customFilter={customFilter}
