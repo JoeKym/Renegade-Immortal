@@ -452,7 +452,7 @@ const rawCharacters: Character[] = [
   {
     name: "Demon Emperor Gu Yundun",
     race: "Ancient Demon",
-    alignment: "Antagonist",
+    alignment: "Ally",
     subtitle: "Sovereign Ruler of Sky Demon Country",
     description: "The supreme ruler and ultimate authority of Sky Demon Country in the Demon Spirit Land. A warrior emperor who personally leads vast armies of demon generals into battle, wielding the Emperor's Sword and embodying ancient demonic strength.",
     tags: ["Demon Emperor", "Sky Demon Country", "Ancient Demon", "Demon Spirit Land"],

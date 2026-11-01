@@ -1,17 +1,16 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { Search, ChevronDown, Heart, ScrollText, X, RotateCcw } from "lucide-react";
+import { Search, ChevronDown, Heart, ScrollText, X, RotateCcw, UserRound, Sparkles, BookOpen, UsersRound } from "lucide-react";
 import { CharacterRelationships } from "@/components/CharacterRelationships";
 import { CharacterComments } from "@/components/CharacterComments";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLoreContent } from "@/contexts/LoreContentContext";
-import { getDistinctLoreArcs, getLoreStoryArcs, isCharacterPayload, mergeLoreContent } from "@/lib/loreContent";
+import { getDistinctLoreArcs, getLoreStoryArcs, isCharacterPayload, loreContentId, mergeLoreContent } from "@/lib/loreContent";
 import {
   characters,
   alignments,
@@ -469,6 +468,15 @@ function CharacterCard({
 }) {
   const borderColor = alignmentBorderColors[char.alignment] ?? "border-border";
   const bgColor = alignmentColors[char.alignment] ?? "bg-muted";
+  const [activeProfileSection, setActiveProfileSection] = useState("overview");
+  const profileId = loreContentId(char.name);
+  const storyArcs = getLoreStoryArcs(char);
+  const profileSections = [
+    { id: "overview", label: "Overview", icon: UserRound },
+    { id: "relationships", label: "Relationships", icon: UsersRound },
+    { id: "abilities", label: "Abilities & Treasures", icon: Sparkles },
+    { id: "story", label: "Story", icon: BookOpen },
+  ];
 
   return (
     <motion.div
@@ -476,303 +484,289 @@ function CharacterCard({
       whileInView={{ y: 0, opacity: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.03 }}
-      className={`gradient-card border rounded-lg overflow-hidden hover:border-primary/30 transition-all duration-300 ${borderColor} flex flex-col`}
+      className={`gradient-card border rounded-lg overflow-hidden hover:border-primary/30 transition-all duration-300 ${borderColor} flex flex-col ${
+        isExpanded ? "sm:col-span-2 lg:col-span-3" : ""
+      }`}
     >
-      {/* Portrait */}
-      <button onClick={onToggle} className="w-full text-left">
-        <div className="relative w-full aspect-[3/4] overflow-hidden bg-muted">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isExpanded}
+          aria-label={`${isExpanded ? "Close" : "View"} ${char.name} profile`}
+          className="group relative block w-full text-left"
+        >
+        <div className="relative w-full aspect-[16/10] overflow-hidden bg-muted sm:aspect-[2/1] lg:aspect-[2.4/1]">
           {char.image ? (
             <img
               src={char.image}
               alt={char.name}
-              className="w-full h-full object-cover object-top"
+              loading="lazy"
+              className="h-full w-full object-cover object-[center_30%] transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${bgColor}`}>
-              <span className="font-heading text-4xl text-primary-foreground tracking-wider opacity-60">
+            <div className={`flex h-full w-full flex-col items-center justify-center gap-2 ${bgColor}`}>
+              <span className="font-heading text-4xl tracking-wider text-primary-foreground opacity-60">
                 {getInitials(char.name)}
               </span>
-              <span className="text-xs text-primary-foreground/50 font-body italic">
-                No image preview available
-              </span>
+              <span className="font-body text-xs italic text-primary-foreground/50">No image available</span>
             </div>
           )}
-          {/* Gradient overlay at bottom */}
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/95 to-transparent" />
-          {/* Name overlay */}
-          <div className="absolute bottom-0 inset-x-0 p-4">
-            <h3 className="font-heading text-xl text-primary tracking-wider drop-shadow-lg">
+          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+            <div className="mb-1 flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-primary/30 bg-background/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                {char.alignment}
+              </span>
+              {char.status && (
+                <span className="rounded-full border border-border bg-background/70 px-2 py-0.5 text-[10px] text-foreground/80">
+                  {char.status}
+                </span>
+              )}
+            </div>
+            <h3 className="font-heading text-xl tracking-wider text-primary drop-shadow-lg sm:text-2xl">
               {char.name}
             </h3>
-            <p className="text-xs text-foreground/70 font-body">{char.subtitle}</p>
-          </div>
-          {/* Favorite + Expand icons */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5">
-            <button
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-              className="bg-background/60 backdrop-blur-sm rounded-full p-1 transition-colors hover:bg-background/80"
-              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Heart
-                size={16}
-                className={isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}
-              />
-            </button>
-            <ChevronDown
-              className={`text-primary/80 bg-background/60 rounded-full p-0.5 backdrop-blur-sm transition-transform ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-              size={20}
-            />
+            <p className="line-clamp-1 font-body text-xs text-foreground/75">{char.subtitle}</p>
           </div>
         </div>
+        </button>
 
-        {/* Quick Stats */}
-        <div className="p-4 space-y-1.5">
-          {char.cultivationRealm && (
-            <QuickStat label="Realm" value={char.cultivationRealm} />
-          )}
-          {char.sect && (
-            <QuickStat label="Affiliation" value={char.sect} />
-          )}
-          {char.master && (
-            <QuickStat label="Master" value={char.master} />
-          )}
-          {char.enemies && char.enemies.length > 0 && (
-            <QuickStat label="Enemies" value={char.enemies.slice(0, 2).join(", ")} />
-          )}
-          {char.dao && char.dao.length > 0 && (
-            <QuickStat label="Dao" value={char.dao.slice(0, 3).join(", ")} />
-          )}
-          {char.majorBattles && char.majorBattles.length > 0 && (
-            <QuickStat label="Key Arcs" value={char.majorBattles[0]} />
-          )}
+        <button
+          type="button"
+          onClick={onToggleFavorite}
+          aria-pressed={isFavorite}
+          aria-label={isFavorite ? `Remove ${char.name} from favorites` : `Add ${char.name} to favorites`}
+          title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          className="absolute right-3 top-3 rounded-full border border-border/70 bg-background/80 p-2 text-muted-foreground shadow-sm backdrop-blur transition-colors hover:text-red-500"
+        >
+          <Heart size={17} className={isFavorite ? "fill-red-500 text-red-500" : ""} />
+        </button>
+      </div>
 
-          <div className="flex flex-wrap gap-1 pt-2">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="grid gap-2 sm:grid-cols-2">
+          {char.cultivationRealm && <QuickStat label="Cultivation" value={char.cultivationRealm} />}
+          {char.sect && <QuickStat label="Affiliation" value={char.sect} />}
+          <QuickStat label="Race" value={char.race} />
+          {char.master && <QuickStat label="Master" value={char.master} />}
+        </div>
+        {char.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {char.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] font-body px-1.5 py-0.5 rounded border border-primary/20 text-primary/80"
-              >
-                {tag}
-              </span>
+              <span key={tag} className="rounded border border-primary/20 px-2 py-0.5 font-body text-[10px] text-primary/80">{tag}</span>
             ))}
-            {char.tags.length > 3 && (
-              <span className="text-[10px] font-body text-muted-foreground">
-                +{char.tags.length - 3}
-              </span>
-            )}
+            {char.tags.length > 3 && <span className="px-1 py-0.5 font-body text-[10px] text-muted-foreground">+{char.tags.length - 3} more</span>}
           </div>
-        </div>
-      </button>
+        )}
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isExpanded}
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md border border-primary/25 bg-primary/5 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+        >
+          {isExpanded ? "Close profile" : "View full profile"}
+          <ChevronDown size={16} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+        </button>
+      </div>
 
-      {/* Expanded Details */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
+            className="overflow-hidden border-t border-border"
           >
-            <div className="px-4 pb-4 space-y-3 border-t border-border pt-4">
-              <p className="text-sm text-foreground/80 font-body leading-relaxed">
-                {char.description}
-              </p>
-              {char.alias && <ProfileField label="Alias" value={char.alias} />}
-              {char.nicknames && char.nicknames.length > 0 && (
-                <ProfileField label="Nicknames" value={char.nicknames.join(" • ")} />
-              )}
-              {char.titles && char.titles.length > 0 && (
-                <ProfileField label="Titles" value={char.titles.join(" • ")} />
-              )}
-              {char.sectsLed && char.sectsLed.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Sects Led</span>
-                  <ul className="mt-1 space-y-1">
-                    {char.sectsLed.map((s) => (
-                      <li key={s} className="text-xs text-foreground/70 font-body flex items-start gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary mt-1.5 shrink-0" />
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {char.planetaryAuthority && char.planetaryAuthority.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Planetary Authority</span>
-                  <ul className="mt-1 space-y-1">
-                    {char.planetaryAuthority.map((p) => (
-                      <li key={p} className="text-xs text-foreground/70 font-body flex items-start gap-2">
-                        <span className="w-1 h-1 rounded-full bg-jade mt-1.5 shrink-0" />
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {char.nationalRoles && char.nationalRoles.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">National & Regional Roles</span>
-                  <ul className="mt-1 space-y-1">
-                    {char.nationalRoles.map((n) => (
-                      <li key={n} className="text-xs text-foreground/70 font-body flex items-start gap-2">
-                        <span className="w-1 h-1 rounded-full bg-crimson mt-1.5 shrink-0" />
-                        <span>{n}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {char.bloodline && (
-                <ProfileField label="Bloodline" value={char.bloodline} />
-              )}
-              {char.status && (
-                <ProfileField label="Status" value={char.status} />
-              )}
-              {char.firstAppearance && (
-                <ProfileField label="First Appearance" value={char.firstAppearance} />
-              )}
-              <div>
-                <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Story Arcs</span>
-                <div className="mt-1 flex flex-wrap gap-1.5">
-                  {getLoreStoryArcs(char).length > 0 ? getLoreStoryArcs(char).map((arc) => (
-                    <Link
-                      key={arc}
-                      to={`/arcs?q=${encodeURIComponent(arc)}`}
-                      className="rounded border border-primary/20 px-2 py-0.5 text-xs text-primary/80 transition-colors hover:bg-primary/10"
-                    >
-                      {arc}
-                    </Link>
-                  )) : (
-                    <span className="text-xs text-muted-foreground">Not assigned yet</span>
-                  )}
-                </div>
+            <div className="p-4 sm:p-6">
+              <div role="group" aria-label={`${char.name} profile sections`} className="mb-5 flex gap-1 overflow-x-auto border-b border-border">
+                {profileSections.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    id={`${profileId}-tab-${id}`}
+                    aria-pressed={activeProfileSection === id}
+                    onClick={() => setActiveProfileSection(id)}
+                    className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-xs font-medium transition-colors sm:text-sm ${
+                      activeProfileSection === id
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon size={15} />{label}
+                  </button>
+                ))}
               </div>
-              {char.dao && char.dao.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                    Daos
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {char.dao.map((d) => (
-                      <Link
-                        key={d}
-                        to="/daos"
-                        className="text-xs font-body px-2 py-0.5 rounded border border-primary/20 text-primary/80 hover:bg-primary/10 transition-colors"
-                      >
-                        {d}
-                      </Link>
-                    ))}
+
+              {activeProfileSection === "overview" && (
+                <section aria-labelledby={`${profileId}-tab-overview`} className="space-y-5">
+                  <p className="max-w-4xl text-sm leading-relaxed text-foreground/80">{char.description || "No overview has been added yet."}</p>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {char.alias && <ProfileField label="Aliases" value={char.alias} />}
+                    {char.nicknames?.length ? <ProfileField label="Nicknames" value={char.nicknames.join(" • ")} /> : null}
+                    {char.titles?.length ? <ProfileField label="Titles" value={char.titles.join(" • ")} /> : null}
+                    {char.cultivationRealm && <ProfileField label="Cultivation realm" value={char.cultivationRealm} />}
+                    {char.status && <ProfileField label="Status" value={char.status} />}
+                    {char.bloodline && <ProfileField label="Bloodline" value={char.bloodline} />}
+                    {char.sect && <ProfileField label="Affiliation" value={char.sect} />}
+                    {char.firstAppearance && <ProfileField label="First appearance" value={char.firstAppearance} />}
                   </div>
-                </div>
-              )}
-              {char.techniques && char.techniques.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                    Techniques
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {char.techniques.map((t) => (
-                      <Link
-                        key={t}
-                        to={`/artifacts?q=${encodeURIComponent(t)}`}
-                        className="text-xs font-body px-2 py-0.5 rounded border border-[hsl(var(--jade))]/30 text-[hsl(var(--jade))] hover:bg-[hsl(var(--jade))]/10 transition-colors"
-                      >
-                        {t}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {char.artifacts && char.artifacts.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                    Artifacts
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {char.artifacts.map((a) => (
-                      <Link
-                        key={a}
-                        to={`/artifacts?q=${encodeURIComponent(a)}`}
-                        className="text-xs font-body px-2 py-0.5 rounded border border-[hsl(var(--crimson))]/30 text-[hsl(var(--crimson))] hover:bg-[hsl(var(--crimson))]/10 transition-colors"
-                      >
-                        {a}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {char.enemies && char.enemies.length > 0 && (
-                <ProfileField label="Enemies" value={char.enemies.join(", ")} />
-              )}
-              {char.disciples && char.disciples.length > 0 && (
-                <ProfileField label="Disciples" value={char.disciples.join(", ")} />
-              )}
-              {char.disciplesDetails && char.disciplesDetails.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Disciples Detailed</span>
-                  <div className="mt-2 space-y-3">
-                    {char.disciplesDetails.map((d, i) => (
-                      <div key={i} className="p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-heading text-primary">{d.name}</span>
-                          <span className="text-[10px] font-body text-muted-foreground">{d.status}</span>
-                        </div>
-                        <p className="text-xs text-primary/80 font-body mb-1">{d.relationship}</p>
-                        <p className="text-xs text-foreground/70 font-body">{d.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {char.majorBattles && char.majorBattles.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                    Major Battles
-                  </span>
-                  <ul className="mt-1 space-y-1">
-                    {char.majorBattles.map((b) => (
-                      <li
-                        key={b}
-                        className="text-xs text-foreground/70 font-body flex items-center gap-2"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-[hsl(var(--crimson))]" />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {char.quotes && char.quotes.length > 0 && (
-                <div>
-                  <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                    Notable Quotes
-                  </span>
-                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-2">
-                    {char.quotes.slice(0, 5).map((q, i) => (
-                      <p key={i} className="text-xs text-foreground/60 font-body italic border-l-2 border-primary/30 pl-2">
-                        "{q}"
-                      </p>
-                    ))}
-                    {char.quotes.length > 5 && (
-                      <p className="text-xs text-muted-foreground font-body">+ {char.quotes.length - 5} more quotes...</p>
-                    )}
-                  </div>
-                </div>
+                </section>
               )}
 
-              {/* Comments */}
-              <CharacterComments
-                characterId={char.name.toLowerCase().replace(/\s+/g, "-")}
-                characterName={char.name}
-              />
+              {activeProfileSection === "relationships" && (
+                <section aria-labelledby={`${profileId}-tab-relationships`} className="space-y-5">
+                  {char.master && <RelatedNames label="Masters" value={char.master.split(",").map((name) => name.trim()).filter(Boolean)} />}
+                  {char.disciples?.length ? <RelatedNames label="Disciples" value={char.disciples} /> : null}
+                  {char.enemies?.length ? <RelatedNames label="Rivals & enemies" value={char.enemies} /> : null}
+                  {char.disciplesDetails?.length ? (
+                    <div>
+                      <ProfileSectionHeading>Detailed relationships</ProfileSectionHeading>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {char.disciplesDetails.map((disciple, detailIndex) => (
+                          <article key={`${disciple.name}-${detailIndex}`} className="rounded-lg border border-border bg-muted/30 p-4">
+                            <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                              <Link to={`/characters?q=${encodeURIComponent(disciple.name)}`} className="font-heading text-primary hover:underline">{disciple.name}</Link>
+                              <span className="text-xs text-muted-foreground">{disciple.status}</span>
+                            </div>
+                            <p className="mb-1 text-xs text-primary/80">{disciple.relationship}</p>
+                            <p className="text-sm leading-relaxed text-foreground/70">{disciple.description}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {!char.master && !char.disciples?.length && !char.enemies?.length && !char.disciplesDetails?.length && (
+                    <p className="text-sm text-muted-foreground">No relationship details have been added yet.</p>
+                  )}
+                </section>
+              )}
+
+              {activeProfileSection === "abilities" && (
+                <section aria-labelledby={`${profileId}-tab-abilities`} className="grid gap-6 md:grid-cols-2">
+                  <LinkedLoreItems label="Daos" items={char.dao ?? []} href="/daos" tone="primary" />
+                  <LinkedLoreItems label="Techniques" items={char.techniques ?? []} href="/artifacts" query="q" tone="jade" />
+                  <LinkedLoreItems label="Artifacts & treasures" items={char.artifacts ?? []} href="/artifacts" query="q" tone="crimson" />
+                  {char.bloodline && <ProfileField label="Bloodline" value={char.bloodline} />}
+                  {!char.dao?.length && !char.techniques?.length && !char.artifacts?.length && !char.bloodline && (
+                    <p className="text-sm text-muted-foreground">No abilities or treasures have been added yet.</p>
+                  )}
+                </section>
+              )}
+
+              {activeProfileSection === "story" && (
+                <section aria-labelledby={`${profileId}-tab-story`} className="space-y-5">
+                  <div>
+                    <ProfileSectionHeading>Story arcs</ProfileSectionHeading>
+                    {storyArcs.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {storyArcs.map((arc) => (
+                          <Link key={arc} to={`/arcs?q=${encodeURIComponent(arc)}`} className="rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/10">{arc}</Link>
+                        ))}
+                      </div>
+                    ) : <p className="text-sm text-muted-foreground">No story arcs have been assigned yet.</p>}
+                  </div>
+                  {char.sectsLed?.length ? <CharacterTextList label="Sects led" items={char.sectsLed} /> : null}
+                  {char.planetaryAuthority?.length ? <CharacterTextList label="Planetary authority" items={char.planetaryAuthority} /> : null}
+                  {char.nationalRoles?.length ? <CharacterTextList label="National & regional roles" items={char.nationalRoles} /> : null}
+                  {char.majorBattles?.length ? <CharacterTextList label="Major battles" items={char.majorBattles} /> : null}
+                  {char.quotes?.length ? (
+                    <div>
+                      <ProfileSectionHeading>Notable quotes</ProfileSectionHeading>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {char.quotes.map((quote, quoteIndex) => (
+                          <blockquote key={`${quoteIndex}-${quote}`} className="rounded-r border-l-2 border-primary/40 bg-muted/30 px-4 py-3 text-sm italic leading-relaxed text-foreground/70">
+                            “{quote}”
+                          </blockquote>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </section>
+              )}
+
+              <div className="mt-6 border-t border-border pt-5">
+                <CharacterComments
+                  characterId={char.name.toLowerCase().replace(/\s+/g, "-")}
+                  characterName={char.name}
+                />
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+function ProfileSectionHeading({ children }: { children: ReactNode }) {
+  return <h4 className="mb-2 text-xs font-heading uppercase tracking-wider text-muted-foreground">{children}</h4>;
+}
+
+function CharacterTextList({ label, items }: { label: string; items: string[] }) {
+  return (
+    <div>
+      <ProfileSectionHeading>{label}</ProfileSectionHeading>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {items.map((item) => (
+          <li key={item} className="flex items-start gap-2 rounded-md bg-muted/30 px-3 py-2 text-sm text-foreground/75">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />{item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RelatedNames({ label, value }: { label: string; value: string[] }) {
+  return (
+    <div>
+      <ProfileSectionHeading>{label}</ProfileSectionHeading>
+      <div className="flex flex-wrap gap-2">
+        {value.map((name) => (
+          <Link key={name} to={`/characters?q=${encodeURIComponent(name)}`} className="rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-foreground/80 transition-colors hover:border-primary/40 hover:text-primary">
+            {name}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LinkedLoreItems({
+  label,
+  items,
+  href,
+  query,
+  tone,
+}: {
+  label: string;
+  items: string[];
+  href: string;
+  query?: string;
+  tone: "primary" | "jade" | "crimson";
+}) {
+  if (items.length === 0) return null;
+  const toneClass = tone === "jade"
+    ? "border-jade/30 text-jade hover:bg-jade/10"
+    : tone === "crimson"
+      ? "border-crimson/30 text-crimson hover:bg-crimson/10"
+      : "border-primary/25 text-primary hover:bg-primary/10";
+  return (
+    <div>
+      <ProfileSectionHeading>{label}</ProfileSectionHeading>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <Link
+            key={item}
+            to={query ? `${href}?${query}=${encodeURIComponent(item)}` : href}
+            className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${toneClass}`}
+          >
+            {item}
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
