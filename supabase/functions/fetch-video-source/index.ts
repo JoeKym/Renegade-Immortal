@@ -139,6 +139,9 @@ const buildLuciferDonghuaCandidates = (episode: number, slug: string, platformSl
 
   for (const ep of episodeValues) {
     patterns.push(
+      `${base}-part-${ep}`,
+      `${base}-part-${ep}-english-subtitle`,
+      `${base}-part-${ep}-english-subtitles`,
       `${base}-episode-${ep}-english-sub`,
       `${base}-episode-${ep}-english-subtitles`,
       `${base}-episode-${ep}-english-subtitle`,
@@ -146,8 +149,27 @@ const buildLuciferDonghuaCandidates = (episode: number, slug: string, platformSl
       `${base}-episod-${ep}-english-sub`,
       `${base}-episode-${ep}`,
     );
+    if (/-(?:19|20)\d{2}$/.test(base)) {
+      const baseWithoutYear = base.replace(/-(?:19|20)\d{2}$/, '');
+      patterns.push(
+        `${baseWithoutYear}-part-${ep}-${base.match(/(?:19|20)\d{2}$/)?.[0]}`,
+        `${baseWithoutYear}-part-${ep}-${base.match(/(?:19|20)\d{2}$/)?.[0]}-english-subtitle`,
+      );
+    }
   }
 
+  if (episode === 1 && /(?:movie|special|yang-ascendant)/i.test(base)) {
+    patterns.push(
+      base,
+      `${base}-english-sub`,
+      `${base}-english-subtitle`,
+      `${base}-english-subtitles`,
+    );
+  }
+
+  if (episode === 1 && /-(?:19|20)\d{2}$/.test(base)) {
+    patterns.unshift(base);
+  }
   return [...new Set(patterns.map((path) => `https://luciferdonghua.org/${path}/`))];
 };
 
@@ -162,6 +184,17 @@ const buildLuciferDonghuaInCandidates = (episode: number, slug: string, platform
       `https://luciferdonghua.in/${base}-episode-${ep}-english-sub/`,
       `https://luciferdonghua.in/${base}-episode-${ep}-english-subtitles/`,
       `https://luciferdonghua.in/${base}-episode-${ep}/`,
+      `https://luciferdonghua.in/${base}-ep-${ep}/`,
+      `https://luciferdonghua.in/${base}-ep-${ep}-lucifer-donghua/`,
+      `https://luciferdonghua.in/${base}-pt-${ep}-lucifer-donghua/`,
+      `https://luciferdonghua.in/${base}-part-${ep}-lucifer-donghua/`,
+    );
+  }
+
+  if (episode === 1 && /(?:movie|special|yang-ascendant)/i.test(base)) {
+    patterns.push(
+      `https://luciferdonghua.in/${base}/`,
+      `https://luciferdonghua.in/${base}-lucifer-donghua/`,
     );
   }
 
@@ -322,11 +355,17 @@ Deno.serve(async (req) => {
               if (searchRes.ok) {
                 const searchHtml = await searchRes.text();
                 const linkMatches = [...searchHtml.matchAll(/href=["'](https?:\/\/[^"']+)["']/gi)];
+                const normalizedPlatformSlug = normalizeServerSlug(platformSlug);
+                const episodePattern = new RegExp(
+                  `(?:episode|episod|ep|part|pt)-0*${episode}(?:-|/|$)`,
+                  'i',
+                );
                 const candidateLink = linkMatches.map(m => m[1]).find(url => {
                   const u = url.toLowerCase();
                   return (
                     u.includes(searchBaseUrl.replace('https://', '')) &&
-                    (u.includes(`episode-${episode}`) || u.includes(`episod-${episode}`) || u.includes(`episode-${String(episode).padStart(2, '0')}`))
+                    u.includes(normalizedPlatformSlug) &&
+                    episodePattern.test(u)
                   );
                 });
 
@@ -381,11 +420,15 @@ Deno.serve(async (req) => {
         success: false,
         error: 'Could not extract embed from any server',
         results,
-        fallbackUrls: servers.map((s) => ({
-          name: s.name,
-          label: s.label,
-          url: s.getPageUrl(episode, resolvePlatformSlug(s.name, slug, serverSlugs)),
-        })),
+        fallbackUrls: servers.map((s) => {
+          const platformSlug = resolvePlatformSlug(s.name, slug, serverSlugs);
+          const candidates = s.name === 'anime4i'
+            ? buildAnime4iCandidates(episode, slug, platformSlug)
+            : s.name === 'luciferdonghua'
+              ? buildLuciferDonghuaCandidates(episode, slug, platformSlug)
+              : buildLuciferDonghuaInCandidates(episode, slug, platformSlug);
+          return { name: s.name, label: s.label, url: candidates[0] || s.getPageUrl(episode, platformSlug) };
+        }),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -37,6 +37,9 @@ interface CatalogForm {
   anime4i: string;
   luciferDonghuaOrg: string;
   luciferDonghuaIn: string;
+  anime4iEpisodeCount: string;
+  luciferDonghuaOrgEpisodeCount: string;
+  luciferDonghuaInEpisodeCount: string;
 }
 
 function toLocalDateTime(value?: string): string {
@@ -63,6 +66,9 @@ function createForm(series?: DonghuaSeries): CatalogForm {
     anime4i: series?.streamingLinks?.anime4i || "",
     luciferDonghuaOrg: series?.streamingLinks?.luciferDonghuaOrg || "",
     luciferDonghuaIn: series?.streamingLinks?.luciferDonghuaIn || "",
+    anime4iEpisodeCount: String(series?.streamingEpisodeCounts?.anime4i ?? ""),
+    luciferDonghuaOrgEpisodeCount: String(series?.streamingEpisodeCounts?.luciferDonghuaOrg ?? ""),
+    luciferDonghuaInEpisodeCount: String(series?.streamingEpisodeCounts?.luciferDonghuaIn ?? ""),
   };
 }
 
@@ -127,6 +133,15 @@ export default function DonghuaCatalogAdmin() {
       toast.error("Streaming source links must be valid HTTPS URLs.");
       return;
     }
+    const episodeCounts = [
+      form.anime4iEpisodeCount,
+      form.luciferDonghuaOrgEpisodeCount,
+      form.luciferDonghuaInEpisodeCount,
+    ].map((value) => value.trim() ? Number(value) : undefined);
+    if (episodeCounts.some((count) => count !== undefined && (!Number.isInteger(count) || count < 1))) {
+      toast.error("Each server's part count must be a positive whole number.");
+      return;
+    }
     if (selectedId && id !== selectedId) {
       toast.error("An existing title's ID cannot be changed.");
       return;
@@ -157,6 +172,13 @@ export default function DonghuaCatalogAdmin() {
         luciferDonghuaOrg: form.luciferDonghuaOrg.trim() || undefined,
         luciferDonghuaIn: form.luciferDonghuaIn.trim() || undefined,
       },
+      streamingEpisodeCounts: episodeCounts.some((count) => count !== undefined)
+        ? {
+            anime4i: episodeCounts[0],
+            luciferDonghuaOrg: episodeCounts[1],
+            luciferDonghuaIn: episodeCounts[2],
+          }
+        : undefined,
     };
 
     try {
@@ -302,6 +324,18 @@ export default function DonghuaCatalogAdmin() {
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="catalog-lucifer-in">LuciferDonghua.in source URL</Label>
               <Input id="catalog-lucifer-in" type="url" value={form.luciferDonghuaIn} onChange={(event) => updateForm("luciferDonghuaIn", event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="catalog-anime4i-count">Anime4i part count</Label>
+              <Input id="catalog-anime4i-count" type="number" min="1" step="1" value={form.anime4iEpisodeCount} onChange={(event) => updateForm("anime4iEpisodeCount", event.target.value)} placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="catalog-lucifer-org-count">LuciferDonghua.org part count</Label>
+              <Input id="catalog-lucifer-org-count" type="number" min="1" step="1" value={form.luciferDonghuaOrgEpisodeCount} onChange={(event) => updateForm("luciferDonghuaOrgEpisodeCount", event.target.value)} placeholder="Optional" />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="catalog-lucifer-in-count">LuciferDonghua.in part count</Label>
+              <Input id="catalog-lucifer-in-count" type="number" min="1" step="1" value={form.luciferDonghuaInEpisodeCount} onChange={(event) => updateForm("luciferDonghuaInEpisodeCount", event.target.value)} placeholder="Optional" />
             </div>
             <Button type="submit" className="gap-2 sm:col-span-2" disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save size={16} />}

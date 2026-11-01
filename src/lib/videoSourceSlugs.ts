@@ -3,13 +3,19 @@ import type { DonghuaSeries } from "@/data/donghuaData";
 export type VideoServerName = "anime4i" | "luciferdonghua" | "luciferdonghuain" | "myanime";
 
 export function extractSlugFromStreamingUrl(url: string): string | null {
-  // Support both "-episode-" and "-episod-" (found on LuciferDonghua URLs like BTTH)
-  const match = url.match(/\/([^/?#]+)-(?:episode|episod)-\d+/i);
-  if (match) return match[1];
+  try {
+    const path = new URL(url).pathname.replace(/\/+$/, "");
+    const finalSegment = path.split("/").pop();
+    if (!finalSegment) return null;
 
-  const path = new URL(url).pathname.replace(/\/+$/, "");
-  const finalSegment = path.split("/").pop();
-  return finalSegment?.replace(/-(?:english-sub(?:title)?s?|lucifer-donghua)$/i, "") || null;
+    const baseSlug = finalSegment
+      .replace(/-(episode|episod|ep|part|pt)-(\d+)(?:-(20\d{2}))?(?:-.*)?$/i, (_match, _marker: string, _number: string, year?: string) =>
+        year ? `-${year}` : "")
+      .replace(/-(?:english-sub(?:title)?s?|lucifer-donghua)$/i, "");
+    return baseSlug || null;
+  } catch {
+    return null;
+  }
 }
 
 export function getVideoServerSlugs(series: Pick<DonghuaSeries, "id" | "serverSlug" | "streamingLinks">): Record<VideoServerName, string> {

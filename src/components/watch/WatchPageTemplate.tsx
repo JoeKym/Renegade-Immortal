@@ -20,7 +20,7 @@ import { EpisodeSidebar } from "./EpisodeSidebar";
 import { SmallDonghuaIframeGrid } from "./SmallDonghuaIframeGrid";
 import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
-import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
+import { getVideoServerSlugs, type VideoServerName } from "@/lib/videoSourceSlugs";
 import { buildCanonicalWatchUrl } from "@/lib/slugParser";
 import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 
@@ -56,6 +56,23 @@ export function WatchPageTemplate({
     releasedCount,
     allEpisodes: baseEpisodes,
   } = useDonghuaData(seriesId);
+  const videoServerSlugs = useMemo(
+    () => series ? getVideoServerSlugs(series) : undefined,
+    [series],
+  );
+  const availableVideoServers = useMemo((): VideoServerName[] => {
+    if (!series?.streamingLinks) return [];
+    return [
+      ...(series.streamingLinks.anime4i ? ["anime4i" as const] : []),
+      ...(series.streamingLinks.luciferDonghuaOrg ? ["luciferdonghua" as const] : []),
+      ...(series.streamingLinks.luciferDonghuaIn ? ["luciferdonghuain" as const] : []),
+    ];
+  }, [series]);
+  const videoServerEpisodeCounts = useMemo(() => series ? ({
+    anime4i: series.streamingEpisodeCounts?.anime4i,
+    luciferdonghua: series.streamingEpisodeCounts?.luciferDonghuaOrg,
+    luciferdonghuain: series.streamingEpisodeCounts?.luciferDonghuaIn,
+  }) : undefined, [series]);
 
   useEffect(() => {
     try {
@@ -281,7 +298,9 @@ export function WatchPageTemplate({
                 <VideoPlayer
                   episode={activeEpisode}
                   donghuaSlug={series.serverSlug || series.id}
-                  serverSlugs={getVideoServerSlugs(series)}
+                  serverSlugs={videoServerSlugs}
+                  availableServers={availableVideoServers}
+                  serverEpisodeCounts={videoServerEpisodeCounts}
                   seriesTitle={series.title}
                   onEnded={() => {
                     if (activeEpisode < maxEpisodes) {

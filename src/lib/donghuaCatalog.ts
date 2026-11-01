@@ -77,6 +77,19 @@ function isDonghuaSeries(value: Json, rowId: string): value is DonghuaSeries {
       return false;
     }
   }
+  if (candidate.streamingEpisodeCounts !== undefined) {
+    if (!candidate.streamingEpisodeCounts || Array.isArray(candidate.streamingEpisodeCounts) ||
+        typeof candidate.streamingEpisodeCounts !== "object") {
+      return false;
+    }
+    const counts = candidate.streamingEpisodeCounts as Record<string, Json | undefined>;
+    if (["anime4i", "luciferDonghuaOrg", "luciferDonghuaIn"].some((key) => {
+      const count = counts[key];
+      return count !== undefined && (typeof count !== "number" || !Number.isInteger(count) || count < 1);
+    })) {
+      return false;
+    }
+  }
 
   return true;
 }

@@ -24,6 +24,19 @@ function resolveServerSlug(serverName: VideoServerName, donghuaSlug: string, ser
   return normalizeSlug(donghuaSlug);
 }
 
+function getFunctionFallbackUrl(data: unknown, serverName: VideoServerName): string | null {
+  if (!data || typeof data !== "object" || !("fallbackUrls" in data)) return null;
+  const fallbacks = data.fallbackUrls;
+  if (!Array.isArray(fallbacks)) return null;
+  const match = fallbacks.find(
+    (item): item is { name: string; url: string } =>
+      Boolean(item && typeof item === "object" &&
+        "name" in item && item.name === serverName &&
+        "url" in item && typeof item.url === "string"),
+  );
+  return match?.url ?? null;
+}
+
 const SERVERS: Server[] = [
   {
     name: "anime4i",
@@ -49,6 +62,8 @@ interface VideoPlayerProps {
   episode: number;
   donghuaSlug?: string;
   serverSlugs?: Partial<Record<VideoServerName, string>>;
+  availableServers?: VideoServerName[];
+  serverEpisodeCounts?: Partial<Record<VideoServerName, number>>;
   seriesTitle?: string;
   onEnded?: () => void;
 }
@@ -59,6 +74,8 @@ export function VideoPlayer({
   episode,
   donghuaSlug = "renegade-immortal",
   serverSlugs,
+  availableServers = SERVERS.map((server) => server.name),
+  serverEpisodeCounts,
   seriesTitle,
   onEnded,
 }: VideoPlayerProps) {
@@ -71,6 +88,11 @@ export function VideoPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fetchControllerRef = useRef<AbortController | null>(null);
+  const isServerAvailable = useCallback((serverName: VideoServerName) =>
+    availableServers.includes(serverName) &&
+    (serverEpisodeCounts?.[serverName] === undefined || episode <= serverEpisodeCounts[serverName]),
+  [availableServers, episode, serverEpisodeCounts]);
+  const firstAvailableServer = SERVERS.findIndex((server) => isServerAvailable(server.name));
 
   const fetchEmbed = useCallback(async (serverIndex: number) => {
     if (fetchControllerRef.current) {
@@ -83,7 +105,7 @@ export function VideoPlayer({
     setActiveServer(serverIndex);
 
     const server = SERVERS[serverIndex];
-    if (!server) {
+    if (!server || !isServerAvailable(server.name)) {
       setLoadState("error");
       return;
     }
@@ -101,7 +123,8 @@ export function VideoPlayer({
       }
 
       // Fallback: Use direct server page URL as iframe fallback
-      const direct = server.directUrl(episode, resolveServerSlug(server.name, donghuaSlug, serverSlugs));
+      const direct = getFunctionFallbackUrl(data, server.name) ||
+        server.directUrl(episode, resolveServerSlug(server.name, donghuaSlug, serverSlugs));
       setEmbedUrl(direct);
       setLoadState("playing");
       setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
@@ -112,16 +135,17 @@ export function VideoPlayer({
       setLoadState("playing");
       setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
     }
-  }, [episode, donghuaSlug, serverSlugs]);
+  }, [episode, donghuaSlug, serverSlugs, seriesTitle, isServerAvailable]);
 
   useEffect(() => {
     setServerStatuses({});
     setEmbedUrl(null);
-    fetchEmbed(0);
+    if (firstAvailableServer < 0) setLoadState("error");
+    else fetchEmbed(firstAvailableServer);
     return () => {
       fetchControllerRef.current?.abort();
     };
-  }, [episode, donghuaSlug, serverSlugs, fetchEmbed]);
+  }, [episode, donghuaSlug, serverSlugs, availableServers, serverEpisodeCounts, fetchEmbed, firstAvailableServer]);
 
   const handleServerClick = (index: number) => {
     setServerStatuses((prev) => {
@@ -138,7 +162,7 @@ export function VideoPlayer({
 
   const handleRetry = () => {
     setServerStatuses({});
-    fetchEmbed(0);
+    if (firstAvailableServer >= 0) fetchEmbed(firstAvailableServer);
   };
 
   const toggleFullscreen = () => {
@@ -190,7 +214,7 @@ export function VideoPlayer({
               </button>
             </div>
             <div className="flex flex-wrap gap-2 justify-center">
-              {SERVERS.map((srv) => (
+              {SERVERS.filter((srv) => isServerAvailable(srv.name)).map((srv) => (
                 <a
                   key={srv.name}
                   href={srv.directUrl(episode, resolveServerSlug(srv.name, donghuaSlug, serverSlugs))}
@@ -251,6 +275,7 @@ export function VideoPlayer({
 
         <div className="flex flex-wrap gap-1.5">
           {SERVERS.map((srv, i) => {
+            if (!isServerAvailable(srv.name)) return null;
             const status = serverStatuses[srv.name];
             const isActive = activeServer === i && loadState !== "error";
             return (
@@ -286,7 +311,7 @@ export function VideoPlayer({
           >
             <p className="text-[10px] text-muted-foreground font-body mb-2">Watch on source sites:</p>
             <div className="flex flex-wrap gap-1.5">
-              {SERVERS.map((srv) => (
+              {SERVERS.filter((srv) => isServerAvailable(srv.name)).map((srv) => (
                 <a
                   key={srv.name}
                   href={srv.directUrl(episode, resolveServerSlug(srv.name, donghuaSlug, serverSlugs))}

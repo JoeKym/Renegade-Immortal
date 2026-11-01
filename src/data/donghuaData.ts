@@ -23,6 +23,7 @@ export interface DonghuaSeries {
   anchorEpisode?: number;
   anchorDate?: string;
   streamingLinks?: DonghuaStreamingLinks;
+  streamingEpisodeCounts?: Partial<Record<DonghuaVideoServer, number>>;
   parentSeriesId?: string;
 }
 
@@ -389,15 +390,16 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     aliases: ["perfect world movie", "wanmei shijie movie", "nine tribulations burning heaven", "ashes of perfect fire", "完美世界剧场版"],
     thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx120218-J6LXCFOHO9cT.jpg",
     serverSlug: "perfect-world-the-movie",
-    knownTotalEpisodes: 1,
-    episodesSeason: "Feature Film (Theatrical Movie)",
+    knownTotalEpisodes: 3,
+    episodesSeason: "3-part feature film",
     releaseSchedule: "Completed (Feature Film)",
     statusTag: "Movie",
     streamingLinks: {
-      anime4i: "https://anime4i.com/perfect-world-movie-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/perfect-world-movie-ashes-of-perfect-fire-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/perfect-world-movie-ashes-of-perfect-fire-lucifer-donghua/",
+      anime4i: "https://anime4i.com/perfect-world-movie-ninefold-the-burning-sky-episode-1-english-subtitles",
+      luciferDonghuaOrg: "https://luciferdonghua.org/perfect-world-wanmei-shijie-movie-special-part-1/",
+      luciferDonghuaIn: "https://luciferdonghua.in/perfect-world-nine-tribulations-burning-the-heavens-movie-pt-01-lucifer-donghua/",
     },
+    streamingEpisodeCounts: { anime4i: 3, luciferDonghuaOrg: 3, luciferDonghuaIn: 2 },
   },
   {
     id: "swallowed-star-blood-luo-continent",
@@ -415,10 +417,10 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     releaseSchedule: "Completed (Feature Film)",
     statusTag: "Movie",
     streamingLinks: {
-      anime4i: "https://anime4i.com/swallowed-star-movie-blood-luo-continent-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/swallowed-star-movie-blood-luo-continent-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/swallowed-star-movie-blood-luo-continent-lucifer-donghua/",
+      luciferDonghuaOrg: "https://luciferdonghua.org/swallowed-star-full-movie-english-subtitles/",
+      luciferDonghuaIn: "https://luciferdonghua.in/swallowed-star-movie-blood-luo-continent-2024-lucifer-donghua/",
     },
+    streamingEpisodeCounts: { luciferDonghuaOrg: 1, luciferDonghuaIn: 1 },
   },
   {
     id: "battle-through-the-heavens-three-year-agreement",
@@ -436,10 +438,10 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     releaseSchedule: "Completed (Special Series)",
     statusTag: "Special",
     streamingLinks: {
-      anime4i: "https://anime4i.com/battle-through-the-heavens-three-year-agreement-episode-13-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/fights-break-sphere-three-year-agreement-episode-13-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/battle-through-the-heavens-three-year-agreement-episode-13-lucifer-donghua/",
+      anime4i: "https://anime4i.com/battle-through-the-heavens-three-year-agreement-episode-1-english-subtitles",
+      luciferDonghuaIn: "https://luciferdonghua.in/battle-through-the-heavens-three-year-agreement-ep-01/",
     },
+    streamingEpisodeCounts: { anime4i: 13, luciferDonghuaIn: 13 },
   },
   {
     id: "battle-through-the-heavens-origin",
@@ -457,10 +459,10 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     releaseSchedule: "Completed (Special Movie Arc)",
     statusTag: "Special",
     streamingLinks: {
-      anime4i: "https://anime4i.com/battle-through-the-heavens-origin-episode-3-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/fights-break-sphere-origin-episode-3-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/battle-through-the-heavens-origin-episode-3-lucifer-donghua/",
+      anime4i: "https://anime4i.com/battle-through-the-heavens-origin-episode-1-english-subtitles",
+      luciferDonghuaIn: "https://luciferdonghua.in/battle-through-the-heavens-the-origin-episode-01/",
     },
+    streamingEpisodeCounts: { anime4i: 3, luciferDonghuaIn: 3 },
   },
   {
     id: "shrouding-the-heavens-the-movie",
@@ -473,15 +475,15 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     aliases: ["shrouding the heavens movie", "zhe tian movie", "ancient star road", "遮天剧场版"],
     thumbnail: "/covers/shrouding-the-heavens-imperial-path.jpg",
     serverSlug: "shrouding-the-heavens-the-movie",
-    knownTotalEpisodes: 1,
-    episodesSeason: "Feature Film (Theatrical Movie)",
+    knownTotalEpisodes: 3,
+    episodesSeason: "3-part feature film",
     releaseSchedule: "Completed (Feature Film)",
     statusTag: "Movie",
     streamingLinks: {
-      anime4i: "https://anime4i.com/shrouding-the-heavens-movie-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/shrouding-the-heavens-movie-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/shrouding-the-heavens-movie-lucifer-donghua/",
+      luciferDonghuaOrg: "https://luciferdonghua.org/shrouding-the-heavens-movie-part-1-english-subtitle/",
+      luciferDonghuaIn: "https://luciferdonghua.in/shrouding-the-heaven-movie-battle-against-wang-teng-part-01-lucifer-donghua/",
     },
+    streamingEpisodeCounts: { luciferDonghuaOrg: 3, luciferDonghuaIn: 2 },
   },
   {
     id: "renegade-immortal-special",
@@ -494,15 +496,16 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     aliases: ["renegade immortal movie", "renegade immortal special", "xian ni movie", "xian ni special", "仙逆特别篇"],
     thumbnail: "/covers/xian-ni-battle-of-gods.jpg",
     serverSlug: "renegade-immortal-special",
-    knownTotalEpisodes: 1,
-    episodesSeason: "Special Extended Film Episode",
+    knownTotalEpisodes: 3,
+    episodesSeason: "3-part feature film",
     releaseSchedule: "Completed (Special Arc)",
     statusTag: "Special",
     streamingLinks: {
-      anime4i: "https://anime4i.com/renegade-immortal-special-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/renegade-immortal-special-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/renegade-immortal-special-lucifer-donghua/",
+      anime4i: "https://anime4i.com/renegade-immortal-battle-of-gods-movie-episode-1-english-subtitles",
+      luciferDonghuaOrg: "https://luciferdonghua.org/renegade-immortal-movie-battle-of-the-gods-part-1-english-subtitles/",
+      luciferDonghuaIn: "https://luciferdonghua.in/renegade-immortal-battle-of-gods-movie-part-01-lucifer-donghua/",
     },
+    streamingEpisodeCounts: { anime4i: 2, luciferDonghuaOrg: 3, luciferDonghuaIn: 2 },
   },
   {
     id: "renegade-immortal-immortal-slayer",
@@ -515,15 +518,16 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     thumbnail: "/covers/xian-ni-immortal-slayer.jpg",
     serverSlug: "renegade-immortal-immortal-slayer",
     parentSeriesId: "renegade-immortal",
-    knownTotalEpisodes: 1,
-    episodesSeason: "Feature Film (Theatrical Movie)",
+    knownTotalEpisodes: 3,
+    episodesSeason: "3-part feature film",
     releaseSchedule: "Completed (Feature Film)",
     statusTag: "Movie",
     streamingLinks: {
-      anime4i: "https://anime4i.com/renegade-immortal-movie-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/renegade-immortal-movie-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/renegade-immortal-movie-lucifer-donghua/",
+      anime4i: "https://anime4i.com/renegade-immortal-movie-2-slaying-the-blood-progenitor-episode-1-english-subtitles",
+      luciferDonghuaOrg: "https://luciferdonghua.org/renegade-immortal-battle-of-the-immortal-slayer-movie-2026/",
+      luciferDonghuaIn: "https://luciferdonghua.in/renegade-immortal-slaying-the-blood-progenitor-movie-part-1-lucifer-donghua/",
     },
+    streamingEpisodeCounts: { anime4i: 3, luciferDonghuaOrg: 2, luciferDonghuaIn: 2 },
   },
   {
     id: "swallowed-star-battle-on-origin-star",
@@ -536,15 +540,15 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     thumbnail: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx166219-tREIb5l5huVe.png",
     serverSlug: "swallowed-star-battle-on-origin-star",
     parentSeriesId: "swallowed-star",
-    knownTotalEpisodes: 1,
-    episodesSeason: "Feature Film (Theatrical Movie)",
+    knownTotalEpisodes: 2,
+    episodesSeason: "2-part feature film",
     releaseSchedule: "Completed (Feature Film)",
     statusTag: "Movie",
     streamingLinks: {
-      anime4i: "https://anime4i.com/swallowed-star-movie-2-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/swallowed-star-movie-battle-on-origin-star-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/swallowed-star-battle-on-origin-star-lucifer-donghua/",
+      luciferDonghuaOrg: "https://luciferdonghua.org/swallowed-star-movie-battle-on-the-original-star-arc-part-1-2026/",
+      luciferDonghuaIn: "https://luciferdonghua.in/swallowed-star-movie-the-decisive-battle-on-the-primordial-star-part-1/",
     },
+    streamingEpisodeCounts: { luciferDonghuaOrg: 2, luciferDonghuaIn: 2 },
   },
   {
     id: "one-hundred-thousand-years-of-qi-refining-yang-ascendant",
@@ -562,10 +566,9 @@ export const DONGHUA_SERIES: DonghuaSeries[] = [
     releaseSchedule: "Completed (Special Film)",
     statusTag: "Special",
     streamingLinks: {
-      anime4i: "https://anime4i.com/one-hundred-thousand-years-of-qi-refining-special-episode-1-english-subtitles",
-      luciferDonghuaOrg: "https://luciferdonghua.org/one-hundred-thousand-years-of-gas-refining-yang-ascendant-english-sub/",
-      luciferDonghuaIn: "https://luciferdonghua.in/one-hundred-thousand-years-of-qi-refining-special-lucifer-donghua/",
+      luciferDonghuaOrg: "https://luciferdonghua.org/100-000-years-of-refining-qi-yang-ascendant-special/",
     },
+    streamingEpisodeCounts: { luciferDonghuaOrg: 1 },
   },
 ];
 
