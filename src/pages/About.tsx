@@ -15,7 +15,7 @@ const features = [
   { icon: Sparkles, label: "Daos", desc: "Explore every Dao and technique featured in the story.", path: "/daos" },
   { icon: Shield, label: "Artifacts", label2: "Artifacts", desc: "All celestial artifacts, flying swords, and magical treasures catalogued.", path: "/artifacts" },
   { icon: Map, label: "Locations", desc: "Interactive atlas of every realm, sect, and landmark.", path: "/locations" },
-  { icon: Clock, label: "Timeline", desc: "Chronological story events across all arcs.", path: "/timeline" },
+  { icon: Clock, label: "Donghua Releases", desc: "Current tracked series, episodes, and release dates.", path: "/timeline" },
   { icon: Globe, label: "Multiverse", desc: "The full cosmology — star systems, realms, and planes of existence.", path: "/multiverse" },
   { icon: Tv, label: "Donghua", desc: "Everything about the animated adaptation — seasons, studios, cast.", path: "/donghua" },
   { icon: Play, label: "Watch", desc: "Stream all released episodes directly inside the site.", path: "/watch" },

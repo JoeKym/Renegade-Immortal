@@ -14,7 +14,8 @@ import Index from "./pages/Index";
 import Characters from "./pages/Characters";
 import Daos from "./pages/Daos";
 import Cultivation from "./pages/Cultivation";
-import Timeline from "./pages/Timeline";
+import Timeline from "./pages/DonghuaReleaseTimeline";
+import StoryTimeline from "./pages/Timeline";
 import Multiverse from "./pages/Multiverse";
 import Donghua from "./pages/Donghua";
 import Lore from "./pages/Lore";
@@ -76,6 +77,7 @@ const App = () => {
                   <Route path="/daos" element={<Daos />} />
                   <Route path="/cultivation" element={<Cultivation />} />
                   <Route path="/timeline" element={<Timeline />} />
+                  <Route path="/story-timeline" element={<StoryTimeline />} />
                   <Route path="/multiverse" element={<Multiverse />} />
                   <Route path="/donghua" element={<Donghua />} />
                   <Route path="/donghua-series" element={<DonghuaSeriesList />} />

@@ -162,8 +162,7 @@ export function getNextReleaseInfo(series: DonghuaSeries, now: Date = new Date()
   const targetHour = getReleaseHour(series);
   const targetTimezoneMinutes = getReleaseTimezoneMinutes(series);
   const targetOffsetMs = targetTimezoneMinutes * 60 * 1000;
-  const localOffsetMs = now.getTimezoneOffset() * 60 * 1000;
-  const targetNow = new Date(now.getTime() + (targetOffsetMs - localOffsetMs));
+  const targetNow = new Date(now.getTime() + targetOffsetMs);
 
   const daysCandidates = parseReleaseDayCandidates(series);
 

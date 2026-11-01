@@ -5,7 +5,11 @@ export type VideoServerName = "anime4i" | "luciferdonghua" | "luciferdonghuain" 
 export function extractSlugFromStreamingUrl(url: string): string | null {
   // Support both "-episode-" and "-episod-" (found on LuciferDonghua URLs like BTTH)
   const match = url.match(/\/([^/?#]+)-(?:episode|episod)-\d+/i);
-  return match?.[1] || null;
+  if (match) return match[1];
+
+  const path = new URL(url).pathname.replace(/\/+$/, "");
+  const finalSegment = path.split("/").pop();
+  return finalSegment?.replace(/-(?:english-sub(?:title)?s?|lucifer-donghua)$/i, "") || null;
 }
 
 export function getVideoServerSlugs(series: Pick<DonghuaSeries, "id" | "serverSlug" | "streamingLinks">): Record<VideoServerName, string> {

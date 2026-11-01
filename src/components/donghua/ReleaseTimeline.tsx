@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { DONGHUA_SERIES, type DonghuaSeries } from "@/data/donghuaData";
 import { proxyImageUrl } from "@/lib/utils";
+import { getAutoReleasedEpisodes, getNextReleaseInfo } from "@/lib/releaseSchedule";
 import { isCompletedSeries, isHiatusSeries } from "@/lib/donghuaStatus";
 
 interface TimelineMilestone {
@@ -33,6 +34,15 @@ interface TimelineMilestone {
     headline: string;
     body: string;
   };
+}
+
+function dateInEastAfrica(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Nairobi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
 export const DONGHUA_TIMELINE_ENTRIES: TimelineMilestone[] = [
@@ -289,9 +299,44 @@ type TimelineFilter = "all" | "airing" | "hiatus" | "movie" | "completed";
 export const ReleaseTimeline = () => {
   const [activeFilter, setActiveFilter] = useState<TimelineFilter>("all");
   const [search, setSearch] = useState("");
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const timelineEntries = useMemo(() => {
+    const knownSeries = new Set(DONGHUA_TIMELINE_ENTRIES.map((entry) => entry.seriesId));
+    const unlistedSeries = DONGHUA_SERIES.filter((series) => !knownSeries.has(series.id));
+
+    return [
+      ...DONGHUA_TIMELINE_ENTRIES,
+      ...unlistedSeries.map((series): TimelineMilestone => {
+        const status: TimelineMilestone["status"] = isHiatusSeries(series.statusTag)
+          ? "hiatus"
+          : series.statusTag?.toLowerCase().includes("movie") ||
+              series.statusTag?.toLowerCase().includes("special")
+            ? "movie"
+            : isCompletedSeries(series.statusTag)
+              ? "completed"
+              : "airing";
+
+        return {
+          seriesId: series.id,
+          seasonLabel: series.statusTag || "Tracked Donghua",
+          episodesRange: "",
+          releaseDateOrSchedule: series.releaseSchedule || "Schedule pending",
+          status,
+          currentArcTitle: "",
+          milestones: [],
+        };
+      }),
+    ];
+  }, []);
 
   const filteredTimeline = useMemo(() => {
-    return DONGHUA_TIMELINE_ENTRIES.filter((entry) => {
+    return timelineEntries.filter((entry) => {
       // Filter tab
       if (activeFilter !== "all" && entry.status !== activeFilter) {
         return false;
@@ -314,7 +359,7 @@ export const ReleaseTimeline = () => {
 
       return true;
     });
-  }, [activeFilter, search]);
+  }, [activeFilter, search, timelineEntries]);
 
   const statusBadge = (s: TimelineMilestone["status"]) => {
     switch (s) {
@@ -401,6 +446,25 @@ export const ReleaseTimeline = () => {
           const series = DONGHUA_SERIES.find((s) => s.id === item.seriesId);
           const badge = statusBadge(item.status);
           const thumbUrl = proxyImageUrl(series?.thumbnail);
+          const currentEpisode = series ? getAutoReleasedEpisodes(series, now) : 0;
+          const nextRelease = series && item.status === "airing"
+            ? getNextReleaseInfo(series, now)
+            : null;
+          const releaseIsToday = nextRelease?.showCountdown
+            ? dateInEastAfrica(nextRelease.nextAiringDate) === dateInEastAfrica(now)
+            : false;
+          const episodeSummary = series
+            ? item.status === "movie"
+              ? item.episodesRange || `${currentEpisode} feature episode`
+              : item.status === "airing"
+                ? `Episodes 1–${currentEpisode} released${nextRelease?.showCountdown ? ` • Episode ${nextRelease.nextEpisodeNumber} next` : ""}`
+                : `${currentEpisode} episodes released`
+            : item.episodesRange;
+          const scheduleSummary = series
+            ? item.status === "airing" && nextRelease?.showCountdown
+              ? `Episode ${nextRelease.nextEpisodeNumber}: ${releaseIsToday ? "Today • " : ""}${nextRelease.nextAiringFormattedCST}`
+              : series.releaseSchedule || item.releaseDateOrSchedule
+            : item.releaseDateOrSchedule;
 
           return (
             <motion.div
@@ -459,7 +523,7 @@ export const ReleaseTimeline = () => {
                           )}
                         </div>
                         <p className="text-xs font-body text-primary/90 mt-0.5">
-                          {item.seasonLabel} • {item.episodesRange}
+                          {item.seasonLabel}{episodeSummary ? ` • ${episodeSummary}` : ""}
                         </p>
                       </div>
                     </div>
@@ -496,7 +560,7 @@ export const ReleaseTimeline = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-body text-muted-foreground pt-2 border-t border-border/60">
                     <div className="flex items-center gap-2">
                       <Clock size={13} className="text-primary shrink-0" />
-                      <span>{item.releaseDateOrSchedule}</span>
+                      <span>{scheduleSummary}</span>
                     </div>
                     {item.studio && (
                       <div className="flex items-center gap-2">
@@ -507,25 +571,27 @@ export const ReleaseTimeline = () => {
                   </div>
 
                   {/* Current Arc & Milestones */}
-                  <div className="mt-3.5 pt-3 border-t border-border/40">
-                    <p className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground mb-1.5">
-                      Current Story Arc:{" "}
-                      <span className="text-foreground font-normal">
-                        {item.currentArcTitle}
-                      </span>
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {item.milestones.map((milestone, idx) => (
-                        <span
-                          key={milestone}
-                          className="text-xs font-body px-2.5 py-1 rounded-md border border-border/60 bg-muted/40 text-foreground/80 flex items-center gap-1"
-                        >
-                          <span className="w-1 h-1 rounded-full bg-primary/70" />
-                          {milestone}
+                  {(item.currentArcTitle || item.milestones.length > 0) && (
+                    <div className="mt-3.5 pt-3 border-t border-border/40">
+                      <p className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Current Story Arc:{" "}
+                        <span className="text-foreground font-normal">
+                          {item.currentArcTitle}
                         </span>
-                      ))}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.milestones.map((milestone) => (
+                          <span
+                            key={milestone}
+                            className="text-xs font-body px-2.5 py-1 rounded-md border border-border/60 bg-muted/40 text-foreground/80 flex items-center gap-1"
+                          >
+                            <span className="w-1 h-1 rounded-full bg-primary/70" />
+                            {milestone}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Quick Action Button */}
                   <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">

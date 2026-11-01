@@ -504,7 +504,7 @@ export const searchableData: SearchResult[] = [
     title: "Arc 1: Mortal's Beginning & Heng Yue Sect",
     category: "Timeline",
     description: "Wang Lin enters Heng Yue Sect as an untalented youth and discovers the Heaven-Defying Pearl.",
-    path: "/timeline",
+    path: "/story-timeline",
     keywords: ["arc 1", "heng yue sect", "mortal beginning", "heaven-defying bead discovery"],
     tags: ["arc-1", "early-life"]
   },
@@ -512,7 +512,7 @@ export const searchableData: SearchResult[] = [
     title: "Arc 2: Zhao Country Vengeance & Sea of Devils",
     category: "Timeline",
     description: "Wang Lin takes revenge on Teng Clan and trains under Situ Nan inside the Sea of Devils.",
-    path: "/timeline",
+    path: "/story-timeline",
     keywords: ["arc 2", "zhao country massacre", "teng clan vengeance", "sea of devils"],
     tags: ["arc-2", "vengeance"]
   },
@@ -520,7 +520,7 @@ export const searchableData: SearchResult[] = [
     title: "Arc 5: Luotian Star Domain & Master Demon Legend",
     category: "Timeline",
     description: "Wang Lin travels to Luotian, earns the alias Xu Mu, and dominates the Thunder Celestial Competition.",
-    path: "/timeline",
+    path: "/story-timeline",
     keywords: ["arc 5", "luotian star domain", "xu mu legend", "thunder celestial temple"],
     tags: ["arc-5", "luotian"]
   },
@@ -528,7 +528,7 @@ export const searchableData: SearchResult[] = [
     title: "Arc 9: Transcendence & Heaven Defiance",
     category: "Timeline",
     description: "Wang Lin achieves the 4th Step, revives Li Muwan, and transcends all cosmic boundaries.",
-    path: "/timeline",
+    path: "/story-timeline",
     keywords: ["arc 9", "transcendence", "li muwan revival", "4th step god realm"],
     tags: ["arc-9", "climax"]
   },
@@ -749,7 +749,8 @@ export const searchableData: SearchResult[] = [
   { title: "Cultivation Realm Hierarchy", category: "Page", description: "Stage-by-stage cultivation progression from Qi Condensation to 4th Step", path: "/cultivation" },
   { title: "World Lore & Ancient Races", category: "Page", description: "Read about Ancient Gods, Ancient Demons, Ancient Devils, and celestial history", path: "/lore" },
   { title: "Er Gen Multiverse Hub", category: "Page", description: "Discover connected novels and cross-universe characters", path: "/multiverse" },
-  { title: "Wang Lin Story Timeline", category: "Page", description: "Chronological arc-by-arc timeline of Renegade Immortal", path: "/timeline" },
+  { title: "Donghua Release Timeline", category: "Page", description: "Current episode progress and release schedules for tracked donghua", path: "/timeline" },
+  { title: "Wang Lin Story Timeline", category: "Page", description: "Chronological arc-by-arc timeline of Renegade Immortal", path: "/story-timeline" },
   { title: "Donghua Release & Stream Hub", category: "Page", description: "Watch episodes, track release schedules, and stream donghua", path: "/watch" },
   { title: "Artifacts & Techniques Catalog", category: "Page", description: "Browse divine treasures, soul flags, and celestial spells", path: "/artifacts" },
   { title: "Cosmic Locations & Sects", category: "Page", description: "Explore planets, star domains, and ancient tombs", path: "/locations" },
