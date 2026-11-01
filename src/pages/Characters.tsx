@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLoreContent } from "@/contexts/LoreContentContext";
 import { getDistinctLoreArcs, getLoreStoryArcs, isCharacterPayload, loreContentId, mergeLoreContent } from "@/lib/loreContent";
+import { NOVEL_BOOK_OPTIONS } from "@/lib/novelBooks";
 import {
   characters,
   alignments,
@@ -47,7 +48,6 @@ function getCharacterSearchText(character: Character) {
     character.sect,
     character.master,
     character.status,
-    character.firstAppearance,
     character.bloodline,
     character.cultivationRealm,
     ...(character.nicknames ?? []),
@@ -176,6 +176,22 @@ const CharactersPage = () => {
       return matchSearch && matchRace && matchAlign && matchArc && matchRealm && matchStatus;
     });
   }, [currentCharacters, search, race, alignment, arcFilter, realmFilter, statusFilter]);
+  const groupedCharacters = useMemo(() => {
+    const groups = new Map<string, Character[]>();
+    filtered.forEach((character) => {
+      const book = getLoreStoryArcs(character)[0] ?? "Unassigned";
+      const entries = groups.get(book) ?? [];
+      entries.push(character);
+      groups.set(book, entries);
+    });
+    const bookGroups = NOVEL_BOOK_OPTIONS
+      .map((book) => ({ name: book.label, book, entries: groups.get(book.label) ?? [] }))
+      .filter((group) => group.entries.length > 0);
+    if (groups.has("Unassigned")) {
+      bookGroups.push({ name: "Unassigned", book: undefined, entries: groups.get("Unassigned") ?? [] });
+    }
+    return bookGroups;
+  }, [filtered]);
 
   const activeFilters: { id: string; label: string; remove: () => void }[] = [];
   if (search.trim()) activeFilters.push({
@@ -260,14 +276,14 @@ const CharactersPage = () => {
               )}
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              <CharacterFilterSelect id="character-arc-filter" label="Story arc" value={arcFilter} onChange={(value) => {
+              <CharacterFilterSelect id="character-arc-filter" label="First appearance volume" value={arcFilter} onChange={(value) => {
                 setArcFilter(value);
                 const nextParams = new URLSearchParams(searchParams);
                 if (value === "All Arcs") nextParams.delete("arc");
                 else nextParams.set("arc", value);
                 setSearchParams(nextParams, { replace: true });
               }} options={[
-                ["All Arcs", "All arcs"],
+                ["All Arcs", "All volumes"],
                 ...(currentCharacters.some((character) => getLoreStoryArcs(character).length === 0)
                   ? [["Unassigned", "Unassigned"] as [string, string]]
                   : []),
@@ -318,26 +334,47 @@ const CharactersPage = () => {
             </div>
           )}
 
-          {/* Characters Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((char, i) => (
-              <CharacterCard
-                key={char.name}
-                char={char}
-                index={i}
-                isExpanded={expandedChar === char.name}
-                onToggle={() =>
-                  setExpandedChar(
-                    expandedChar === char.name ? null : char.name
-                  )
-                }
-                isFavorite={favorites.includes(char.name)}
-                onToggleFavorite={() => toggleFavorite(char.name)}
-              />
-            ))}
-          </div>
-
-          {filtered.length === 0 && (
+          {groupedCharacters.length > 0 ? (
+            <div className="space-y-10">
+              {groupedCharacters.map((group) => (
+                <section key={group.name} aria-labelledby={`characters-${group.name.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <div className="mb-5 flex items-end justify-between gap-3 border-b border-border pb-3">
+                    <div>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                        {group.name === "Unassigned" ? "Book placement needed" : "First appearances"}
+                      </p>
+                      <h2 id={`characters-${group.name.toLowerCase().replace(/\s+/g, "-")}`} className="font-heading text-lg font-semibold tracking-wide text-primary sm:text-xl">
+                        {group.name}
+                      </h2>
+                      {group.book && (
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {group.book.title}
+                          {" · Chapters "}
+                          {group.book.startChapter}
+                          {"–"}
+                          {group.book.endChapter}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">{group.entries.length} characters</span>
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.entries.map((char, i) => (
+                      <CharacterCard
+                        key={char.name}
+                        char={char}
+                        index={i}
+                        isExpanded={expandedChar === char.name}
+                        onToggle={() => setExpandedChar(expandedChar === char.name ? null : char.name)}
+                        isFavorite={favorites.includes(char.name)}
+                        onToggleFavorite={() => toggleFavorite(char.name)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          ) : (
             <div className="rounded-lg border border-border bg-card/60 px-5 py-12 text-center">
               <p className="mb-2 font-heading text-lg text-foreground">No characters found</p>
               <p className="mb-5 text-sm text-muted-foreground">Try a different search or remove one or more filters.</p>
@@ -471,6 +508,12 @@ function CharacterCard({
   const [activeProfileSection, setActiveProfileSection] = useState("overview");
   const profileId = loreContentId(char.name);
   const storyArcs = getLoreStoryArcs(char);
+  const firstAppearanceChapter = char.firstAppearance?.trim();
+  const firstAppearanceLabel = storyArcs[0]
+    ? `${storyArcs[0]}${firstAppearanceChapter && /^chapter\s*\d+/i.test(firstAppearanceChapter)
+      ? ` · ${firstAppearanceChapter}`
+      : ""}`
+    : undefined;
   const profileSections = [
     { id: "overview", label: "Overview", icon: UserRound },
     { id: "relationships", label: "Relationships", icon: UsersRound },
@@ -609,7 +652,7 @@ function CharacterCard({
                     {char.status && <ProfileField label="Status" value={char.status} />}
                     {char.bloodline && <ProfileField label="Bloodline" value={char.bloodline} />}
                     {char.sect && <ProfileField label="Affiliation" value={char.sect} />}
-                    {char.firstAppearance && <ProfileField label="First appearance" value={char.firstAppearance} />}
+                    {firstAppearanceLabel && <ProfileField label="First appearance" value={firstAppearanceLabel} />}
                   </div>
                 </section>
               )}
@@ -657,14 +700,14 @@ function CharacterCard({
               {activeProfileSection === "story" && (
                 <section aria-labelledby={`${profileId}-tab-story`} className="space-y-5">
                   <div>
-                    <ProfileSectionHeading>Story arcs</ProfileSectionHeading>
+                    <ProfileSectionHeading>First appearance volume</ProfileSectionHeading>
                     {storyArcs.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {storyArcs.map((arc) => (
                           <Link key={arc} to={`/arcs?q=${encodeURIComponent(arc)}`} className="rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/10">{arc}</Link>
                         ))}
                       </div>
-                    ) : <p className="text-sm text-muted-foreground">No story arcs have been assigned yet.</p>}
+                    ) : <p className="text-sm text-muted-foreground">No first-appearance volume has been assigned yet.</p>}
                   </div>
                   {char.sectsLed?.length ? <CharacterTextList label="Sects led" items={char.sectsLed} /> : null}
                   {char.planetaryAuthority?.length ? <CharacterTextList label="Planetary authority" items={char.planetaryAuthority} /> : null}

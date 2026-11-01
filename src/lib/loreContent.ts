@@ -1,6 +1,13 @@
 import type { Character } from "@/data/charactersData";
 import type { ArtifactItem } from "@/pages/Artifacts";
 import type { Json } from "@/integrations/supabase/types";
+import {
+  getNovelBookForChapter,
+  getNovelBookLabel,
+  isNovelBookNumber,
+  parseNovelBookNumber,
+  type NovelBookNumber,
+} from "@/lib/novelBooks";
 
 export type LoreContentType = "character" | "artifact" | "technique";
 
@@ -11,17 +18,32 @@ export interface LoreContentRecord {
 }
 
 export interface LoreArcMembership {
+  firstAppearanceBook?: number | null;
+  firstAppearance?: string;
+  name?: string;
   storyArcs?: string[];
   storyArc?: string;
 }
 
+export function getLoreFirstAppearanceBook(content: LoreArcMembership): NovelBookNumber | undefined {
+  if (content.firstAppearanceBook === null) return undefined;
+  if (isNovelBookNumber(content.firstAppearanceBook)) return content.firstAppearanceBook;
+
+  const chapterMatch = content.firstAppearance?.trim().match(/^chapter\s*(\d+)/i);
+  const chapterBook = chapterMatch ? getNovelBookForChapter(Number(chapterMatch[1])) : undefined;
+  const legacyBook = (content.storyArcs ?? [])
+    .map((arc) => /^volume\s*(1[0-3]|[1-9])$/i.test(arc.trim()) ? parseNovelBookNumber(arc) : undefined)
+    .find(Boolean)
+    ?? (/^volume\s*(1[0-3]|[1-9])$/i.test(content.storyArc?.trim() ?? "")
+      ? parseNovelBookNumber(content.storyArc)
+      : undefined)
+    ?? chapterBook;
+  return legacyBook;
+}
+
 export function getLoreStoryArcs(content: LoreArcMembership): string[] {
-  const arcs = Array.isArray(content.storyArcs)
-    ? content.storyArcs
-    : content.storyArc?.trim()
-      ? [content.storyArc.trim()]
-      : [];
-  return getDistinctLoreArcs(arcs);
+  const bookLabel = getNovelBookLabel(getLoreFirstAppearanceBook(content) ?? 0);
+  return bookLabel ? [bookLabel] : [];
 }
 
 export function getDistinctLoreArcs(arcs: string[]): string[] {
@@ -79,6 +101,7 @@ export function isCharacterPayload(value: unknown): value is Character {
     typeof value.description === "string" &&
     Array.isArray(value.tags) &&
     value.tags.every((tag) => typeof tag === "string") &&
+    (value.firstAppearanceBook === undefined || value.firstAppearanceBook === null || isNovelBookNumber(value.firstAppearanceBook)) &&
     optionalStringFields.every((field) => isOptionalString(value, field)) &&
     optionalArrayFields.every((field) => isOptionalStringArray(value, field)) &&
     (value.disciplesDetails === undefined || (
@@ -105,6 +128,7 @@ export function isArtifactPayload(value: unknown): value is ArtifactItem {
     typeof value.power === "string" &&
     typeof value.firstAppearance === "string" &&
     typeof value.storyArc === "string" &&
+    (value.firstAppearanceBook === undefined || value.firstAppearanceBook === null || isNovelBookNumber(value.firstAppearanceBook)) &&
     isOptionalString(value, "dao") &&
     isOptionalStringArray(value, "storyArcs")
   );

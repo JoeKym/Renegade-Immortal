@@ -9,8 +9,7 @@ import { characters, type Character } from "@/data/charactersData";
 import { supabase } from "@/integrations/supabase/client";
 import { notifyLoreContentUpdated } from "@/contexts/LoreContentContext";
 import {
-  getDistinctLoreArcs,
-  getLoreStoryArcs,
+  getLoreFirstAppearanceBook,
   isArtifactPayload,
   isCharacterPayload,
   isLoreContentType,
@@ -19,6 +18,7 @@ import {
   normalizeCharacterPayload,
   type LoreContentType,
 } from "@/lib/loreContent";
+import { getNovelBookLabel, NOVEL_BOOK_OPTIONS, parseNovelBookNumber } from "@/lib/novelBooks";
 import type { Json } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
@@ -56,6 +56,7 @@ function blankPayload(type: LoreContentType) {
       subtitle: "",
       description: "",
       tags: [],
+      firstAppearanceBook: null,
     };
   }
   return {
@@ -66,17 +67,8 @@ function blankPayload(type: LoreContentType) {
     power: "",
     firstAppearance: "",
     storyArc: "",
+    firstAppearanceBook: null,
   };
-}
-
-function getEditableArcs(payload: unknown, type: LoreContentType) {
-  if (type === "character" && isCharacterPayload(payload)) return payload.storyArcs ?? [];
-  if (type !== "character" && isArtifactPayload(payload)) return getLoreStoryArcs(payload);
-  return [];
-}
-
-function parseArcText(value: string) {
-  return getDistinctLoreArcs(value.split(/[\n,]/));
 }
 
 export default function LoreContentAdmin() {
@@ -85,8 +77,7 @@ export default function LoreContentAdmin() {
   const [records, setRecords] = useState<LoreRecord[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [editorValue, setEditorValue] = useState("");
-  const [arcText, setArcText] = useState("");
-  const [arcTextEdited, setArcTextEdited] = useState(false);
+  const [firstAppearanceBook, setFirstAppearanceBook] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -103,21 +94,6 @@ export default function LoreContentAdmin() {
 
   const selectedIsBundled = bundledContent[type].some((entry) => entry.id === selectedId);
   const selectedIsSaved = savedRecords.some((entry) => entry.id === selectedId);
-  const arcSuggestions = useMemo(() => getDistinctLoreArcs([
-    ...Object.values(bundledContent).flatMap((entries) =>
-      entries.flatMap(({ payload }) => getLoreStoryArcs(payload))
-    ),
-    ...records.flatMap((record) => {
-      if (record.content_type === "character" && isCharacterPayload(record.payload)) {
-        return getLoreStoryArcs(record.payload);
-      }
-      if (record.content_type !== "character" && isArtifactPayload(record.payload)) {
-        return getLoreStoryArcs(record.payload);
-      }
-      return [];
-    }),
-  ]), [records]);
-
   const loadRecords = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
@@ -141,8 +117,7 @@ export default function LoreContentAdmin() {
   useEffect(() => {
     if (!selectedId) {
       setEditorValue(JSON.stringify(blankPayload(type), null, 2));
-      setArcText("");
-      setArcTextEdited(false);
+      setFirstAppearanceBook("");
       return;
     }
     const saved = savedRecords.find((record) => record.id === selectedId);
@@ -150,8 +125,12 @@ export default function LoreContentAdmin() {
     const payload = saved?.payload ?? bundled?.payload;
     if (payload) {
       setEditorValue(JSON.stringify(payload, null, 2));
-      setArcText(getEditableArcs(payload, type).join("\n"));
-      setArcTextEdited(false);
+      const bookNumber = getLoreFirstAppearanceBook(
+        isCharacterPayload(payload) || isArtifactPayload(payload)
+          ? payload
+          : {},
+      );
+      setFirstAppearanceBook(bookNumber ? String(bookNumber) : "");
     }
   }, [selectedId, savedRecords, type]);
 
@@ -182,8 +161,14 @@ export default function LoreContentAdmin() {
         : "Add a name. Other item fields are optional; check the selected type and any supplied field types.");
       return;
     }
-    const arcs = arcTextEdited ? parseArcText(arcText) : getLoreStoryArcs(normalizedPayload);
-    const payloadWithArcs = { ...normalizedPayload, storyArcs: arcs };
+    const bookNumber = parseNovelBookNumber(firstAppearanceBook);
+    const bookLabel = bookNumber ? getNovelBookLabel(bookNumber) : undefined;
+    const payloadWithArcs = {
+      ...normalizedPayload,
+      firstAppearanceBook: bookNumber ?? null,
+      storyArcs: bookLabel ? [bookLabel] : [],
+      ...("storyArc" in normalizedPayload ? { storyArc: bookLabel ?? "" } : {}),
+    };
     const id = selectedId || loreContentId(normalizedPayload.name);
     if (!id) {
       toast.error("Add a name before saving");
@@ -275,34 +260,23 @@ export default function LoreContentAdmin() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="lore-content-arcs" className="text-sm font-medium">Story arc associations</label>
-          <Textarea
-            id="lore-content-arcs"
-            value={arcText}
-            onChange={(event) => {
-              setArcText(event.target.value);
-              setArcTextEdited(true);
-            }}
-            placeholder="One arc name per line, for example: Zhao Country — The Beginning"
-            className="min-h-20"
-          />
-          <p className="text-xs text-muted-foreground">
-            Add every relevant arc, one per line. Reuse an existing spelling to keep the Arc Explorer groups consistent.
-          </p>
-          {arcSuggestions.length > 0 && (
-            <div className="flex flex-wrap gap-1.5" aria-label="Existing story arcs">
-              {arcSuggestions.map((arc) => (
-                <button
-                  key={arc}
-                  type="button"
-                  onClick={() => setArcText((current) => getDistinctLoreArcs([...parseArcText(current), arc]).join("\n"))}
-                  className="rounded border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                >
-                  {arc}
-                </button>
+          <label htmlFor="lore-content-first-book" className="text-sm font-medium">First appearance volume</label>
+          <Select value={firstAppearanceBook || "unassigned"} onValueChange={(value) => setFirstAppearanceBook(value === "unassigned" ? "" : value)}>
+            <SelectTrigger id="lore-content-first-book">
+              <SelectValue placeholder="Choose a book" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {NOVEL_BOOK_OPTIONS.map(({ number, label, title, startChapter, endChapter }) => (
+                <SelectItem key={number} value={String(number)}>
+                  {label}: {title} (Chapters {startChapter}–{endChapter})
+                </SelectItem>
               ))}
-            </div>
-          )}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Select the single canonical web-novel volume where this entry first appears. Groups are limited to Volumes 1–13; later appearances are not grouped yet.
+          </p>
         </div>
 
         <div className="space-y-2">

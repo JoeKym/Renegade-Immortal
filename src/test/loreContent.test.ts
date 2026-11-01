@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   getDistinctLoreArcs,
+  getLoreFirstAppearanceBook,
   getLoreStoryArcs,
   isArtifactPayload,
   isCharacterPayload,
@@ -9,7 +10,8 @@ import {
   normalizeArtifactPayload,
   normalizeCharacterPayload,
 } from "@/lib/loreContent";
-import type { Character } from "@/data/charactersData";
+import { getNovelBookForChapter, NOVEL_BOOK_OPTIONS } from "@/lib/novelBooks";
+import { characters, type Character } from "@/data/charactersData";
 import type { ArtifactItem } from "@/pages/Artifacts";
 
 const bundledCharacter: Character = {
@@ -37,13 +39,55 @@ describe("loreContent", () => {
     expect(loreContentId("  Wang Lin! ")).toBe("wang-lin");
   });
 
-  it("uses explicit arc associations and preserves legacy artifact arc labels", () => {
-    expect(getLoreStoryArcs({ storyArcs: ["Zhao Country", " Sea of Devils ", "zhao country"] }))
-      .toEqual(["Sea of Devils", "Zhao Country"]);
-    expect(getLoreStoryArcs({ storyArc: "The Beginning" })).toEqual(["The Beginning"]);
-    expect(getLoreStoryArcs({ storyArcs: [] })).toEqual([]);
-    expect(getLoreStoryArcs({ storyArc: "Legacy arc", storyArcs: [] })).toEqual([]);
+  it("limits lore grouping to the 13 numbered novel books", () => {
+    expect(NOVEL_BOOK_OPTIONS).toHaveLength(13);
+    NOVEL_BOOK_OPTIONS.slice(1).forEach((book, index) => {
+      expect(book.startChapter).toBe(NOVEL_BOOK_OPTIONS[index].endChapter + 1);
+    });
+    expect(NOVEL_BOOK_OPTIONS[0]).toMatchObject({
+      title: "The Mediocre Youth",
+      startChapter: 1,
+      endChapter: 64,
+    });
+    expect(NOVEL_BOOK_OPTIONS[12]).toMatchObject({
+      title: "Light of the coming end",
+      startChapter: 2003,
+      endChapter: 2088,
+    });
+    expect(getNovelBookForChapter(64)).toBe(1);
+    expect(getNovelBookForChapter(65)).toBe(2);
+    expect(getNovelBookForChapter(2088)).toBe(13);
+    expect(getNovelBookForChapter(2089)).toBeUndefined();
+    expect(characters.filter((character) => character.firstAppearanceBook === 1).map((character) => character.name).sort())
+      .toEqual([
+        "Liu Mei",
+        "Situ Nan",
+        "Sun Dazhu",
+        "Wang Lin",
+        "Wang Tian Shui & Zhou Tingsu",
+        "Wang Zhou",
+      ]);
+    expect(characters.find((character) => character.name === "Wang Zhou"))
+      .toMatchObject({ firstAppearance: "Chapter 2", firstAppearanceBook: 1 });
+    expect(characters.find((character) => character.name === "Zhou Ru"))
+      .toMatchObject({ firstAppearance: "Chapter 356", firstAppearanceBook: 4 });
+    expect(characters.find((character) => character.name === "Qing Shui"))
+      .toMatchObject({ firstAppearance: "Chapter 787", firstAppearanceBook: 7 });
+    expect(characters.find((character) => character.name === "Azure Dragon Divine Emperor"))
+      .toMatchObject({ firstAppearance: "Chapter 1114", firstAppearanceBook: 8 });
+    expect(getLoreStoryArcs({ firstAppearanceBook: 5 })).toEqual(["Volume 5"]);
+    expect(getLoreStoryArcs({ storyArcs: ["Volume 2", "Volume 3"] })).toEqual(["Volume 2"]);
+    expect(getLoreStoryArcs({ storyArcs: ["Book 2", "Book 3"] })).toEqual([]);
+    expect(getLoreStoryArcs({ storyArc: "Volume 3" })).toEqual(["Volume 3"]);
+    expect(getLoreStoryArcs({ firstAppearance: "Book 4" })).toEqual([]);
+    expect(getLoreStoryArcs({ firstAppearance: "Chapter 1" })).toEqual(["Volume 1"]);
+    expect(getLoreStoryArcs({ firstAppearance: "Chapter 130" })).toEqual(["Volume 2"]);
+    expect(getLoreStoryArcs({ firstAppearance: "Chapter 787 (actual appearance)" })).toEqual(["Volume 7"]);
+    expect(getLoreStoryArcs({ storyArcs: ["The Beginning", "Sea of Devils"] })).toEqual([]);
+    expect(getLoreStoryArcs({ firstAppearanceBook: null, storyArcs: ["Book 2"] })).toEqual([]);
     expect(getLoreStoryArcs({})).toEqual([]);
+    expect(getLoreFirstAppearanceBook({ firstAppearanceBook: 13 })).toBe(13);
+    expect(getLoreFirstAppearanceBook({ firstAppearanceBook: 14 })).toBeUndefined();
     expect(getDistinctLoreArcs(["Arc B", "Arc A", "arc a"])).toEqual(["Arc A", "Arc B"]);
   });
 
@@ -55,6 +99,7 @@ describe("loreContent", () => {
       subtitle: "Celestial Master of Restrictions",
       description: "A legendary Immortal Emperor.",
       tags: ["Formations", "Restrictions"],
+      firstAppearanceBook: 11,
       status: "Deceased",
       cultivationRealm: "Third Step",
       image: "/assets/bai-fan.jpg",
@@ -65,6 +110,7 @@ describe("loreContent", () => {
       alignment: "Master",
       race: "Human / Celestial",
       tags: ["Formations", "Restrictions"],
+      firstAppearanceBook: 11,
       status: "Deceased",
     });
     expect(updated).not.toHaveProperty("role");

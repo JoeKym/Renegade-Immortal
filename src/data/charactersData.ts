@@ -47,6 +47,7 @@ import mosquitoBeastImg from "@/assets/mosquito-beast.jpg";
 import thunderToadImg from "@/assets/thunder-toad.jpg";
 import suMingImg from "@/assets/su-ming.jpg";
 import yanLeiziImg from "@/assets/yan-leizi.jpg";
+import { getNovelBookForChapter } from "@/lib/novelBooks";
 
 export interface Character {
   name: string;
@@ -73,6 +74,7 @@ export interface Character {
   enemies?: string[];
   status?: string;
   firstAppearance?: string;
+  firstAppearanceBook?: number | null;
   storyArcs?: string[];
   techniques?: string[];
   artifacts?: string[];
@@ -122,6 +124,7 @@ const rawCharacters: Character[] = [
     enemies: ["Teng Huayuan", "All-Seer", "Tuo Sen", "Ling Tianhou", "Seven Colored Sovereign", "Heaven itself"],
     status: "Alive — Transcendent (Fourth Step / Heaven Trampling)",
     firstAppearance: "Chapter 1",
+    firstAppearanceBook: 1,
     techniques: ["Call the Wind", "Summon the Rain", "Finger of Death", "Stop", "Life & Death Domain", "Karmic Severance", "Underworld Ascension Method", "Ji Realm"],
     artifacts: ["Soul Flag", "Restriction Flag", "Heaven Rending Sword", "Ancient God Leather Armor", "Heaven Defying Bead", "Heaven-Avoiding Coffin"],
     majorBattles: ["vs. Teng Clan (extermination)", "vs. All-Seer", "vs. Tuo Sen", "vs. Ling Tianhou", "vs. Seven Colored Sovereign"],
@@ -180,6 +183,7 @@ const rawCharacters: Character[] = [
     status: "Deceased — Murdered by Teng Huayuan's forces",
     cultivationRealm: "None (Mortal)",
     firstAppearance: "Chapter 1",
+    firstAppearanceBook: 1,
   },
   {
     name: "Wang Zhou",
@@ -192,6 +196,7 @@ const rawCharacters: Character[] = [
     status: "Active",
     cultivationRealm: "Foundation Establishment",
     firstAppearance: "Chapter 1",
+    firstAppearanceBook: 1,
   },
   {
     name: "Wang Ping",
@@ -225,7 +230,6 @@ const rawCharacters: Character[] = [
     alias: "Wan Er",
     status: "Alive — Resurrected by Wang Lin at the end",
     cultivationRealm: "Nascent Soul → Resurrected Immortality",
-    firstAppearance: "Book 2",
     sect: "Cloud Sky Sect (Sect Master)",
     master: "Zhou Lin",
     techniques: ["Pill Refining", "Formation Arrays"],
@@ -243,7 +247,6 @@ const rawCharacters: Character[] = [
     status: "Alive",
     cultivationRealm: "Core Formation / Nascent Soul",
     master: "Wang Lin (Guardian & Mentor)",
-    firstAppearance: "Book 3",
     techniques: ["Nurturing Spirit Spells", "Basic Cloud Sky Pill Arts"],
     artifacts: ["Soul-Nurturing Jade", "Wang Lin's Protective Restriction Talismans"],
     image: zhouRuImg, // Import your zhou-ru-new.jpg asset
@@ -274,7 +277,7 @@ const rawCharacters: Character[] = [
     cultivationRealm: "Third Step (Nirvana Void)",
     techniques: ["Underworld Ascension Method"],
     artifacts: ["Heaven Defying Bead (former)"],
-    firstAppearance: "Book 1",
+    firstAppearanceBook: 1,
     image: situNanImg,
   },
   {
@@ -707,7 +710,6 @@ const rawCharacters: Character[] = [
     status: "Deceased (Killed by Wang Lin)",
     cultivationRealm: "Third Step Peak (5th Heaven's Blight)",
     enemies: ["Wang Lin", "Qing Lin", "Master South Cloud", "Sealed Realm Alliance"],
-    firstAppearance: "Outer Realm War Arc",
     techniques: ["Palm of Heaven & Earth", "Outer Realm Divine Seal", "Absolute Restriction Control"],
     artifacts: ["Outer Realm Command Token", "Ancient Celestial Boundary Banner"],
     image: profileImg, // Standard fallback or your dedicated asset
@@ -914,7 +916,6 @@ const rawCharacters: Character[] = [
     cultivationRealm: "Third Step Peak (Profound Tribulation)",
     disciples: ["Wang Lin"],
     enemies: ["Shui Daozi (Daoist Water)"],
-    firstAppearance: "Tian Ni Five Elements Completion Arc",
     techniques: ["Sealing Extermination Spells", "Five Elements Origin Laws", "Third Step Dao Manifestation"],
     artifacts: ["Heaven-Defying Bead / Tian Ni Pearl (Former Master)"],
     image: profileImg,
@@ -972,7 +973,6 @@ const rawCharacters: Character[] = [
     sect: "Sealed Realm Alliance",
     techniques: ["Sealed Realm Formation Art", "Heavenly Cloud Barrier"],
     artifacts: ["Sealed Realm Compass"],
-    firstAppearance: "Outer Realm War Arc",
   },
   {
     name: "Grand Empyrean Gu Dao",
@@ -984,7 +984,6 @@ const rawCharacters: Character[] = [
     status: "Active",
     cultivationRealm: "Grand Empyrean (Peak 3rd Step / Near 4th Step)",
     techniques: ["Gu Dao Solar Strike", "Ancient Clan Ancestral Manifestation"],
-    firstAppearance: "Immortal Astral Continent Arc",
   },
   {
     name: "Grand Empyrean Jiu Di",
@@ -1021,16 +1020,6 @@ const rawCharacters: Character[] = [
     techniques: ["Water Realm Extermination", "Traitor's Soul Binding"],
     artifacts: ["Water Dao Pearl"],
   },
-  {
-    name: "Old Ancestor Teng",
-    race: "Human",
-    alignment: "Antagonist",
-    subtitle: "Ancient Ancestor of Teng Clan",
-    description: "The founding ancestor of the Teng Clan on Planet Suzaku who established the sinister bloodline methods inherited by Teng Huayuan.",
-    tags: ["Teng Clan", "Bloodline Ancestor"],
-    status: "Deceased (Exterminated by Wang Lin)",
-    cultivationRealm: "Late Soul Transformation",
-  },
 
   // ── MULTIVERSE GUEST ──
   {
@@ -1046,10 +1035,64 @@ const rawCharacters: Character[] = [
   },
 ];
 
-export const characters: Character[] = rawCharacters.map((character) => ({
-  ...character,
-  image: character.image ?? profileImg,
-}));
+// Wiki-cited debut chapters mapped to the canonical book ranges; entries without evidence remain unassigned.
+const wikiCitedFirstAppearanceChapters: Partial<Record<string, number>> = {
+  "Wang Lin": 1,
+  "Wang Tian Shui & Zhou Tingsu": 1,
+  "Wang Zhou": 2,
+  "Sun Dazhu": 4,
+  "Liu Mei": 40,
+  "Teng Huayuan": 86,
+  "Qing Shui": 787,
+  "Xu Liguo": 128,
+  "Li Muwan": 130,
+  "Mosquito Beast": 228,
+  "Yun Quezi": 251,
+  "All-Seer": 264,
+  "Mo Zhi": 282,
+  "Thunder Toad": 291,
+  "Zhou Yi": 293,
+  "Chi Hu": 305,
+  "Ling Tianhou": 319,
+  "Zhou Ru": 356,
+  "Dun Tian": 390,
+  "Blood Ancestor": 595,
+  "Du Jian": 633,
+  "Qing Yi": 693,
+  "Shengong Hu": 721,
+  "Zhan Konglie": 727,
+  "Master Flamespark (Yan Leizi)": 736,
+  "Tang Yanfeng": 736,
+  "Li Yuan": 743,
+  "Xi Zi Feng": 798,
+  "Ta Shan": 804,
+  "Master Lu Fu": 843,
+  "Azure Dragon Divine Emperor": 1114,
+  "Qing Lin": 1121,
+  "Li Qianmei": 1160,
+  "Daoist Water": 1221,
+  "Dao Master Blue Dream": 1224,
+  "Xuan Luo": 1707,
+  "Ye Dao": 2033,
+};
+
+export const characters: Character[] = rawCharacters.map((character) => {
+  const firstAppearanceChapter = wikiCitedFirstAppearanceChapters[character.name];
+  const firstAppearanceBook = firstAppearanceChapter === undefined
+    ? undefined
+    : getNovelBookForChapter(firstAppearanceChapter);
+
+  return {
+    ...character,
+    ...(firstAppearanceChapter !== undefined && firstAppearanceBook !== undefined
+      ? {
+          firstAppearance: `Chapter ${firstAppearanceChapter}`,
+          firstAppearanceBook,
+        }
+      : {}),
+    image: character.image ?? profileImg,
+  };
+});
 
 export const races = [
   "All Races",

@@ -14,6 +14,7 @@ export interface ArtifactItem {
   owner: string;
   power: string;
   firstAppearance: string;
+  firstAppearanceBook?: number | null;
   storyArc: string;
   storyArcs?: string[];
   dao?: string;
@@ -828,7 +829,7 @@ const ArtifactsPage = () => {
               ))}
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <label htmlFor="artifact-arc-filter" className="text-xs font-heading uppercase tracking-wider text-muted-foreground">Story arc</label>
+              <label htmlFor="artifact-arc-filter" className="text-xs font-heading uppercase tracking-wider text-muted-foreground">First appearance volume</label>
               <select
                 id="artifact-arc-filter"
                 value={arcFilter}
@@ -842,7 +843,7 @@ const ArtifactsPage = () => {
                 }}
                 className="rounded border border-border bg-background px-3 py-2 text-sm text-foreground"
               >
-                <option value="All Arcs">All arcs</option>
+                <option value="All Arcs">All volumes</option>
                 {items.some((item) => getLoreStoryArcs(item).length === 0) && (
                   <option value="Unassigned">Unassigned</option>
                 )}

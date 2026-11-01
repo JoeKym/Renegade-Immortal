@@ -7,12 +7,12 @@ import { useLoreContent } from "@/contexts/LoreContentContext";
 import { characters as bundledCharacters, type Character } from "@/data/charactersData";
 import { ARTIFACT_ITEMS, type ArtifactItem } from "@/pages/Artifacts";
 import {
-  getDistinctLoreArcs,
   getLoreStoryArcs,
   isArtifactPayload,
   isCharacterPayload,
   mergeLoreContent,
 } from "@/lib/loreContent";
+import { NOVEL_BOOK_OPTIONS } from "@/lib/novelBooks";
 
 type LoreType = "character" | "artifact" | "technique";
 type ExplorerFilter = "all" | LoreType;
@@ -115,12 +115,16 @@ export default function ArcExplorer() {
         groups.set(arc, group);
       });
     });
-    const arcs = getDistinctLoreArcs([...groups.keys()].filter((arc) => arc !== "Unassigned"));
+    const arcs = NOVEL_BOOK_OPTIONS.map(({ label }) => label);
     if (groups.has("Unassigned")) arcs.push("Unassigned");
-    return arcs.map((arc) => ({
-      name: arc,
-      entries: [...(groups.get(arc) ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
-    }));
+    return arcs.map((arc) => {
+      const book = NOVEL_BOOK_OPTIONS.find(({ label }) => label === arc);
+      return {
+        name: arc,
+        book,
+        entries: [...(groups.get(arc) ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+      };
+    });
   }, [filteredEntries]);
 
   const totalEntries = filteredEntries.length;
@@ -129,7 +133,7 @@ export default function ArcExplorer() {
     <Layout>
       <PageHero
         title="Arc Explorer"
-        subtitle="Find the characters, treasures, and techniques connected to each story arc"
+        subtitle="Find characters, treasures, and techniques by their first appearance in one of 13 novel volumes"
       />
       <section className="py-12">
         <div className="container mx-auto max-w-6xl px-4">
@@ -170,7 +174,7 @@ export default function ArcExplorer() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
-                {totalEntries} {totalEntries === 1 ? "entry" : "entries"} across {groupedEntries.length} {groupedEntries.length === 1 ? "arc" : "arcs"}
+                {totalEntries} {totalEntries === 1 ? "entry" : "entries"} across 13 canonical books
               </p>
             </div>
           </div>
@@ -183,33 +187,50 @@ export default function ArcExplorer() {
             </Link>
           </div>
 
-          {groupedEntries.length > 0 ? (
+          {totalEntries > 0 ? (
             <div className="space-y-10">
               {groupedEntries.map((group) => (
                 <section key={group.name} aria-labelledby={`arc-${group.name}`}>
                   <div className="mb-4 flex items-end justify-between gap-3 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <ScrollText size={18} className="text-primary" />
-                      <h2 id={`arc-${group.name}`} className="font-heading text-xl tracking-wider text-primary">{group.name}</h2>
+                      <div>
+                        <h2 id={`arc-${group.name}`} className="font-heading text-xl tracking-wider text-primary">{group.name}</h2>
+                        {group.book && (
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {group.book.title}
+                            {" · Chapters "}
+                            {group.book.startChapter}
+                            {"–"}
+                            {group.book.endChapter}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <span className="text-xs text-muted-foreground">{group.entries.length} entries</span>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.entries.map((entry) => (
-                      <Link
-                        key={`${group.name}-${entry.type}-${entry.name}`}
-                        to={getEntryLink(entry, group.name)}
-                        className="group rounded-lg border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card"
-                      >
-                        <div className="mb-2 flex items-center gap-2">
-                          <EntryIcon type={entry.type} />
-                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{typeLabels[entry.type]}</span>
-                        </div>
-                        <h3 className="mb-2 font-heading text-base text-foreground group-hover:text-primary">{entry.name}</h3>
-                        <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{entry.summary}</p>
-                      </Link>
-                    ))}
-                  </div>
+                  {group.entries.length > 0 ? (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {group.entries.map((entry) => (
+                        <Link
+                          key={`${group.name}-${entry.type}-${entry.name}`}
+                          to={getEntryLink(entry, group.name)}
+                          className="group rounded-lg border border-border bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card"
+                        >
+                          <div className="mb-2 flex items-center gap-2">
+                            <EntryIcon type={entry.type} />
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{typeLabels[entry.type]}</span>
+                          </div>
+                          <h3 className="mb-2 font-heading text-base text-foreground group-hover:text-primary">{entry.name}</h3>
+                          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{entry.summary}</p>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                          <p className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                            No entries are assigned to this book yet.
+                          </p>
+                  )}
                 </section>
               ))}
             </div>
