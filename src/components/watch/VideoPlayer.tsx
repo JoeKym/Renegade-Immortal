@@ -9,7 +9,9 @@ import type { VideoServerName } from "@/lib/videoSourceSlugs";
 
 interface Server {
   name: VideoServerName;
-  label: string;
+  providerLabel: string;
+  displayName: string;
+  description: string;
   directUrl: (ep: number, slug: string) => string;
 }
 
@@ -40,12 +42,16 @@ function getFunctionFallbackUrl(data: unknown, serverName: VideoServerName): str
 const SERVERS: Server[] = [
   {
     name: "anime4i",
-    label: "Anime4i",
+    providerLabel: "Anime4i",
+    displayName: "Wide Library",
+    description: "Large episode library; subtitle quality can vary.",
     directUrl: (ep, slug) => `https://anime4i.com/${slug}-episode-${ep}-english-subtitles/`,
   },
   {
     name: "luciferdonghua",
-    label: "Lucifer (.org)",
+    providerLabel: "Lucifer Donghua (.org)",
+    displayName: "Smooth Watch",
+    description: "Good subtitles and viewing experience; titles may be removed.",
     directUrl: (ep, slug) =>
       slug.includes("fights-break-sphere")
         ? `https://luciferdonghua.org/${slug}-episod-${ep}-english-subtitle/`
@@ -53,7 +59,9 @@ const SERVERS: Server[] = [
   },
   {
     name: "luciferdonghuain",
-    label: "Lucifer (.in Mirror)",
+    providerLabel: "Lucifer Donghua (.in)",
+    displayName: "HD Multi-Sub",
+    description: "Good resolution and multiple subtitles; titles may be removed.",
     directUrl: (ep, slug) => `https://luciferdonghua.in/${slug}-episode-${ep}-lucifer-donghua/`,
   },
 ];
@@ -197,7 +205,10 @@ export function VideoPlayer({
               <MonitorPlay size={22} className="text-primary absolute inset-0 m-auto" />
             </div>
             <p className="text-sm text-foreground font-heading tracking-wider mb-1">
-              {SERVERS[activeServer]?.label}
+              {SERVERS[activeServer]?.displayName}
+            </p>
+            <p className="text-[11px] text-muted-foreground font-body">
+              {SERVERS[activeServer]?.providerLabel}
             </p>
             <p className="text-xs text-muted-foreground font-body">
               Loading Episode {episode}...
@@ -230,7 +241,7 @@ export function VideoPlayer({
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground rounded text-xs font-body transition-colors border border-border"
                 >
-                  <ExternalLink size={11} /> {srv.label}
+                  <ExternalLink size={11} /> {srv.providerLabel}
                 </a>
               ))}
             </div>
@@ -290,7 +301,9 @@ export function VideoPlayer({
               <button
                 key={srv.name}
                 onClick={() => handleServerClick(i)}
-                className={`relative px-3 py-1.5 rounded text-xs font-body transition-all ${
+                title={`${srv.providerLabel}: ${srv.description}`}
+                aria-label={`${srv.displayName} — ${srv.providerLabel}. ${srv.description}`}
+                className={`relative rounded px-3 py-1.5 text-left font-body transition-all ${
                   isActive && loadState === "playing"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : isActive && loadState === "loading"
@@ -300,7 +313,10 @@ export function VideoPlayer({
                     : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/70"
                 }`}
               >
-                {srv.label}
+                <span className="block text-xs font-semibold">{srv.displayName}</span>
+                <span className={`mt-0.5 block text-[10px] ${isActive && loadState !== "error" ? "opacity-80" : "text-muted-foreground"}`}>
+                  {srv.providerLabel}
+                </span>
                 {isActive && loadState === "loading" && (
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
                 )}
@@ -328,7 +344,7 @@ export function VideoPlayer({
                   className="flex items-center gap-1 px-2.5 py-1 rounded bg-muted hover:bg-muted/70 text-[10px] font-body text-muted-foreground hover:text-foreground transition-colors border border-border"
                 >
                   <ExternalLink size={10} />
-                  {srv.label}
+                  {srv.providerLabel}
                 </a>
               ))}
             </div>
