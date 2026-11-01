@@ -7,15 +7,16 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
+        "xl": "1280px",
         "2xl": "1400px",
       },
     },
     extend: {
       fontFamily: {
         heading: ["Cinzel", "serif"],
-        body: ["EB Garamond", "serif"],
+        body: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

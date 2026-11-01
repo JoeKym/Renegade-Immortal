@@ -92,8 +92,8 @@ function NavDropdown({ dropdown, location, t }: { dropdown: typeof worldDropdown
       <DropdownMenuTrigger
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 outline-none ${
-          isActive ? "text-primary bg-muted" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+        className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-body transition-colors outline-none ${
+          isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
         }`}
       >
         <Icon size={14} />
@@ -134,14 +134,14 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="font-heading text-lg font-bold text-primary tracking-wider">仙逆</span>
-            <span className="hidden sm:inline font-heading text-sm text-foreground tracking-widest uppercase">Renegade Immortal</span>
+      <nav aria-label="Main navigation" className="fixed inset-x-0 top-0 z-50 border-b border-border/80 bg-background/90 shadow-lg shadow-black/10 backdrop-blur-2xl">
+        <div className="container mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3">
+          <Link to="/" aria-label="Renegade Immortal home" className="flex shrink-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 font-heading text-sm font-bold text-primary">仙逆</span>
+            <span className="hidden font-heading text-xs font-semibold tracking-[0.16em] text-foreground sm:inline lg:text-sm">RENEGADE IMMORTAL</span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden xl:flex items-center gap-0.5">
             {mainNav.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -149,8 +149,9 @@ export function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 ${
-                    isActive ? "text-primary bg-muted" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-body transition-colors ${
+                    isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
                   }`}
                 >
                   <Icon size={14} />
@@ -164,10 +165,11 @@ export function Navbar() {
 
             <Link
               to={communityNav.path}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 ${
+              aria-current={location.pathname === communityNav.path || location.pathname.startsWith("/communities") ? "page" : undefined}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-body transition-colors ${
                 location.pathname === communityNav.path || location.pathname.startsWith("/communities")
-                  ? "text-primary bg-muted"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               }`}
             >
               <Users size={14} />
@@ -176,10 +178,11 @@ export function Navbar() {
 
             <Link
               to={feedNav.path}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 ${
+              aria-current={location.pathname === feedNav.path ? "page" : undefined}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-body transition-colors ${
                 location.pathname === feedNav.path
-                  ? "text-primary bg-muted"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               }`}
             >
               <Rss size={14} />
@@ -188,10 +191,11 @@ export function Navbar() {
 
             <Link
               to={voidyNav.path}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 ${
+              aria-current={location.pathname === voidyNav.path ? "page" : undefined}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-body transition-colors ${
                 location.pathname === voidyNav.path
-                  ? "text-primary bg-muted"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               }`}
             >
               <Bot size={14} />
@@ -202,13 +206,13 @@ export function Navbar() {
             <GroupsNavLink iconSize={14} />
           </div>
 
-          <div className="flex items-center gap-2">
-            <button onClick={() => setSearchOpen(true)} className="p-2 rounded-md text-muted-foreground hover:text-primary transition-colors">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <button type="button" aria-label="Open site search" onClick={() => setSearchOpen(true)} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-primary">
               <Search size={18} />
             </button>
             <ThemeToggle />
             <UserMenu />
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-primary transition-colors">
+            <button type="button" aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)} className="xl:hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-primary">
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
@@ -220,7 +224,7 @@ export function Navbar() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="lg:hidden border-t border-border overflow-hidden"
+              className="xl:hidden border-t border-border/80 bg-background/95 overflow-hidden backdrop-blur-2xl"
             >
               <div className="p-4 space-y-1 max-h-[70vh] overflow-y-auto">
                 {allNavItems.map((item) => {
@@ -231,8 +235,9 @@ export function Navbar() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-md font-body transition-all ${
-                        isActive ? "text-primary bg-muted" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex items-center gap-3 rounded-lg px-4 py-3 font-body transition-colors ${
+                        isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
                       }`}
                     >
                       <Icon size={16} />

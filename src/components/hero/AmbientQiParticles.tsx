@@ -205,7 +205,7 @@ export function AmbientQiParticles({ isHovered, sectionRef, clickBurst }: Ambien
               fill="url(#node-glow)"
               filter="url(#star-glow)"
               animate={{
-                r: [isHovered ? 4 : 2.5, isHovered ? 8 : 5, isHovered ? 4 : 2.5],
+                scale: [0.7, isHovered ? 1.35 : 1.15, 0.7],
                 opacity: [isHovered ? 0.4 : 0.2, isHovered ? 0.9 : 0.5, isHovered ? 0.4 : 0.2],
               }}
               transition={{ duration: 2.5, delay: i * 0.4, repeat: Infinity, ease: "easeInOut" }}
@@ -217,7 +217,7 @@ export function AmbientQiParticles({ isHovered, sectionRef, clickBurst }: Ambien
               stroke="hsl(var(--primary))"
               strokeWidth={0.5}
               animate={{
-                r: [isHovered ? 8 : 5, isHovered ? 20 : 14, isHovered ? 8 : 5],
+                scale: [0.5, isHovered ? 1.4 : 1.15, 0.5],
                 opacity: [0.3, 0, 0.3],
               }}
               transition={{ duration: 2.5, delay: i * 0.4, repeat: Infinity, ease: "easeOut" }}

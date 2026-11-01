@@ -123,11 +123,11 @@ export function Layout({ children }: { children: ReactNode }) {
         loop
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover z-0 opacity-15 pointer-events-none"
+        className="fixed inset-0 z-0 h-full w-full object-cover opacity-[0.08] pointer-events-none"
       >
         <source src="/videos/renegadeimmortal_bg.mp4" type="video/mp4" />
       </video>
-      <div className="fixed inset-0 z-0 bg-background/70 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/90 via-background/95 to-background pointer-events-none" />
 
       <Navbar />
 
@@ -214,19 +214,22 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <FeedbackReviews pagePath={location.pathname} />
 
-      <footer className="border-t border-border py-12 mt-20 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <p className="font-heading text-primary text-lg tracking-wider mb-2">仙逆 · Renegade Immortal</p>
-            <p className="text-muted-foreground font-body text-sm">
+      <footer className="relative z-10 mt-16 border-t border-border/80 bg-card/30 py-10 md:mt-20 md:py-14">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="mb-8 flex flex-col gap-3 md:mb-10 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="mb-2 font-heading text-base font-semibold tracking-wide text-primary md:text-lg">仙逆 <span className="text-muted-foreground/60">·</span> Renegade Immortal</p>
+              <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
               A fan-made reference, donghua release tracker, and community for Er Gen’s Renegade Immortal
-            </p>
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground/75">Explore the world. Follow the story. Find your Dao.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 border-y border-border/70 py-8 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-9 border-y border-border/70 py-8 md:grid-cols-4 md:gap-8 md:py-9">
             <section>
-              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Explore</h3>
-              <nav className="flex flex-col gap-2.5 text-sm font-body">
+              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Explore</h3>
+              <nav aria-label="Explore links" className="flex flex-col gap-2.5 text-sm">
                 <Link to="/guide" className="text-muted-foreground hover:text-primary transition-colors">Beginner’s Guide</Link>
                 <Link to="/characters" className="text-muted-foreground hover:text-primary transition-colors">Characters</Link>
                 <Link to="/arcs" className="text-muted-foreground hover:text-primary transition-colors">Arc Explorer</Link>
@@ -237,8 +240,8 @@ export function Layout({ children }: { children: ReactNode }) {
             </section>
 
             <section>
-              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Donghua & Watch</h3>
-              <nav className="flex flex-col gap-2.5 text-sm font-body">
+              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Donghua & Watch</h3>
+              <nav aria-label="Donghua and watch links" className="flex flex-col gap-2.5 text-sm">
                 <Link to="/donghua" className="text-muted-foreground hover:text-primary transition-colors">Donghua Tracker</Link>
                 <Link to="/donghua-release-timeline" className="text-muted-foreground hover:text-primary transition-colors">Release Timeline</Link>
                 <Link to="/watch" className="text-muted-foreground hover:text-primary transition-colors">Watch Episodes</Link>
@@ -248,8 +251,8 @@ export function Layout({ children }: { children: ReactNode }) {
             </section>
 
             <section>
-              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Community</h3>
-              <nav className="flex flex-col gap-2.5 text-sm font-body">
+              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Community</h3>
+              <nav aria-label="Community links" className="flex flex-col gap-2.5 text-sm">
                 <Link to="/communities" className="text-muted-foreground hover:text-primary transition-colors">Communities</Link>
                 <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Community Feed</Link>
                 <Link to="/members" className="text-muted-foreground hover:text-primary transition-colors">Members</Link>
@@ -259,8 +262,8 @@ export function Layout({ children }: { children: ReactNode }) {
             </section>
 
             <section>
-              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Project & Legal</h3>
-              <nav className="flex flex-col gap-2.5 text-sm font-body">
+              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Project & Legal</h3>
+              <nav aria-label="Project and legal links" className="flex flex-col gap-2.5 text-sm">
                 <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link>
                 <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
                 <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
@@ -269,9 +272,9 @@ export function Layout({ children }: { children: ReactNode }) {
             </section>
           </div>
 
-          <div className="py-7 text-center">
-            <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Connect</h3>
-            <div className="flex flex-wrap justify-center gap-2">
+          <div className="py-7">
+            <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Connect</h3>
+            <div className="flex flex-wrap gap-2">
               {socialLinks.map((link) => (
                 <Tooltip key={link.name}>
                   <TooltipTrigger asChild>
@@ -279,7 +282,7 @@ export function Layout({ children }: { children: ReactNode }) {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors text-xs font-body"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background/40 px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                     >
                       {link.svgSrc ? (
                         <SvgIcon src={link.svgSrc} className="h-4 w-4" />
@@ -298,7 +301,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <TooltipTrigger asChild>
                   <a
                     href="mailto:mail.jkyme@gmail.com"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors text-xs font-body"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background/40 px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                   >
                     <SvgIcon src={emailIcon} className="h-4 w-4" />
                     Email
@@ -316,11 +319,11 @@ export function Layout({ children }: { children: ReactNode }) {
               <VisitorCounter />
             </div>
           )}
-          <div className="text-center">
-            <p className="text-muted-foreground/50 font-body text-xs">
+          <div className="border-t border-border/60 pt-6">
+            <p className="text-xs text-muted-foreground/70">
               All lore content based on the original novel by Er Gen
             </p>
-            <p className="text-muted-foreground font-body text-xs mt-3">
+            <p className="mt-3 text-xs text-muted-foreground">
               Created by{" "}
               <a
                 href="https://joekymlabs.onrender.com/"
