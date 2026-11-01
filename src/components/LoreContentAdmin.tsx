@@ -15,6 +15,8 @@ import {
   isCharacterPayload,
   isLoreContentType,
   loreContentId,
+  normalizeArtifactPayload,
+  normalizeCharacterPayload,
   type LoreContentType,
 } from "@/lib/loreContent";
 import type { Json } from "@/integrations/supabase/types";
@@ -77,11 +79,6 @@ function parseArcText(value: string) {
   return getDistinctLoreArcs(value.split(/[\n,]/));
 }
 
-function isPayloadValid(type: LoreContentType, payload: unknown) {
-  if (type === "character") return isCharacterPayload(payload);
-  return isArtifactPayload(payload) && payload.type === type;
-}
-
 export default function LoreContentAdmin() {
   const { user } = useAuth();
   const [type, setType] = useState<LoreContentType>("character");
@@ -89,6 +86,7 @@ export default function LoreContentAdmin() {
   const [selectedId, setSelectedId] = useState("");
   const [editorValue, setEditorValue] = useState("");
   const [arcText, setArcText] = useState("");
+  const [arcTextEdited, setArcTextEdited] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -144,6 +142,7 @@ export default function LoreContentAdmin() {
     if (!selectedId) {
       setEditorValue(JSON.stringify(blankPayload(type), null, 2));
       setArcText("");
+      setArcTextEdited(false);
       return;
     }
     const saved = savedRecords.find((record) => record.id === selectedId);
@@ -152,6 +151,7 @@ export default function LoreContentAdmin() {
     if (payload) {
       setEditorValue(JSON.stringify(payload, null, 2));
       setArcText(getEditableArcs(payload, type).join("\n"));
+      setArcTextEdited(false);
     }
   }, [selectedId, savedRecords, type]);
 
@@ -163,14 +163,28 @@ export default function LoreContentAdmin() {
       toast.error("Content must be valid JSON");
       return;
     }
-    if (!isPayloadValid(type, payload)) {
+    const savedPayload = savedRecords.find((record) => record.id === selectedId)?.payload;
+    const bundledPayload = bundledContent[type].find((record) => record.id === selectedId)?.payload;
+    const existingPayload = savedPayload ?? bundledPayload;
+    const normalizedPayload = type === "character"
+      ? normalizeCharacterPayload(
+        payload,
+        isCharacterPayload(existingPayload) ? existingPayload : undefined,
+      )
+      : normalizeArtifactPayload(
+        payload,
+        type,
+        isArtifactPayload(existingPayload) && existingPayload.type === type ? existingPayload : undefined,
+      );
+    if (!normalizedPayload) {
       toast.error(type === "character"
-        ? "Character content needs a name, race, role, subtitle, description, and string tags"
-        : "Item content needs a name, origin, owner, power, first appearance, story arc, and matching type");
+        ? "Add a name. Other character fields are optional; use 'role' or 'alignment' with a valid role and check any supplied field types."
+        : "Add a name. Other item fields are optional; check the selected type and any supplied field types.");
       return;
     }
-    const payloadWithArcs = { ...payload, storyArcs: parseArcText(arcText) };
-    const id = selectedId || loreContentId(payload.name);
+    const arcs = arcTextEdited ? parseArcText(arcText) : getLoreStoryArcs(normalizedPayload);
+    const payloadWithArcs = { ...normalizedPayload, storyArcs: arcs };
+    const id = selectedId || loreContentId(normalizedPayload.name);
     if (!id) {
       toast.error("Add a name before saving");
       return;
@@ -265,7 +279,10 @@ export default function LoreContentAdmin() {
           <Textarea
             id="lore-content-arcs"
             value={arcText}
-            onChange={(event) => setArcText(event.target.value)}
+            onChange={(event) => {
+              setArcText(event.target.value);
+              setArcTextEdited(true);
+            }}
             placeholder="One arc name per line, for example: Zhao Country — The Beginning"
             className="min-h-20"
           />
@@ -298,7 +315,8 @@ export default function LoreContentAdmin() {
             spellCheck={false}
           />
           <p className="text-xs text-muted-foreground">
-            Keep the shown field names and data types. String lists such as tags, techniques, and artifacts use JSON arrays.
+            For an existing entry, include only the fields you want to change; omitted fields stay unchanged. New entries need a name, and other fields are optional.
+            Use <code>alignment</code> or <code>role</code> for a character’s role. String lists such as tags, techniques, and artifacts use JSON arrays.
             {selectedIsBundled && !selectedIsSaved ? " Saving creates a database override; the bundled entry remains available to restore." : ""}
           </p>
         </div>

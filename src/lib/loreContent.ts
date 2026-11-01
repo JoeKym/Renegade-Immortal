@@ -110,6 +110,49 @@ export function isArtifactPayload(value: unknown): value is ArtifactItem {
   );
 }
 
+export function normalizeCharacterPayload(value: unknown, base?: Character): Character | null {
+  if (!isObject(value)) return null;
+
+  const { role, ...fields } = value;
+  const candidate: Record<string, unknown> = {
+    name: "",
+    race: "Human",
+    alignment: "Ally",
+    subtitle: "",
+    description: "",
+    tags: [],
+    ...base,
+    ...fields,
+    ...(typeof role === "string" ? { alignment: role } : {}),
+  };
+
+  if (typeof candidate.name === "string") candidate.name = candidate.name.trim();
+  return isCharacterPayload(candidate) ? candidate : null;
+}
+
+export function normalizeArtifactPayload(
+  value: unknown,
+  type: "artifact" | "technique",
+  base?: ArtifactItem,
+): ArtifactItem | null {
+  if (!isObject(value)) return null;
+
+  const candidate: Record<string, unknown> = {
+    name: "",
+    origin: "",
+    owner: "",
+    power: "",
+    firstAppearance: "",
+    storyArc: "",
+    ...base,
+    ...value,
+    type,
+  };
+
+  if (typeof candidate.name === "string") candidate.name = candidate.name.trim();
+  return isArtifactPayload(candidate) ? candidate : null;
+}
+
 export function mergeLoreContent<T extends { name: string }>(
   type: LoreContentType,
   bundled: T[],

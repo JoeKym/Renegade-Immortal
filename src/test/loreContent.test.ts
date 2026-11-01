@@ -6,6 +6,8 @@ import {
   isCharacterPayload,
   loreContentId,
   mergeLoreContent,
+  normalizeArtifactPayload,
+  normalizeCharacterPayload,
 } from "@/lib/loreContent";
 import type { Character } from "@/data/charactersData";
 import type { ArtifactItem } from "@/pages/Artifacts";
@@ -43,6 +45,44 @@ describe("loreContent", () => {
     expect(getLoreStoryArcs({ storyArc: "Legacy arc", storyArcs: [] })).toEqual([]);
     expect(getLoreStoryArcs({})).toEqual([]);
     expect(getDistinctLoreArcs(["Arc B", "Arc A", "arc a"])).toEqual(["Arc A", "Arc B"]);
+  });
+
+  it("accepts role as an alias and allows partial character edits", () => {
+    const updated = normalizeCharacterPayload({
+      name: "Thunder Immortal Emperor Bai Fan",
+      race: "Human / Celestial",
+      role: "Master",
+      subtitle: "Celestial Master of Restrictions",
+      description: "A legendary Immortal Emperor.",
+      tags: ["Formations", "Restrictions"],
+      status: "Deceased",
+      cultivationRealm: "Third Step",
+      image: "/assets/bai-fan.jpg",
+    });
+
+    expect(updated).toMatchObject({
+      name: "Thunder Immortal Emperor Bai Fan",
+      alignment: "Master",
+      race: "Human / Celestial",
+      tags: ["Formations", "Restrictions"],
+      status: "Deceased",
+    });
+    expect(updated).not.toHaveProperty("role");
+    expect(normalizeCharacterPayload({ name: "New Character", status: "Active" }))
+      .toMatchObject({ name: "New Character", status: "Active", alignment: "Ally" });
+    expect(normalizeCharacterPayload({ status: "Active" }, bundledCharacter))
+      .toMatchObject({ ...bundledCharacter, status: "Active" });
+    expect(normalizeCharacterPayload({ name: "Bad", role: "Unknown" })).toBeNull();
+  });
+
+  it("allows partial artifact and technique edits while retaining other fields", () => {
+    expect(normalizeArtifactPayload(
+      { power: "Updated power" },
+      "artifact",
+      bundledArtifact,
+    )).toMatchObject({ ...bundledArtifact, power: "Updated power" });
+    expect(normalizeArtifactPayload({ name: "New technique" }, "technique"))
+      .toMatchObject({ name: "New technique", type: "technique" });
   });
 
   it("overrides bundled content and appends published CMS entries", () => {
