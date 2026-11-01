@@ -219,13 +219,58 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="text-center mb-8">
             <p className="font-heading text-primary text-lg tracking-wider mb-2">仙逆 · Renegade Immortal</p>
             <p className="text-muted-foreground font-body text-sm">
-              A fan-made lore encyclopedia for Er Gen's Renegade Immortal (Xian Ni)
+              A fan-made reference, donghua release tracker, and community for Er Gen’s Renegade Immortal
             </p>
           </div>
 
-          <div className="text-center mb-8">
-            <h3 className="font-heading text-foreground text-sm uppercase tracking-widest mb-4">Community</h3>
-            <div className="flex flex-wrap justify-center gap-3">
+          <div className="grid grid-cols-2 gap-8 border-y border-border/70 py-8 md:grid-cols-4">
+            <section>
+              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Explore</h3>
+              <nav className="flex flex-col gap-2.5 text-sm font-body">
+                <Link to="/guide" className="text-muted-foreground hover:text-primary transition-colors">Beginner’s Guide</Link>
+                <Link to="/characters" className="text-muted-foreground hover:text-primary transition-colors">Characters</Link>
+                <Link to="/timeline" className="text-muted-foreground hover:text-primary transition-colors">Story Timeline</Link>
+                <Link to="/cultivation" className="text-muted-foreground hover:text-primary transition-colors">Cultivation</Link>
+                <Link to="/multiverse" className="text-muted-foreground hover:text-primary transition-colors">Multiverse</Link>
+              </nav>
+            </section>
+
+            <section>
+              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Donghua & Watch</h3>
+              <nav className="flex flex-col gap-2.5 text-sm font-body">
+                <Link to="/donghua" className="text-muted-foreground hover:text-primary transition-colors">Donghua Tracker</Link>
+                <Link to="/donghua-release-timeline" className="text-muted-foreground hover:text-primary transition-colors">Release Timeline</Link>
+                <Link to="/watch" className="text-muted-foreground hover:text-primary transition-colors">Watch Episodes</Link>
+                <Link to="/donghua-series/theatrical-movies" className="text-muted-foreground hover:text-primary transition-colors">Movies & Specials</Link>
+                <Link to="/news" className="text-muted-foreground hover:text-primary transition-colors">News & Updates</Link>
+              </nav>
+            </section>
+
+            <section>
+              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Community</h3>
+              <nav className="flex flex-col gap-2.5 text-sm font-body">
+                <Link to="/communities" className="text-muted-foreground hover:text-primary transition-colors">Communities</Link>
+                <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Community Feed</Link>
+                <Link to="/members" className="text-muted-foreground hover:text-primary transition-colors">Members</Link>
+                <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Support</Link>
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
+              </nav>
+            </section>
+
+            <section>
+              <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Project & Legal</h3>
+              <nav className="flex flex-col gap-2.5 text-sm font-body">
+                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link>
+                <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
+                <Link to="/dmca" className="text-muted-foreground hover:text-primary transition-colors">Copyright & DMCA</Link>
+              </nav>
+            </section>
+          </div>
+
+          <div className="py-7 text-center">
+            <h3 className="font-heading text-foreground text-xs uppercase tracking-widest mb-4">Connect</h3>
+            <div className="flex flex-wrap justify-center gap-2">
               {socialLinks.map((link) => (
                 <Tooltip key={link.name}>
                   <TooltipTrigger asChild>
@@ -233,7 +278,7 @@ export function Layout({ children }: { children: ReactNode }) {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-all duration-200 text-xs font-body hover:scale-110 hover:shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors text-xs font-body"
                     >
                       {link.svgSrc ? (
                         <SvgIcon src={link.svgSrc} className="h-4 w-4" />
@@ -252,7 +297,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <TooltipTrigger asChild>
                   <a
                     href="mailto:mail.jkyme@gmail.com"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-all duration-200 text-xs font-body hover:scale-110 hover:shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors text-xs font-body"
                   >
                     <SvgIcon src={emailIcon} className="h-4 w-4" />
                     Email
@@ -263,15 +308,6 @@ export function Layout({ children }: { children: ReactNode }) {
                 </TooltipContent>
               </Tooltip>
             </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4 mb-6 text-xs font-body">
-            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link>
-            <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
-            <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Support</Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
-            <Link to="/dmca" className="text-muted-foreground hover:text-primary transition-colors">DMCA</Link>
           </div>
 
           {isAdmin && (

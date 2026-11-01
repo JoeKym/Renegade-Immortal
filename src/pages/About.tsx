@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { motion } from "framer-motion";
 import {
   BookOpen, Users, Tv, Play, Globe, Scroll, Star, Heart,
-  Shield, Map, Clock, Sparkles, ExternalLink, Code2, Mail
+  Shield, Map, Clock, Sparkles, ExternalLink, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getDonghuaStats } from "@/services/donghua";
+import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { isCompletedSeries } from "@/lib/donghuaStatus";
 
 const features = [
   { icon: Users, label: "Characters", desc: "Detailed profiles for every major character — cultivation level, dao, relationships, and story arc.", path: "/characters" },
@@ -15,43 +15,34 @@ const features = [
   { icon: Sparkles, label: "Daos", desc: "Explore every Dao and technique featured in the story.", path: "/daos" },
   { icon: Shield, label: "Artifacts", label2: "Artifacts", desc: "All celestial artifacts, flying swords, and magical treasures catalogued.", path: "/artifacts" },
   { icon: Map, label: "Locations", desc: "Interactive atlas of every realm, sect, and landmark.", path: "/locations" },
-  { icon: Clock, label: "Donghua Releases", desc: "Current tracked series, episodes, and release dates.", path: "/timeline" },
+  { icon: Clock, label: "Timeline", desc: "Chronological story events across all arcs.", path: "/timeline" },
   { icon: Globe, label: "Multiverse", desc: "The full cosmology — star systems, realms, and planes of existence.", path: "/multiverse" },
   { icon: Tv, label: "Donghua", desc: "Everything about the animated adaptation — seasons, studios, cast.", path: "/donghua" },
+  { icon: Clock, label: "Release Timeline", desc: "Current tracked series, episode progress, and release dates.", path: "/donghua-release-timeline" },
   { icon: Play, label: "Watch", desc: "Stream all released episodes directly inside the site.", path: "/watch" },
   { icon: Scroll, label: "Lore", desc: "Deep-dives into cultivation systems, factions, and in-universe history.", path: "/lore" },
   { icon: Users, label: "Community", desc: "Join fan communities, post theories, and chat with other readers.", path: "/communities" },
 ];
 
-const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
-
 export default function About() {
-  const [stats, setStats] = useState<{ currentEpisode: number; currentChapter: number } | null>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getDonghuaStats();
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to fetch donghua stats:", error);
-      }
-    };
-    fetchStats();
-  }, []);
-
+  const ongoingCount = DONGHUA_SERIES.filter(
+    (series) => !isCompletedSeries(series.statusTag) && !series.statusTag?.includes("Hiatus"),
+  ).length;
+  const movieCount = DONGHUA_SERIES.filter(
+    (series) => series.statusTag?.includes("Movie") || series.statusTag?.includes("Special"),
+  ).length;
   const staticStats = [
-    { value: "7", label: "Streaming Servers" },
-    { value: stats ? `${stats.currentEpisode}+` : "153+", label: "Episodes Covered" },
-    { value: stats ? `${stats.currentChapter}+` : "1000", label: "Chapters Adapted" },
-    { value: "1", label: "Epic Story" },
+    { value: `${DONGHUA_SERIES.length}`, label: "Tracked Titles" },
+    { value: `${ongoingCount}`, label: "Ongoing Schedules" },
+    { value: `${movieCount}`, label: "Movies & Specials" },
+    { value: "3", label: "Video Sources" },
   ];
 
   return (
     <Layout>
       <PageHero 
-        title="About - Renegade Immortal Wiki" 
-        subtitle="The most complete fan-made encyclopedia for Er Gen's Renegade Immortal (仙逆) — covering the original novel, the donghua adaptation, characters, lore, and more."
+        title="About Renegade Immortal"
+        subtitle="An independent fan reference and community for Er Gen’s Renegade Immortal (仙逆), its donghua adaptation, characters, and lore."
       />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -79,8 +70,8 @@ export default function About() {
               masterpieces <em>I Shall Seal the Heavens</em> and <em>A Will Eternal</em>.
             </p>
             <p className="text-muted-foreground font-body leading-relaxed">
-              The donghua (Chinese animated) adaptation by <strong className="text-foreground">Tencent Penguin Pictures</strong> began airing in 2023
-              and is currently ongoing with 153+ episodes released.
+              The donghua adaptation began airing in 2023. This site tracks its release progress
+              alongside other donghua series, specials, and theatrical films.
             </p>
           </div>
           <div className="space-y-4">
@@ -90,11 +81,13 @@ export default function About() {
                 {[
                   ["Author", "Er Gen (耳根)"],
                   ["Genre", "Xianxia / Cultivation"],
-                  ["Novel Chapters", "2,138"],
-                  ["Status", "Novel Complete / Donghua Ongoing"],
-                  ["Studio", "Tencent Penguin Pictures"],
+                  ["Novel", "Complete"],
+                  ["Adaptation", "Donghua ongoing"],
+                  ["Release Tracker", `${DONGHUA_SERIES.length} tracked titles`],
+                  ["Platform", "Tencent Video"],
+                  ["Video Sources", "Three external source options"],
                   ["First Episode", "2023"],
-                  ["Languages", "Chinese (subbed in English)"],
+                  ["Languages", "Chinese audio; English-subtitle links where available"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-start gap-3">
                     <dt className="text-muted-foreground shrink-0">{k}</dt>
@@ -178,13 +171,14 @@ export default function About() {
           </div>
           <p className="text-muted-foreground font-body leading-relaxed mb-4">
             This wiki was built as a passion project by a fan of Er Gen's works. The goal is simple: give the
-            Renegade Immortal community the best possible resource — detailed lore, a character database,
-            streaming access, and a place to connect with other readers and viewers.
+            Renegade Immortal community a useful reference — detailed lore, a character database, release
+            tracking for donghua and related movies, episode pages with external video sources, and a place
+            to connect with other readers and viewers.
           </p>
           <p className="text-muted-foreground font-body leading-relaxed mb-4">
             All lore, story summaries, and character information are based on the original novel by Er Gen and
-            the official donghua adaptation. This site is non-commercial and fan-made — it is not affiliated
-            with Er Gen, the publishers, or Tencent.
+            publicly available material about the donghua adaptation. This is an independent fan project and
+            is not affiliated with or endorsed by Er Gen, publishers, studios, or streaming providers.
           </p>
           <p className="text-muted-foreground font-body leading-relaxed mb-6">
             Designed and developed by{" "}
@@ -198,6 +192,12 @@ export default function About() {
             </a>
           </p>
           <div className="flex flex-wrap gap-3">
+            <Link
+              to="/donghua-release-timeline"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-primary hover:border-primary transition-all duration-200 font-body text-sm"
+            >
+              <Tv size={14} /> Release Timeline
+            </Link>
             <Link
               to="/contact"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 font-body text-sm"

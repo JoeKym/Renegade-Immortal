@@ -39,6 +39,7 @@ const moreDropdown = {
   items: [
     { path: "/timeline", labelKey: "guide.timeline", icon: Clock },
     { path: "/donghua", labelKey: "watch.donghua", icon: Tv },
+    { path: "/donghua-release-timeline", labelKey: "nav.donghuaReleases", icon: Clock },
     { path: "/lore", labelKey: "nav.lore", icon: BookOpen },
     { path: "/news", labelKey: "nav.news", icon: Newspaper },
     { path: "/watch", labelKey: "nav.watch", icon: Play },
@@ -62,6 +63,7 @@ const allNavItems = [
   { path: "/timeline", labelKey: "guide.timeline", icon: Clock },
   { path: "/multiverse", labelKey: "world.multiverse", icon: Globe },
   { path: "/donghua", labelKey: "watch.donghua", icon: Tv },
+  { path: "/donghua-release-timeline", labelKey: "nav.donghuaReleases", icon: Clock },
   { path: "/lore", labelKey: "nav.world", icon: BookOpen },
   { path: "/news", labelKey: "nav.news", icon: Newspaper },
   { path: "/watch", labelKey: "nav.watch", icon: Play },

@@ -36,9 +36,10 @@ const features = [
   { icon: Swords, title: "Cultivation", desc: "Realm progression system", path: "/cultivation" },
   { icon: Shield, title: "Artifacts", desc: "Weapons & techniques", path: "/artifacts" },
   { icon: Map, title: "Locations", desc: "Worlds and realms", path: "/locations" },
-  { icon: Clock, title: "Donghua Releases", desc: "Current episodes and release dates", path: "/timeline" },
+  { icon: Clock, title: "Timeline", desc: "Journey through epochs", path: "/timeline" },
   { icon: Globe, title: "Multiverse", desc: "Er Gen's connected universes", path: "/multiverse" },
   { icon: Tv, title: "Donghua", desc: "Anime adaptation tracker", path: "/donghua" },
+  { icon: Clock, title: "Release Timeline", desc: "Current episodes and release dates", path: "/donghua-release-timeline" },
   { icon: BookOpen, title: "Lore Notes", desc: "Glossary and deep dives", path: "/lore" },
 ];
 

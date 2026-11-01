@@ -410,8 +410,14 @@ export const ReleaseTimeline = () => {
             </h3>
           </div>
           <p className="text-xs text-muted-foreground font-body">
-            Chronological progression, weekly broadcasting schedules, theatrical specials, and verified studio production notices.
+            Weekly release schedules, live episode progress, theatrical specials, and tracked production notices.
           </p>
+          <Link
+            to="/donghua-release-timeline"
+            className="mt-2 inline-flex items-center gap-1 text-xs font-heading text-primary hover:underline"
+          >
+            Open full release timeline <ExternalLink size={12} />
+          </Link>
         </div>
 
         {/* Filter Badges */}

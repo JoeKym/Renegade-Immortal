@@ -15,6 +15,7 @@ const translations: Record<string, Record<string, string>> = {
     "nav.messages": "Messages",
     "nav.groups": "Groups",
     "nav.watch": "Watch",
+    "nav.donghuaReleases": "Release Timeline",
     "nav.ai_chat": "AI Chat",
     "nav.news": "News",
     "nav.lore": "Lore",

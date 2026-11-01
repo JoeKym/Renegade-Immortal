@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { BookOpen, Users, Swords, Sparkles, Clock, Tv, ChevronRight } from "lucide-react";
-import { getDonghuaStats } from "@/services/donghua";
+import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { getAutoReleasedEpisodes, getNextReleaseInfo } from "@/lib/releaseSchedule";
 
 const sections = [
   {
@@ -53,25 +53,16 @@ const readingOrder = [
 ];
 
 const GuidePage = () => {
-  const [stats, setStats] = useState<{ currentEpisode: number } | null>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getDonghuaStats();
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to fetch donghua stats:", error);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  const episodeCount = stats?.currentEpisode || 153;
+  const renegadeImmortal = DONGHUA_SERIES.find((series) => series.id === "renegade-immortal");
+  const episodeCount = renegadeImmortal ? getAutoReleasedEpisodes(renegadeImmortal) : 0;
+  const nextRelease = renegadeImmortal ? getNextReleaseInfo(renegadeImmortal) : null;
 
   return (
     <Layout>
-      <PageHero title="Beginner's Guide" subtitle="New to Renegade Immortal? Start here to understand the world of Xian Ni" />
+      <PageHero
+        title="Beginner's Guide"
+        subtitle="Start with the story, find your way around the lore, and follow the ongoing donghua"
+      />
 
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -153,13 +144,29 @@ const GuidePage = () => {
           {/* Donghua Section */}
           <div className="gradient-card border-2 border-primary/30 rounded-lg p-8 text-center glow-gold">
             <Tv className="mx-auto text-primary mb-4" size={28} />
-            <h2 className="font-heading text-xl text-primary tracking-wider mb-3">Watch the Donghua</h2>
-            <p className="font-body text-foreground/80 mb-4">
-              The Renegade Immortal donghua (Chinese anime) has {episodeCount}+ episodes and is ongoing. It adapts the early arcs of the novel with stunning animation.
+            <h2 className="font-heading text-xl text-primary tracking-wider mb-3">Follow the Donghua</h2>
+            <p className="font-body text-foreground/80 mb-2">
+              The Renegade Immortal adaptation is ongoing, with {episodeCount} episodes currently counted in the local tracker.
             </p>
-            <Link to="/donghua" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
-              Donghua Tracker → <ChevronRight size={14} />
-            </Link>
+            {nextRelease?.showCountdown && (
+              <p className="font-body text-sm text-muted-foreground mb-4">
+                Next scheduled: episode {nextRelease.nextEpisodeNumber} — {nextRelease.nextAiringFormattedCST}.
+              </p>
+            )}
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/donghua" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
+                Donghua Tracker <ChevronRight size={14} />
+              </Link>
+              <Link to="/donghua-release-timeline" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
+                Release Timeline <ChevronRight size={14} />
+              </Link>
+              <Link to="/watch" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
+                Watch Episodes <ChevronRight size={14} />
+              </Link>
+              <Link to="/donghua-series/theatrical-movies" className="inline-flex items-center gap-1 text-sm font-heading text-primary tracking-wider hover:underline">
+                Movies & Specials <ChevronRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

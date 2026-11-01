@@ -199,6 +199,17 @@ export function WatchPageTemplate({
       />
 
       <div className="container mx-auto px-4 max-w-7xl py-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card/60 px-4 py-3">
+          <p className="text-sm font-body text-muted-foreground">
+            Browse current schedules and progress across the tracked donghua roster.
+          </p>
+          <Link
+            to="/donghua-release-timeline"
+            className="text-sm font-heading text-primary hover:underline"
+          >
+            View release timeline →
+          </Link>
+        </div>
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}
