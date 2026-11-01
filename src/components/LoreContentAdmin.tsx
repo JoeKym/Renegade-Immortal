@@ -8,7 +8,15 @@ import { ARTIFACT_ITEMS, type ArtifactItem } from "@/pages/Artifacts";
 import { characters, type Character } from "@/data/charactersData";
 import { supabase } from "@/integrations/supabase/client";
 import { notifyLoreContentUpdated } from "@/contexts/LoreContentContext";
-import { isArtifactPayload, isCharacterPayload, isLoreContentType, loreContentId, type LoreContentType } from "@/lib/loreContent";
+import {
+  getDistinctLoreArcs,
+  getLoreStoryArcs,
+  isArtifactPayload,
+  isCharacterPayload,
+  isLoreContentType,
+  loreContentId,
+  type LoreContentType,
+} from "@/lib/loreContent";
 import type { Json } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
@@ -59,6 +67,16 @@ function blankPayload(type: LoreContentType) {
   };
 }
 
+function getEditableArcs(payload: unknown, type: LoreContentType) {
+  if (type === "character" && isCharacterPayload(payload)) return payload.storyArcs ?? [];
+  if (type !== "character" && isArtifactPayload(payload)) return getLoreStoryArcs(payload);
+  return [];
+}
+
+function parseArcText(value: string) {
+  return getDistinctLoreArcs(value.split(/[\n,]/));
+}
+
 function isPayloadValid(type: LoreContentType, payload: unknown) {
   if (type === "character") return isCharacterPayload(payload);
   return isArtifactPayload(payload) && payload.type === type;
@@ -70,6 +88,7 @@ export default function LoreContentAdmin() {
   const [records, setRecords] = useState<LoreRecord[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [editorValue, setEditorValue] = useState("");
+  const [arcText, setArcText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -86,6 +105,20 @@ export default function LoreContentAdmin() {
 
   const selectedIsBundled = bundledContent[type].some((entry) => entry.id === selectedId);
   const selectedIsSaved = savedRecords.some((entry) => entry.id === selectedId);
+  const arcSuggestions = useMemo(() => getDistinctLoreArcs([
+    ...Object.values(bundledContent).flatMap((entries) =>
+      entries.flatMap(({ payload }) => getLoreStoryArcs(payload))
+    ),
+    ...records.flatMap((record) => {
+      if (record.content_type === "character" && isCharacterPayload(record.payload)) {
+        return getLoreStoryArcs(record.payload);
+      }
+      if (record.content_type !== "character" && isArtifactPayload(record.payload)) {
+        return getLoreStoryArcs(record.payload);
+      }
+      return [];
+    }),
+  ]), [records]);
 
   const loadRecords = async () => {
     setIsLoading(true);
@@ -110,12 +143,16 @@ export default function LoreContentAdmin() {
   useEffect(() => {
     if (!selectedId) {
       setEditorValue(JSON.stringify(blankPayload(type), null, 2));
+      setArcText("");
       return;
     }
     const saved = savedRecords.find((record) => record.id === selectedId);
     const bundled = bundledContent[type].find((record) => record.id === selectedId);
     const payload = saved?.payload ?? bundled?.payload;
-    if (payload) setEditorValue(JSON.stringify(payload, null, 2));
+    if (payload) {
+      setEditorValue(JSON.stringify(payload, null, 2));
+      setArcText(getEditableArcs(payload, type).join("\n"));
+    }
   }, [selectedId, savedRecords, type]);
 
   const handleSave = async () => {
@@ -132,6 +169,7 @@ export default function LoreContentAdmin() {
         : "Item content needs a name, origin, owner, power, first appearance, story arc, and matching type");
       return;
     }
+    const payloadWithArcs = { ...payload, storyArcs: parseArcText(arcText) };
     const id = selectedId || loreContentId(payload.name);
     if (!id) {
       toast.error("Add a name before saving");
@@ -142,7 +180,7 @@ export default function LoreContentAdmin() {
     const { error } = await supabase.from("lore_content").upsert({
       id,
       content_type: type,
-      payload: payload as Json,
+      payload: payloadWithArcs as Json,
       is_published: true,
       updated_by: user?.id ?? null,
     });
@@ -181,7 +219,6 @@ export default function LoreContentAdmin() {
         <CardTitle>Lore Content</CardTitle>
         <CardDescription>
           Add characters, artifacts, and techniques without editing source files. Existing entries can be overridden and restored to their bundled version.
-          Apply the <code>202611010002_lore_content.sql</code> Supabase migration before saving.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -220,6 +257,34 @@ export default function LoreContentAdmin() {
             <Button variant="outline" onClick={() => void handleRemoveOverride()}>
               {selectedIsBundled ? "Restore bundled version" : "Delete entry"}
             </Button>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="lore-content-arcs" className="text-sm font-medium">Story arc associations</label>
+          <Textarea
+            id="lore-content-arcs"
+            value={arcText}
+            onChange={(event) => setArcText(event.target.value)}
+            placeholder="One arc name per line, for example: Zhao Country — The Beginning"
+            className="min-h-20"
+          />
+          <p className="text-xs text-muted-foreground">
+            Add every relevant arc, one per line. Reuse an existing spelling to keep the Arc Explorer groups consistent.
+          </p>
+          {arcSuggestions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5" aria-label="Existing story arcs">
+              {arcSuggestions.map((arc) => (
+                <button
+                  key={arc}
+                  type="button"
+                  onClick={() => setArcText((current) => getDistinctLoreArcs([...parseArcText(current), arc]).join("\n"))}
+                  className="rounded border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  {arc}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 

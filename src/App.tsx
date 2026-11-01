@@ -53,6 +53,7 @@ import About from "./pages/About";
 import DMCA from "./pages/DMCA";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import SearchPage from "./pages/Search";
+import ArcExplorer from "./pages/ArcExplorer";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/characters" element={<Characters />} />
+                  <Route path="/arcs" element={<ArcExplorer />} />
                   <Route path="/daos" element={<Daos />} />
                   <Route path="/cultivation" element={<Cultivation />} />
                   <Route path="/timeline" element={<Timeline />} />

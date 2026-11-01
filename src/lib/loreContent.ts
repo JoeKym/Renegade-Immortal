@@ -10,6 +10,31 @@ export interface LoreContentRecord {
   payload: Json;
 }
 
+export interface LoreArcMembership {
+  storyArcs?: string[];
+  storyArc?: string;
+}
+
+export function getLoreStoryArcs(content: LoreArcMembership): string[] {
+  const arcs = Array.isArray(content.storyArcs)
+    ? content.storyArcs
+    : content.storyArc?.trim()
+      ? [content.storyArc.trim()]
+      : [];
+  return getDistinctLoreArcs(arcs);
+}
+
+export function getDistinctLoreArcs(arcs: string[]): string[] {
+  const unique = new Map<string, string>();
+  arcs.forEach((arc) => {
+    const trimmed = arc.trim();
+    if (trimmed && !unique.has(trimmed.toLocaleLowerCase())) {
+      unique.set(trimmed.toLocaleLowerCase(), trimmed);
+    }
+  });
+  return [...unique.values()].sort((a, b) => a.localeCompare(b));
+}
+
 export function loreContentId(name: string) {
   return name
     .normalize("NFKD")
@@ -40,7 +65,7 @@ export function isCharacterPayload(value: unknown): value is Character {
     "alias", "sect", "master", "status", "firstAppearance", "bloodline", "cultivationRealm", "image",
   ];
   const optionalArrayFields = [
-    "nicknames", "titles", "sectsLed", "planetaryAuthority", "nationalRoles", "disciples", "enemies",
+    "storyArcs", "nicknames", "titles", "sectsLed", "planetaryAuthority", "nationalRoles", "disciples", "enemies",
     "techniques", "artifacts", "majorBattles", "dao", "quotes",
   ];
   return (
@@ -80,7 +105,8 @@ export function isArtifactPayload(value: unknown): value is ArtifactItem {
     typeof value.power === "string" &&
     typeof value.firstAppearance === "string" &&
     typeof value.storyArc === "string" &&
-    isOptionalString(value, "dao")
+    isOptionalString(value, "dao") &&
+    isOptionalStringArray(value, "storyArcs")
   );
 }
 

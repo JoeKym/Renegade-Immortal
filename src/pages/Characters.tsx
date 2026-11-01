@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { Search, ChevronDown, Heart } from "lucide-react";
+import { Search, ChevronDown, Heart, ScrollText } from "lucide-react";
 import { CharacterRelationships } from "@/components/CharacterRelationships";
 import { CharacterComments } from "@/components/CharacterComments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLoreContent } from "@/contexts/LoreContentContext";
-import { isCharacterPayload, mergeLoreContent } from "@/lib/loreContent";
+import { getDistinctLoreArcs, getLoreStoryArcs, isCharacterPayload, mergeLoreContent } from "@/lib/loreContent";
 import {
   characters,
   alignments,
@@ -32,10 +32,12 @@ function getInitials(name: string) {
 const CharactersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryChar = searchParams.get("q");
+  const queryArc = searchParams.get("arc");
   
   const [search, setSearch] = useState(queryChar || "");
   const [race, setRace] = useState("All Races");
   const [alignment, setAlignment] = useState("All Roles");
+  const [arcFilter, setArcFilter] = useState(queryArc || "All Arcs");
   const [expandedChar, setExpandedChar] = useState<string | null>(queryChar || null);
   const { user, profile, refreshProfile } = useAuth();
   const { records } = useLoreContent();
@@ -55,6 +57,10 @@ const CharactersPage = () => {
     ])],
     [currentCharacters],
   );
+  const currentArcs = useMemo(
+    () => getDistinctLoreArcs(currentCharacters.flatMap((character) => getLoreStoryArcs(character))),
+    [currentCharacters],
+  );
 
   // Auto-expand character from URL query param on mount
   useEffect(() => {
@@ -63,6 +69,10 @@ const CharactersPage = () => {
       setExpandedChar(queryChar);
     }
   }, [queryChar]);
+
+  useEffect(() => {
+    setArcFilter(queryArc || "All Arcs");
+  }, [queryArc]);
 
   useEffect(() => {
     if (profile?.favorite_characters) {
@@ -113,6 +123,7 @@ const CharactersPage = () => {
         ...(c.majorBattles ?? []),
         ...(c.techniques ?? []),
         ...(c.artifacts ?? []),
+        ...getLoreStoryArcs(c),
       ]
         .filter(Boolean)
         .join(" ")
@@ -121,9 +132,13 @@ const CharactersPage = () => {
       const matchSearch = !search || composite.includes(lowerSearch);
       const matchRace = race === "All Races" || c.race === race;
       const matchAlign = alignment === "All Roles" || c.alignment === alignment;
-      return matchSearch && matchRace && matchAlign;
+      const characterArcs = getLoreStoryArcs(c);
+      const matchArc = arcFilter === "All Arcs" ||
+        (arcFilter === "Unassigned" ? characterArcs.length === 0 :
+          characterArcs.some((arc) => arc.toLowerCase() === arcFilter.toLowerCase()));
+      return matchSearch && matchRace && matchAlign && matchArc;
     });
-  }, [currentCharacters, search, race, alignment]);
+  }, [currentCharacters, search, race, alignment, arcFilter]);
 
   return (
     <Layout>
@@ -146,6 +161,33 @@ const CharactersPage = () => {
               />
             </div>
             <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <label htmlFor="character-arc-filter" className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
+                  Story Arc
+                </label>
+                <select
+                  id="character-arc-filter"
+                  value={arcFilter}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setArcFilter(value);
+                    const nextParams = new URLSearchParams(searchParams);
+                    if (value === "All Arcs") nextParams.delete("arc");
+                    else nextParams.set("arc", value);
+                    setSearchParams(nextParams, { replace: true });
+                  }}
+                  className="rounded border border-border bg-background px-3 py-2 text-sm text-foreground"
+                >
+                  <option value="All Arcs">All arcs</option>
+                  {currentCharacters.some((character) => getLoreStoryArcs(character).length === 0) && (
+                    <option value="Unassigned">Unassigned</option>
+                  )}
+                  {currentArcs.map((arc) => <option key={arc} value={arc}>{arc}</option>)}
+                </select>
+                <Link to="/arcs" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                  <ScrollText size={15} /> Arc Explorer
+                </Link>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
                   Race
@@ -468,6 +510,22 @@ function CharacterCard({
               {char.firstAppearance && (
                 <ProfileField label="First Appearance" value={char.firstAppearance} />
               )}
+              <div>
+                <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">Story Arcs</span>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {getLoreStoryArcs(char).length > 0 ? getLoreStoryArcs(char).map((arc) => (
+                    <Link
+                      key={arc}
+                      to={`/arcs?q=${encodeURIComponent(arc)}`}
+                      className="rounded border border-primary/20 px-2 py-0.5 text-xs text-primary/80 transition-colors hover:bg-primary/10"
+                    >
+                      {arc}
+                    </Link>
+                  )) : (
+                    <span className="text-xs text-muted-foreground">Not assigned yet</span>
+                  )}
+                </div>
+              </div>
               {char.dao && char.dao.length > 0 && (
                 <div>
                   <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">

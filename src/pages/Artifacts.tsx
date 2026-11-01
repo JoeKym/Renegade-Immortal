@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { Search, Sword, Wand2 } from "lucide-react";
+import { Search, Sword, Wand2, ScrollText } from "lucide-react";
 import { useLoreContent } from "@/contexts/LoreContentContext";
 import { isArtifactPayload, mergeLoreContent } from "@/lib/loreContent";
 
@@ -15,9 +15,12 @@ export interface ArtifactItem {
   power: string;
   firstAppearance: string;
   storyArc: string;
+  storyArcs?: string[];
   dao?: string;
 }
 
+// Shared by the public page, the admin editor, and the Arc Explorer.
+// eslint-disable-next-line react-refresh/only-export-components
 export const ARTIFACT_ITEMS: ArtifactItem[] = [
   // ========== TREASURES ==========
   {
@@ -752,11 +755,13 @@ const typeLabels: Record<string, string> = { All: "All Items", artifact: "Artifa
 
 const ArtifactsPage = () => {
   const { records } = useLoreContent();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryItem = searchParams.get("q");
+  const queryArc = searchParams.get("arc");
   
   const [search, setSearch] = useState(queryItem || "");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [arcFilter, setArcFilter] = useState(queryArc || "All Arcs");
   const items = useMemo(
     () => mergeLoreContent("artifact", ARTIFACT_ITEMS, records, isArtifactPayload)
       .concat(mergeLoreContent("technique", [], records, isArtifactPayload)),
@@ -770,13 +775,29 @@ const ArtifactsPage = () => {
     }
   }, [queryItem]);
 
+  useEffect(() => {
+    setArcFilter(queryArc || "All Arcs");
+  }, [queryArc]);
+
+  const arcs = useMemo(
+    () => getDistinctLoreArcs(items.flatMap((item) => getLoreStoryArcs(item))),
+    [items],
+  );
+
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || item.power.toLowerCase().includes(search.toLowerCase());
+      const itemArcs = getLoreStoryArcs(item);
+      const matchSearch = !search || [item.name, item.power, item.owner, item.origin, ...itemArcs]
+        .join(" ")
+        .toLowerCase()
+        .includes(search.toLowerCase());
       const matchType = typeFilter === "All" || item.type === typeFilter;
-      return matchSearch && matchType;
+      const matchArc = arcFilter === "All Arcs" ||
+        (arcFilter === "Unassigned" ? itemArcs.length === 0 :
+          itemArcs.some((arc) => arc.toLowerCase() === arcFilter.toLowerCase()));
+      return matchSearch && matchType && matchArc;
     });
-  }, [items, search, typeFilter]);
+  }, [items, search, typeFilter, arcFilter]);
 
   return (
     <Layout>
@@ -806,21 +827,48 @@ const ArtifactsPage = () => {
                 </button>
               ))}
             </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <label htmlFor="artifact-arc-filter" className="text-xs font-heading uppercase tracking-wider text-muted-foreground">Story arc</label>
+              <select
+                id="artifact-arc-filter"
+                value={arcFilter}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setArcFilter(value);
+                  const nextParams = new URLSearchParams(searchParams);
+                  if (value === "All Arcs") nextParams.delete("arc");
+                  else nextParams.set("arc", value);
+                  setSearchParams(nextParams, { replace: true });
+                }}
+                className="rounded border border-border bg-background px-3 py-2 text-sm text-foreground"
+              >
+                <option value="All Arcs">All arcs</option>
+                {items.some((item) => getLoreStoryArcs(item).length === 0) && (
+                  <option value="Unassigned">Unassigned</option>
+                )}
+                {arcs.map((arc) => <option key={arc} value={arc}>{arc}</option>)}
+              </select>
+              <Link to="/arcs" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                <ScrollText size={15} /> Browse Arc Explorer
+              </Link>
+            </div>
           </div>
 
           {/* Items Grid */}
           <div className="grid md:grid-cols-2 gap-4">
-            {filtered.map((item, i) => (
-              <motion.div
-                key={item.name}
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.03 }}
-                className={`gradient-card border rounded-lg p-6 hover:border-primary/30 transition-all duration-300 ${
-                  item.type === "artifact" ? "border-crimson/20 border-l-2 border-l-crimson/40" : "border-jade/20 border-l-2 border-l-jade/40"
-                }`}
-              >
+            {filtered.map((item, i) => {
+              const itemArcs = getLoreStoryArcs(item);
+              return (
+                <motion.div
+                  key={item.name}
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03 }}
+                  className={`gradient-card border rounded-lg p-6 hover:border-primary/30 transition-all duration-300 ${
+                    item.type === "artifact" ? "border-crimson/20 border-l-2 border-l-crimson/40" : "border-jade/20 border-l-2 border-l-jade/40"
+                  }`}
+                >
                 <div className="flex items-start gap-3 mb-3">
                   {item.type === "artifact" ? (
                     <Sword size={16} className="text-crimson mt-0.5 shrink-0" />
@@ -840,7 +888,7 @@ const ArtifactsPage = () => {
                   </div>
                   <div>
                     <span className="text-muted-foreground">Story Arc:</span>
-                    <p className="text-foreground/70">{item.storyArc}</p>
+                    <p className="text-foreground/70">{itemArcs.length > 0 ? itemArcs.join(", ") : "Unassigned"}</p>
                   </div>
                 </div>
                 {item.dao && (
@@ -850,8 +898,9 @@ const ArtifactsPage = () => {
                     </Link>
                   </div>
                 )}
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           {filtered.length === 0 && (

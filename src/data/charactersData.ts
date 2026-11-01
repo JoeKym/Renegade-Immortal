@@ -73,6 +73,7 @@ export interface Character {
   enemies?: string[];
   status?: string;
   firstAppearance?: string;
+  storyArcs?: string[];
   techniques?: string[];
   artifacts?: string[];
   majorBattles?: string[];

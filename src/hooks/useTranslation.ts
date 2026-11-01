@@ -23,6 +23,7 @@ const translations: Record<string, Record<string, string>> = {
     // World section
     "world.daos": "Daos",
     "world.multiverse": "Multiverse",
+    "world.arcExplorer": "Arc Explorer",
 
     // Common
     "common.messages": "Messages",

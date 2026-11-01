@@ -229,6 +229,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <nav className="flex flex-col gap-2.5 text-sm font-body">
                 <Link to="/guide" className="text-muted-foreground hover:text-primary transition-colors">Beginner’s Guide</Link>
                 <Link to="/characters" className="text-muted-foreground hover:text-primary transition-colors">Characters</Link>
+                <Link to="/arcs" className="text-muted-foreground hover:text-primary transition-colors">Arc Explorer</Link>
                 <Link to="/timeline" className="text-muted-foreground hover:text-primary transition-colors">Story Timeline</Link>
                 <Link to="/cultivation" className="text-muted-foreground hover:text-primary transition-colors">Cultivation</Link>
                 <Link to="/multiverse" className="text-muted-foreground hover:text-primary transition-colors">Multiverse</Link>

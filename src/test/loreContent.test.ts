@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { isArtifactPayload, isCharacterPayload, loreContentId, mergeLoreContent } from "@/lib/loreContent";
+import {
+  getDistinctLoreArcs,
+  getLoreStoryArcs,
+  isArtifactPayload,
+  isCharacterPayload,
+  loreContentId,
+  mergeLoreContent,
+} from "@/lib/loreContent";
 import type { Character } from "@/data/charactersData";
 import type { ArtifactItem } from "@/pages/Artifacts";
 
@@ -26,6 +33,16 @@ describe("loreContent", () => {
   it("creates stable URL-safe ids from content names", () => {
     expect(loreContentId("Heaven-Defying Bead")).toBe("heaven-defying-bead");
     expect(loreContentId("  Wang Lin! ")).toBe("wang-lin");
+  });
+
+  it("uses explicit arc associations and preserves legacy artifact arc labels", () => {
+    expect(getLoreStoryArcs({ storyArcs: ["Zhao Country", " Sea of Devils ", "zhao country"] }))
+      .toEqual(["Sea of Devils", "Zhao Country"]);
+    expect(getLoreStoryArcs({ storyArc: "The Beginning" })).toEqual(["The Beginning"]);
+    expect(getLoreStoryArcs({ storyArcs: [] })).toEqual([]);
+    expect(getLoreStoryArcs({ storyArc: "Legacy arc", storyArcs: [] })).toEqual([]);
+    expect(getLoreStoryArcs({})).toEqual([]);
+    expect(getDistinctLoreArcs(["Arc B", "Arc A", "arc a"])).toEqual(["Arc A", "Arc B"]);
   });
 
   it("overrides bundled content and appends published CMS entries", () => {
