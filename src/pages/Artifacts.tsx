@@ -4,8 +4,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Search, Sword, Wand2 } from "lucide-react";
+import { useLoreContent } from "@/contexts/LoreContentContext";
+import { isArtifactPayload, mergeLoreContent } from "@/lib/loreContent";
 
-interface ArtifactItem {
+export interface ArtifactItem {
   name: string;
   type: "artifact" | "technique";
   origin: string;
@@ -16,7 +18,7 @@ interface ArtifactItem {
   dao?: string;
 }
 
-const items: ArtifactItem[] = [
+export const ARTIFACT_ITEMS: ArtifactItem[] = [
   // ========== TREASURES ==========
   {
     name: "Heaven-Defying Bead",
@@ -749,11 +751,17 @@ const types = ["All", "artifact", "technique"];
 const typeLabels: Record<string, string> = { All: "All Items", artifact: "Artifacts", technique: "Techniques" };
 
 const ArtifactsPage = () => {
+  const { records } = useLoreContent();
   const [searchParams] = useSearchParams();
   const queryItem = searchParams.get("q");
   
   const [search, setSearch] = useState(queryItem || "");
   const [typeFilter, setTypeFilter] = useState("All");
+  const items = useMemo(
+    () => mergeLoreContent("artifact", ARTIFACT_ITEMS, records, isArtifactPayload)
+      .concat(mergeLoreContent("technique", [], records, isArtifactPayload)),
+    [records],
+  );
 
   // Auto-search from URL query param on mount
   useEffect(() => {
@@ -768,7 +776,7 @@ const ArtifactsPage = () => {
       const matchType = typeFilter === "All" || item.type === typeFilter;
       return matchSearch && matchType;
     });
-  }, [search, typeFilter]);
+  }, [items, search, typeFilter]);
 
   return (
     <Layout>

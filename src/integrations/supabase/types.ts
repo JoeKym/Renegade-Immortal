@@ -119,6 +119,33 @@ export type Database = {
         }
         Relationships: []
       }
+      lore_content: {
+        Row: {
+          content_type: string
+          id: string
+          is_published: boolean
+          payload: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_type: string
+          id: string
+          is_published?: boolean
+          payload: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_type?: string
+          id?: string
+          is_published?: boolean
+          payload?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       communities: {
         Row: {
           avatar_url: string | null

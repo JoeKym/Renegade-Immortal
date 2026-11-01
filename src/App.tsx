@@ -9,6 +9,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import { HelmetProvider } from "react-helmet-async";
 import { DonghuaCatalogProvider } from "@/contexts/DonghuaCatalogContext";
+import { LoreContentProvider } from "@/contexts/LoreContentContext";
 import { DONGHUA_SERIES } from "@/data/donghuaData";
 import { syncAllSeriesReleaseMetadata } from "@/services/releaseMetadata";
 import Index from "./pages/Index";
@@ -73,6 +74,7 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <DonghuaCatalogProvider>
+                <LoreContentProvider>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/characters" element={<Characters />} />
@@ -117,6 +119,7 @@ const App = () => {
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </LoreContentProvider>
                 </DonghuaCatalogProvider>
               </BrowserRouter>
             </AuthProvider>

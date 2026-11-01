@@ -10,9 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLoreContent } from "@/contexts/LoreContentContext";
+import { isCharacterPayload, mergeLoreContent } from "@/lib/loreContent";
 import {
   characters,
-  races,
   alignments,
   alignmentColors,
   alignmentBorderColors,
@@ -37,7 +38,23 @@ const CharactersPage = () => {
   const [alignment, setAlignment] = useState("All Roles");
   const [expandedChar, setExpandedChar] = useState<string | null>(queryChar || null);
   const { user, profile, refreshProfile } = useAuth();
+  const { records } = useLoreContent();
   const [favorites, setFavorites] = useState<string[]>([]);
+  const currentCharacters = useMemo(
+    () => mergeLoreContent("character", characters, records, isCharacterPayload),
+    [records],
+  );
+  const currentRaces = useMemo(
+    () => ["All Races", ...new Set(currentCharacters.map((character) => character.race))],
+    [currentCharacters],
+  );
+  const currentAlignments = useMemo(
+    () => ["All Roles", ...new Set([
+      ...alignments.filter((role) => role !== "All Roles"),
+      ...currentCharacters.map((character) => character.alignment),
+    ])],
+    [currentCharacters],
+  );
 
   // Auto-expand character from URL query param on mount
   useEffect(() => {
@@ -81,7 +98,7 @@ const CharactersPage = () => {
   const filtered = useMemo(() => {
     const lowerSearch = search.toLowerCase();
 
-    return characters.filter((c) => {
+    return currentCharacters.filter((c) => {
       const composite = [
         c.name,
         c.subtitle,
@@ -106,7 +123,7 @@ const CharactersPage = () => {
       const matchAlign = alignment === "All Roles" || c.alignment === alignment;
       return matchSearch && matchRace && matchAlign;
     });
-  }, [search, race, alignment]);
+  }, [currentCharacters, search, race, alignment]);
 
   return (
     <Layout>
@@ -134,7 +151,7 @@ const CharactersPage = () => {
                   Race
                 </span>
                 <div className="flex flex-wrap gap-1">
-                  {races.map((r) => (
+                  {currentRaces.map((r) => (
                     <button
                       key={r}
                       onClick={() => setRace(r)}
@@ -154,7 +171,7 @@ const CharactersPage = () => {
                   Role
                 </span>
                 <div className="flex flex-wrap gap-1">
-                  {alignments.map((a) => (
+                  {currentAlignments.map((a) => (
                     <button
                       key={a}
                       onClick={() => setAlignment(a)}

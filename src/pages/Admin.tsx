@@ -6,6 +6,7 @@ import { useT } from "@/contexts/TranslationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DonghuaAdmin from "@/components/DonghuaAdmin";
 import DonghuaCatalogAdmin from "@/components/DonghuaCatalogAdmin";
+import LoreContentAdmin from "@/components/LoreContentAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { motion } from "framer-motion";
-import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star, BarChart3, Tv } from "lucide-react";
+import { Users, Eye, MessageSquare, Bell, Activity, Trash2, Send, Globe, Shield, Ban, UserX, Check, AlertTriangle, Flag, Wrench, Mail, MailOpen, Star, BarChart3, Tv, ScrollText } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -1981,6 +1982,7 @@ export default function AdminPage() {
                 </TabsTrigger>
                 <TabsTrigger value="donghua" className="gap-1.5 text-xs sm:text-sm"><Tv size={14} /> Donghua</TabsTrigger>
                 <TabsTrigger value="catalog" className="gap-1.5 text-xs sm:text-sm"><Tv size={14} /> Catalog</TabsTrigger>
+                <TabsTrigger value="lore" className="gap-1.5 text-xs sm:text-sm"><ScrollText size={14} /> Lore</TabsTrigger>
               </TabsList>
             </div>
 
@@ -2050,6 +2052,9 @@ export default function AdminPage() {
             </TabsContent>
             <TabsContent value="catalog">
               <DonghuaCatalogAdmin />
+            </TabsContent>
+            <TabsContent value="lore">
+              <LoreContentAdmin />
             </TabsContent>
           </Tabs>
         </motion.div>
