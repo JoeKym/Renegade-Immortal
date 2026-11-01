@@ -1,3 +1,5 @@
+import { findAllowedIframeUrl, isAllowedEmbedUrl } from "./videoEmbedUrls.ts";
+
 declare const Deno: {
   serve: (handler: (req: Request) => Promise<Response>) => void;
 };
@@ -70,43 +72,6 @@ const normalizeMediaUrl = (value: string): string | null => {
   } catch {
     return protocolRelative.startsWith('http') ? protocolRelative : null;
   }
-};
-
-const isAllowedEmbedUrl = (value: string): boolean => {
-  const normalized = value.toLowerCase();
-
-  if (
-    normalized.includes('dm-event.net') ||
-    normalized.includes('doubleclick.net') ||
-    normalized.includes('googlesyndication.com') ||
-    normalized.includes('googleads') ||
-    normalized.includes('adsystem')
-  ) {
-    return false;
-  }
-
-  const allowedHosts = [
-    'dailymotion.com',
-    'ok.ru',
-    'vk.com',
-    'youtube.com',
-    'youtu.be',
-    'streamtape.com',
-    'dood',
-    'filelions',
-    'streamwish',
-    'mixdrop',
-    'hxfile',
-    'vidmoly',
-    'mp4',
-    'm3u8',
-    'embed',
-    'video',
-    'player',
-    'stream',
-  ];
-
-  return allowedHosts.some((host) => normalized.includes(host));
 };
 
 const extractAnyMediaUrl = (html: string): string | null => {
@@ -224,27 +189,13 @@ const servers: ServerConfig[] = [
     name: 'luciferdonghua',
     label: 'LuciferDonghua',
     getPageUrl: (ep, slug) => buildLuciferDonghuaCandidates(ep, slug)[0],
-    extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*>/i);
-      if (iframeMatch) {
-        const normalized = normalizeMediaUrl(iframeMatch[1]);
-        if (normalized && isAllowedEmbedUrl(normalized)) return normalized;
-      }
-      return extractAnyMediaUrl(html);
-    },
+    extractEmbed: (html) => findAllowedIframeUrl(html) || extractAnyMediaUrl(html),
   },
   {
     name: 'luciferdonghuain',
     label: 'Lucifer (.in Mirror)',
     getPageUrl: (ep, slug) => buildLuciferDonghuaInCandidates(ep, slug)[0],
-    extractEmbed: (html) => {
-      const iframeMatch = html.match(/<iframe[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*>/i);
-      if (iframeMatch) {
-        const normalized = normalizeMediaUrl(iframeMatch[1]);
-        if (normalized && isAllowedEmbedUrl(normalized)) return normalized;
-      }
-      return extractAnyMediaUrl(html);
-    },
+    extractEmbed: (html) => findAllowedIframeUrl(html) || extractAnyMediaUrl(html),
   },
 ];
 
