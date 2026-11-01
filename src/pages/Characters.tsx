@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { Search, ChevronDown, Heart, ScrollText } from "lucide-react";
+import { Search, ChevronDown, Heart, ScrollText, X, RotateCcw } from "lucide-react";
 import { CharacterRelationships } from "@/components/CharacterRelationships";
 import { CharacterComments } from "@/components/CharacterComments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +29,51 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase()
+    .trim();
+}
+
+function getCharacterSearchText(character: Character) {
+  return normalizeSearchText([
+    character.name,
+    character.race,
+    character.alignment,
+    character.subtitle,
+    character.description,
+    character.alias,
+    character.sect,
+    character.master,
+    character.status,
+    character.firstAppearance,
+    character.bloodline,
+    character.cultivationRealm,
+    ...(character.nicknames ?? []),
+    ...(character.titles ?? []),
+    ...(character.sectsLed ?? []),
+    ...(character.planetaryAuthority ?? []),
+    ...(character.nationalRoles ?? []),
+    ...(character.disciples ?? []),
+    ...(character.disciplesDetails ?? []).flatMap((detail) => [
+      detail.name,
+      detail.relationship,
+      detail.description,
+      detail.status,
+    ]),
+    ...(character.enemies ?? []),
+    ...(character.tags ?? []),
+    ...(character.techniques ?? []),
+    ...(character.artifacts ?? []),
+    ...(character.majorBattles ?? []),
+    ...(character.dao ?? []),
+    ...(character.quotes ?? []),
+    ...getLoreStoryArcs(character),
+  ].filter(Boolean).join(" "));
+}
+
 const CharactersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryChar = searchParams.get("q");
@@ -38,6 +83,8 @@ const CharactersPage = () => {
   const [race, setRace] = useState("All Races");
   const [alignment, setAlignment] = useState("All Roles");
   const [arcFilter, setArcFilter] = useState(queryArc || "All Arcs");
+  const [realmFilter, setRealmFilter] = useState("All Realms");
+  const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [expandedChar, setExpandedChar] = useState<string | null>(queryChar || null);
   const { user, profile, refreshProfile } = useAuth();
   const { records } = useLoreContent();
@@ -59,6 +106,14 @@ const CharactersPage = () => {
   );
   const currentArcs = useMemo(
     () => getDistinctLoreArcs(currentCharacters.flatMap((character) => getLoreStoryArcs(character))),
+    [currentCharacters],
+  );
+  const currentRealms = useMemo(
+    () => [...new Set(currentCharacters.map((character) => character.cultivationRealm?.trim()).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b)),
+    [currentCharacters],
+  );
+  const currentStatuses = useMemo(
+    () => [...new Set(currentCharacters.map((character) => character.status?.trim()).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b)),
     [currentCharacters],
   );
 
@@ -106,39 +161,61 @@ const CharactersPage = () => {
   }, [user, favorites, refreshProfile]);
 
   const filtered = useMemo(() => {
-    const lowerSearch = search.toLowerCase();
+    const searchTerms = normalizeSearchText(search).split(/\s+/).filter(Boolean);
 
     return currentCharacters.filter((c) => {
-      const composite = [
-        c.name,
-        c.subtitle,
-        c.description,
-        c.alias,
-        c.sect,
-        c.master,
-        ...(c.nicknames ?? []),
-        ...(c.titles ?? []),
-        ...(c.tags ?? []),
-        ...(c.enemies ?? []),
-        ...(c.majorBattles ?? []),
-        ...(c.techniques ?? []),
-        ...(c.artifacts ?? []),
-        ...getLoreStoryArcs(c),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      const matchSearch = !search || composite.includes(lowerSearch);
+      const searchableText = getCharacterSearchText(c);
+      const matchSearch = searchTerms.length === 0 || searchTerms.every((term) => searchableText.includes(term));
       const matchRace = race === "All Races" || c.race === race;
       const matchAlign = alignment === "All Roles" || c.alignment === alignment;
       const characterArcs = getLoreStoryArcs(c);
       const matchArc = arcFilter === "All Arcs" ||
         (arcFilter === "Unassigned" ? characterArcs.length === 0 :
           characterArcs.some((arc) => arc.toLowerCase() === arcFilter.toLowerCase()));
-      return matchSearch && matchRace && matchAlign && matchArc;
+      const matchRealm = realmFilter === "All Realms" || c.cultivationRealm === realmFilter;
+      const matchStatus = statusFilter === "All Statuses" || c.status === statusFilter;
+      return matchSearch && matchRace && matchAlign && matchArc && matchRealm && matchStatus;
     });
-  }, [currentCharacters, search, race, alignment, arcFilter]);
+  }, [currentCharacters, search, race, alignment, arcFilter, realmFilter, statusFilter]);
+
+  const activeFilters: { id: string; label: string; remove: () => void }[] = [];
+  if (search.trim()) activeFilters.push({
+    id: "search",
+    label: `Search: ${search.trim()}`,
+    remove: () => {
+      setSearch("");
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("q");
+      setSearchParams(nextParams, { replace: true });
+    },
+  });
+  if (race !== "All Races") activeFilters.push({ id: "race", label: `Race: ${race}`, remove: () => setRace("All Races") });
+  if (alignment !== "All Roles") activeFilters.push({ id: "role", label: `Role: ${alignment}`, remove: () => setAlignment("All Roles") });
+  if (arcFilter !== "All Arcs") activeFilters.push({
+    id: "arc",
+    label: `Arc: ${arcFilter}`,
+    remove: () => {
+      setArcFilter("All Arcs");
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("arc");
+      setSearchParams(nextParams, { replace: true });
+    },
+  });
+  if (realmFilter !== "All Realms") activeFilters.push({ id: "realm", label: `Realm: ${realmFilter}`, remove: () => setRealmFilter("All Realms") });
+  if (statusFilter !== "All Statuses") activeFilters.push({ id: "status", label: `Status: ${statusFilter}`, remove: () => setStatusFilter("All Statuses") });
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setRace("All Races");
+    setAlignment("All Roles");
+    setArcFilter("All Arcs");
+    setRealmFilter("All Realms");
+    setStatusFilter("All Statuses");
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("q");
+    nextParams.delete("arc");
+    setSearchParams(nextParams, { replace: true });
+  };
 
   return (
     <Layout>
@@ -150,86 +227,97 @@ const CharactersPage = () => {
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-5xl">
           {/* Filters */}
-          <div className="gradient-card border border-border rounded-lg p-6 mb-10">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="gradient-card border border-border rounded-lg p-5 md:p-6 mb-6">
+            <div className="flex items-center gap-3">
               <Search size={18} className="text-primary" />
               <input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search characters..."
-                className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-body text-lg border-b border-border pb-1 focus:border-primary transition-colors"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setSearch(value);
+                  const nextParams = new URLSearchParams(searchParams);
+                  if (value) nextParams.set("q", value);
+                  else nextParams.delete("q");
+                  setSearchParams(nextParams, { replace: true });
+                }}
+                placeholder="Search names, aliases, sects, realms, techniques..."
+                aria-label="Search characters"
+                className="min-w-0 flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-body text-base md:text-lg border-b border-border pb-2 focus:border-primary transition-colors"
               />
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <label htmlFor="character-arc-filter" className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                  Story Arc
-                </label>
-                <select
-                  id="character-arc-filter"
-                  value={arcFilter}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setArcFilter(value);
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
                     const nextParams = new URLSearchParams(searchParams);
-                    if (value === "All Arcs") nextParams.delete("arc");
-                    else nextParams.set("arc", value);
+                    nextParams.delete("q");
                     setSearchParams(nextParams, { replace: true });
                   }}
-                  className="rounded border border-border bg-background px-3 py-2 text-sm text-foreground"
+                  aria-label="Clear character search"
+                  className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
-                  <option value="All Arcs">All arcs</option>
-                  {currentCharacters.some((character) => getLoreStoryArcs(character).length === 0) && (
-                    <option value="Unassigned">Unassigned</option>
-                  )}
-                  {currentArcs.map((arc) => <option key={arc} value={arc}>{arc}</option>)}
-                </select>
-                <Link to="/arcs" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
-                  <ScrollText size={15} /> Arc Explorer
-                </Link>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                  Race
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  {currentRaces.map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => setRace(r)}
-                      className={`px-3 py-1 rounded text-xs font-body transition-colors ${
-                        race === r
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-heading text-muted-foreground tracking-wider uppercase">
-                  Role
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  {currentAlignments.map((a) => (
-                    <button
-                      key={a}
-                      onClick={() => setAlignment(a)}
-                      className={`px-3 py-1 rounded text-xs font-body transition-colors ${
-                        alignment === a
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {a}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <CharacterFilterSelect id="character-arc-filter" label="Story arc" value={arcFilter} onChange={(value) => {
+                setArcFilter(value);
+                const nextParams = new URLSearchParams(searchParams);
+                if (value === "All Arcs") nextParams.delete("arc");
+                else nextParams.set("arc", value);
+                setSearchParams(nextParams, { replace: true });
+              }} options={[
+                ["All Arcs", "All arcs"],
+                ...(currentCharacters.some((character) => getLoreStoryArcs(character).length === 0)
+                  ? [["Unassigned", "Unassigned"] as [string, string]]
+                  : []),
+                ...currentArcs.map((arc) => [arc, arc] as [string, string]),
+              ]} />
+              <CharacterFilterSelect id="character-race-filter" label="Race" value={race} onChange={setRace} options={currentRaces.map((value) => [value, value === "All Races" ? "All races" : value])} />
+              <CharacterFilterSelect id="character-role-filter" label="Role" value={alignment} onChange={setAlignment} options={currentAlignments.map((value) => [value, value === "All Roles" ? "All roles" : value])} />
+              <CharacterFilterSelect id="character-realm-filter" label="Cultivation realm" value={realmFilter} onChange={setRealmFilter} options={[
+                ["All Realms", "All realms"],
+                ...currentRealms.map((value) => [value, value] as [string, string]),
+              ]} />
+              <CharacterFilterSelect id="character-status-filter" label="Status" value={statusFilter} onChange={setStatusFilter} options={[
+                ["All Statuses", "All statuses"],
+                ...currentStatuses.map((value) => [value, value] as [string, string]),
+              ]} />
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <Link to="/arcs" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                <ScrollText size={15} /> Browse the Arc Explorer
+              </Link>
+              <p className="text-sm text-muted-foreground" aria-live="polite">
+                Showing <span className="font-semibold text-foreground">{filtered.length}</span> of {currentCharacters.length} characters
+              </p>
             </div>
           </div>
+
+          {activeFilters.length > 0 && (
+            <div className="mb-6 flex flex-wrap items-center gap-2" aria-label="Active filters">
+              {activeFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={filter.remove}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/20"
+                  aria-label={`Remove ${filter.label} filter`}
+                >
+                  {filter.label}
+                  <X size={13} />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw size={13} /> Clear all
+              </button>
+            </div>
+          )}
 
           {/* Characters Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -251,9 +339,13 @@ const CharactersPage = () => {
           </div>
 
           {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-12 font-body">
-              No characters match your filters
-            </p>
+            <div className="rounded-lg border border-border bg-card/60 px-5 py-12 text-center">
+              <p className="mb-2 font-heading text-lg text-foreground">No characters found</p>
+              <p className="mb-5 text-sm text-muted-foreground">Try a different search or remove one or more filters.</p>
+              <button type="button" onClick={clearAllFilters} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90">
+                <RotateCcw size={15} /> Reset search and filters
+              </button>
+            </div>
           )}
 
           {/* Relationship Map */}
@@ -327,6 +419,38 @@ const CharactersPage = () => {
     </Layout>
   );
 };
+
+function CharacterFilterSelect({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: [string, string][];
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="text-[11px] font-heading uppercase tracking-wider text-muted-foreground">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
+      >
+        {options.map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>{optionLabel}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
 function CharacterCard({
   char,
