@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { BookOpen, Users, Swords, Sparkles, Clock, Tv, ChevronRight } from "lucide-react";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { getAutoReleasedEpisodes, getNextReleaseInfo } from "@/lib/releaseSchedule";
 
 const sections = [
@@ -53,7 +53,8 @@ const readingOrder = [
 ];
 
 const GuidePage = () => {
-  const renegadeImmortal = DONGHUA_SERIES.find((series) => series.id === "renegade-immortal");
+  const { series: donghuaSeries } = useDonghuaCatalog();
+  const renegadeImmortal = donghuaSeries.find((series) => series.id === "renegade-immortal");
   const episodeCount = renegadeImmortal ? getAutoReleasedEpisodes(renegadeImmortal) : 0;
   const nextRelease = renegadeImmortal ? getNextReleaseInfo(renegadeImmortal) : null;
 

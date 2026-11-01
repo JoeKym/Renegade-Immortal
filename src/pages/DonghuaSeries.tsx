@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
-import { DONGHUA_SERIES, DONGHUA_SECTIONS } from "@/data/donghuaData";
+import { DONGHUA_SECTIONS } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { Link, useParams } from "react-router-dom";
 import { Play, Volume2 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
@@ -10,6 +11,7 @@ import { proxyImageUrl } from "@/lib/utils";
 export default function DonghuaSeriesList() {
   const { sectionId } = useParams<{ sectionId?: string }>();
   const [brokenThumbs, setBrokenThumbs] = useState<Record<string, boolean>>({});
+  const { series: donghuaSeries } = useDonghuaCatalog();
 
   const activeSection = useMemo(
     () => (sectionId ? DONGHUA_SECTIONS.find((s) => s.id === sectionId) : undefined),
@@ -17,12 +19,23 @@ export default function DonghuaSeriesList() {
   );
 
   const visibleSeries = useMemo(() => {
+    if (activeSection?.id === "watch-more-donghua") {
+      return donghuaSeries;
+    }
+    if (activeSection?.id === "theatrical-movies") {
+      const featuredIds = new Set(activeSection.seriesIds);
+      return donghuaSeries.filter((series) =>
+        featuredIds.has(series.id) ||
+        series.statusTag === "Movie" ||
+        series.statusTag === "Special",
+      );
+    }
     if (activeSection?.seriesIds) {
       const set = new Set(activeSection.seriesIds);
-      return DONGHUA_SERIES.filter((s) => set.has(s.id));
+      return donghuaSeries.filter((s) => set.has(s.id));
     }
-    return DONGHUA_SERIES;
-  }, [activeSection]);
+    return donghuaSeries;
+  }, [activeSection, donghuaSeries]);
 
   const pageTitle = activeSection
     ? `${activeSection.title} - Donghua Series`

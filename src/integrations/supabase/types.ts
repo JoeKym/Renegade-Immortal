@@ -95,6 +95,30 @@ export type Database = {
         }
         Relationships: []
       }
+      donghua_catalog: {
+        Row: {
+          id: string
+          is_published: boolean
+          payload: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id: string
+          is_published?: boolean
+          payload: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          is_published?: boolean
+          payload?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       communities: {
         Row: {
           avatar_url: string | null

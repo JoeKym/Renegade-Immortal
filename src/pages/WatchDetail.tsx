@@ -3,15 +3,17 @@ import { useMemo, useCallback } from "react";
 import { WatchPageTemplate } from "@/components/watch/WatchPageTemplate";
 import NotFound from "@/pages/NotFound";
 import { parseWatchSlug, buildWatchUrl } from "@/lib/slugParser";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 
 export default function WatchDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { series } = useDonghuaCatalog();
 
   // Robust slug resolution supporting series names, aliases, and episode sequential numbers
   const { donghuaId, episodeNumber } = useMemo(() => {
-    return parseWatchSlug(slug);
-  }, [slug]);
+    return parseWatchSlug(slug, series);
+  }, [slug, series]);
 
   const handleEpisodeSelect = useCallback(
     (num: number) => {

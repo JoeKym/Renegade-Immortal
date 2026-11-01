@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DONGHUA_SERIES, type DonghuaSeries } from "@/data/donghuaData";
+import type { DonghuaSeries } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { Calendar, Clock, ExternalLink, Play, Filter, Tv, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { proxyImageUrl } from "@/lib/utils";
@@ -21,6 +22,7 @@ const DAYS: DayFilter[] = [
 ];
 
 export function DonghuaTrackingList() {
+  const { series: donghuaSeries } = useDonghuaCatalog();
   const [selectedDay, setSelectedDay] = useState<DayFilter>("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +36,7 @@ export function DonghuaTrackingList() {
   }, []);
 
   const filteredSeries = useMemo(() => {
-    return DONGHUA_SERIES.filter((series) => {
+    return donghuaSeries.filter((series) => {
       // Day filter
       if (selectedDay !== "All") {
         if (series.releaseDay === "Multiple") {
@@ -76,7 +78,7 @@ export function DonghuaTrackingList() {
 
       return true;
     });
-  }, [selectedDay, selectedStatus, searchQuery]);
+  }, [donghuaSeries, selectedDay, selectedStatus, searchQuery]);
 
   const getStatusBadge = (statusTag?: string) => {
     if (!statusTag) return "bg-muted text-muted-foreground border-border";
@@ -317,4 +319,3 @@ export function DonghuaTrackingList() {
     </div>
   );
 }
-

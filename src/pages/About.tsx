@@ -6,7 +6,7 @@ import {
   Shield, Map, Clock, Sparkles, ExternalLink, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { isCompletedSeries } from "@/lib/donghuaStatus";
 
 const features = [
@@ -25,14 +25,15 @@ const features = [
 ];
 
 export default function About() {
-  const ongoingCount = DONGHUA_SERIES.filter(
+  const { series: donghuaSeries } = useDonghuaCatalog();
+  const ongoingCount = donghuaSeries.filter(
     (series) => !isCompletedSeries(series.statusTag) && !series.statusTag?.includes("Hiatus"),
   ).length;
-  const movieCount = DONGHUA_SERIES.filter(
+  const movieCount = donghuaSeries.filter(
     (series) => series.statusTag?.includes("Movie") || series.statusTag?.includes("Special"),
   ).length;
   const staticStats = [
-    { value: `${DONGHUA_SERIES.length}`, label: "Tracked Titles" },
+    { value: `${donghuaSeries.length}`, label: "Tracked Titles" },
     { value: `${ongoingCount}`, label: "Ongoing Schedules" },
     { value: `${movieCount}`, label: "Movies & Specials" },
     { value: "3", label: "Video Sources" },
@@ -83,7 +84,7 @@ export default function About() {
                   ["Genre", "Xianxia / Cultivation"],
                   ["Novel", "Complete"],
                   ["Adaptation", "Donghua ongoing"],
-                  ["Release Tracker", `${DONGHUA_SERIES.length} tracked titles`],
+                  ["Release Tracker", `${donghuaSeries.length} tracked titles`],
                   ["Platform", "Tencent Video"],
                   ["Video Sources", "Three external source options"],
                   ["First Episode", "2023"],

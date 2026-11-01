@@ -6,12 +6,13 @@ import { getDonghuaStats, getDonghuaArcs, type DonghuaArc } from "@/services/don
 import { ReleaseTimeline } from "@/components/donghua/ReleaseTimeline";
 import { ChapterConverter } from "@/components/donghua/ChapterConverter";
 import { DonghuaTrackingList } from "@/components/donghua/DonghuaTrackingList";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { getNextReleaseInfo } from "@/lib/releaseSchedule";
 import { isCompletedSeries } from "@/lib/donghuaStatus";
 import { useState, useEffect } from "react";
 
 const DonghuaPage = () => {
+  const { series: donghuaSeries } = useDonghuaCatalog();
   const [expandedArc, setExpandedArc] = useState<string | null>(null);
   const [stats, setStats] = useState<{
     currentEpisode: number;
@@ -44,7 +45,7 @@ const DonghuaPage = () => {
     fetchData();
   }, []);
 
-  const trackedSeries = DONGHUA_SERIES;
+  const trackedSeries = donghuaSeries;
   const ongoingSeries = trackedSeries.filter((series) => !isCompletedSeries(series.statusTag));
   const ongoingCount = ongoingSeries.filter((series) => series.statusTag?.includes("Ongoing") || series.statusTag?.includes("Nian Fan")).length;
   const completedCount = trackedSeries.filter((series) => isCompletedSeries(series.statusTag)).length;
@@ -193,7 +194,7 @@ const DonghuaPage = () => {
           <div className="gradient-card border border-border rounded-lg p-6 mb-12">
             <h3 className="font-heading text-lg text-primary tracking-wider mb-4">Current Streaming & Source Links</h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              {DONGHUA_SERIES.filter((series) => series.streamingLinks)
+              {donghuaSeries.filter((series) => series.streamingLinks)
                 .slice(0, 8)
                 .flatMap((series) => {
                   const links: Array<{ label: string; sub: string; url: string }> = [];

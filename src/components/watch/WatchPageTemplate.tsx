@@ -22,7 +22,7 @@ import NotFound from "@/pages/NotFound";
 import { proxyImageUrl } from "@/lib/utils";
 import { getVideoServerSlugs } from "@/lib/videoSourceSlugs";
 import { buildCanonicalWatchUrl } from "@/lib/slugParser";
-import { DONGHUA_SERIES } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 
 interface WatchPageTemplateProps {
   seriesId: string;
@@ -44,6 +44,7 @@ export function WatchPageTemplate({
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [watchHistory, setWatchHistory] = useState<Record<number, boolean>>({});
+  const { series: donghuaSeries } = useDonghuaCatalog();
 
   // Fetching series data
   const {
@@ -113,14 +114,14 @@ export function WatchPageTemplate({
   const relatedSpecialsAndMovies = useMemo(() => {
     if (!series) return [];
     if (series.parentSeriesId) {
-      const parent = DONGHUA_SERIES.find((s) => s.id === series.parentSeriesId);
-      const siblings = DONGHUA_SERIES.filter(
+      const parent = donghuaSeries.find((s) => s.id === series.parentSeriesId);
+      const siblings = donghuaSeries.filter(
         (s) => s.parentSeriesId === series.parentSeriesId && s.id !== series.id
       );
       return parent ? [parent, ...siblings] : siblings;
     }
-    return DONGHUA_SERIES.filter((s) => s.parentSeriesId === seriesId);
-  }, [seriesId, series]);
+    return donghuaSeries.filter((s) => s.parentSeriesId === seriesId);
+  }, [donghuaSeries, seriesId, series]);
 
   const handleShare = () => {
     const currentEpisode = activeEpisode || 1;

@@ -15,7 +15,8 @@ import {
   Info,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { DONGHUA_SERIES, type DonghuaSeries } from "@/data/donghuaData";
+import type { DonghuaSeries } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { proxyImageUrl } from "@/lib/utils";
 import { getAutoReleasedEpisodes, getNextReleaseInfo } from "@/lib/releaseSchedule";
 import { isCompletedSeries, isHiatusSeries } from "@/lib/donghuaStatus";
@@ -34,6 +35,18 @@ interface TimelineMilestone {
     headline: string;
     body: string;
   };
+}
+
+function getCatalogTimelineStatus(
+  series: DonghuaSeries,
+  fallback: TimelineMilestone["status"],
+): TimelineMilestone["status"] {
+  const statusTag = series.statusTag?.toLowerCase() || "";
+  if (!statusTag) return fallback;
+  if (isHiatusSeries(series.statusTag)) return "hiatus";
+  if (statusTag.includes("movie") || statusTag.includes("special")) return "movie";
+  if (isCompletedSeries(series.statusTag)) return "completed";
+  return fallback;
 }
 
 function dateInEastAfrica(date: Date): string {
@@ -297,6 +310,7 @@ export const DONGHUA_TIMELINE_ENTRIES: TimelineMilestone[] = [
 type TimelineFilter = "all" | "airing" | "hiatus" | "movie" | "completed";
 
 export const ReleaseTimeline = () => {
+  const { series: donghuaSeries } = useDonghuaCatalog();
   const [activeFilter, setActiveFilter] = useState<TimelineFilter>("all");
   const [search, setSearch] = useState("");
   const [now, setNow] = useState(() => new Date());
@@ -308,32 +322,41 @@ export const ReleaseTimeline = () => {
 
   const timelineEntries = useMemo(() => {
     const knownSeries = new Set(DONGHUA_TIMELINE_ENTRIES.map((entry) => entry.seriesId));
-    const unlistedSeries = DONGHUA_SERIES.filter((series) => !knownSeries.has(series.id));
-
+    const unlistedSeries = donghuaSeries.filter((series) => !knownSeries.has(series.id));
+    const managedEntries = DONGHUA_TIMELINE_ENTRIES.map((entry) => {
+      const series = donghuaSeries.find((item) => item.id === entry.seriesId);
+      if (!series) return entry;
+      const status = getCatalogTimelineStatus(series, entry.status);
+      const episodeCount = series.anchorEpisode ?? series.knownTotalEpisodes;
+      return {
+        ...entry,
+        status,
+        episodesRange: episodeCount
+          ? `Episodes 1–${episodeCount}${status === "airing" ? "+" : ""}`
+          : entry.episodesRange,
+      };
+    });
     return [
-      ...DONGHUA_TIMELINE_ENTRIES,
+      ...managedEntries,
       ...unlistedSeries.map((series): TimelineMilestone => {
-        const status: TimelineMilestone["status"] = isHiatusSeries(series.statusTag)
-          ? "hiatus"
-          : series.statusTag?.toLowerCase().includes("movie") ||
-              series.statusTag?.toLowerCase().includes("special")
-            ? "movie"
-            : isCompletedSeries(series.statusTag)
-              ? "completed"
-              : "airing";
+        const status = getCatalogTimelineStatus(series, "airing");
 
         return {
           seriesId: series.id,
           seasonLabel: series.statusTag || "Tracked Donghua",
-          episodesRange: "",
+          episodesRange: series.knownTotalEpisodes
+            ? `Episodes 1–${series.knownTotalEpisodes}${status === "airing" ? "+" : ""}`
+            : status === "movie"
+              ? "Feature film or special"
+              : "Episode count not set",
           releaseDateOrSchedule: series.releaseSchedule || "Schedule pending",
           status,
-          currentArcTitle: "",
+          currentArcTitle: "Release tracking",
           milestones: [],
         };
       }),
     ];
-  }, []);
+  }, [donghuaSeries]);
 
   const filteredTimeline = useMemo(() => {
     return timelineEntries.filter((entry) => {
@@ -345,7 +368,7 @@ export const ReleaseTimeline = () => {
       // Search query
       if (search.trim()) {
         const q = search.toLowerCase();
-        const series = DONGHUA_SERIES.find((s) => s.id === entry.seriesId);
+        const series = donghuaSeries.find((s) => s.id === entry.seriesId);
         const matchTitle = series?.title.toLowerCase().includes(q);
         const matchArc = entry.currentArcTitle.toLowerCase().includes(q);
         const matchMilestone = entry.milestones.some((m) =>
@@ -359,7 +382,7 @@ export const ReleaseTimeline = () => {
 
       return true;
     });
-  }, [activeFilter, search, timelineEntries]);
+  }, [activeFilter, search, timelineEntries, donghuaSeries]);
 
   const statusBadge = (s: TimelineMilestone["status"]) => {
     switch (s) {
@@ -449,25 +472,28 @@ export const ReleaseTimeline = () => {
       {/* Timeline Stream */}
       <div className="relative pl-2 sm:pl-4">
         {filteredTimeline.map((item, i) => {
-          const series = DONGHUA_SERIES.find((s) => s.id === item.seriesId);
-          const badge = statusBadge(item.status);
+          const series = donghuaSeries.find((s) => s.id === item.seriesId);
+          const currentStatus = series
+            ? getCatalogTimelineStatus(series, item.status)
+            : item.status;
+          const badge = statusBadge(currentStatus);
           const thumbUrl = proxyImageUrl(series?.thumbnail);
           const currentEpisode = series ? getAutoReleasedEpisodes(series, now) : 0;
-          const nextRelease = series && item.status === "airing"
+          const nextRelease = series && currentStatus === "airing"
             ? getNextReleaseInfo(series, now)
             : null;
           const releaseIsToday = nextRelease?.showCountdown
             ? dateInEastAfrica(nextRelease.nextAiringDate) === dateInEastAfrica(now)
             : false;
           const episodeSummary = series
-            ? item.status === "movie"
+            ? currentStatus === "movie"
               ? item.episodesRange || `${currentEpisode} feature episode`
-              : item.status === "airing"
+              : currentStatus === "airing"
                 ? `Episodes 1–${currentEpisode} released${nextRelease?.showCountdown ? ` • Episode ${nextRelease.nextEpisodeNumber} next` : ""}`
                 : `${currentEpisode} episodes released`
             : item.episodesRange;
           const scheduleSummary = series
-            ? item.status === "airing" && nextRelease?.showCountdown
+            ? currentStatus === "airing" && nextRelease?.showCountdown
               ? `Episode ${nextRelease.nextEpisodeNumber}: ${releaseIsToday ? "Today • " : ""}${nextRelease.nextAiringFormattedCST}`
               : series.releaseSchedule || item.releaseDateOrSchedule
             : item.releaseDateOrSchedule;
@@ -499,7 +525,7 @@ export const ReleaseTimeline = () => {
               <div className="min-w-0 flex-1">
                 <div
                   className={`rounded-xl border p-4 sm:p-5 transition-all shadow-md ${
-                    item.status === "hiatus"
+                    currentStatus === "hiatus"
                       ? "border-amber-500/50 bg-amber-950/20 shadow-amber-950/30"
                       : "border-border/80 bg-card/60 hover:border-primary/50 hover:bg-card/90"
                   }`}

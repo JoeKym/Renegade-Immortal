@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Sparkles, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
-import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import type { DonghuaSeries } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { proxyImageUrl } from "@/lib/utils";
 
 export const FEATURED_SERIES_IDS: string[] = [
@@ -29,14 +30,15 @@ export function SmallDonghuaIframeGrid({
 }: SmallDonghuaIframeGridProps) {
   const navigate = useNavigate();
   const [brokenThumbs, setBrokenThumbs] = useState<Record<string, boolean>>({});
+  const { series: donghuaSeries } = useDonghuaCatalog();
 
   // Resolve the 8 series. If the current page is already one of the 8, swap it with Renegade Immortal
   const seriesToDisplay = FEATURED_SERIES_IDS.map((id) => {
     if (currentSeriesId && id === currentSeriesId) {
-      return DONGHUA_SERIES.find((s) => s.id === "renegade-immortal");
+      return donghuaSeries.find((s) => s.id === "renegade-immortal");
     }
-    return DONGHUA_SERIES.find((s) => s.id === id);
-  }).filter(Boolean) as DonghuaSeries[];
+    return donghuaSeries.find((s) => s.id === id);
+  }).filter((series): series is DonghuaSeries => Boolean(series));
 
   const handleSeriesClick = (slug: string) => {
     navigate(`/watch/${slug}`);

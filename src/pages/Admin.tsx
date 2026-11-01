@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/contexts/TranslationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DonghuaAdmin from "@/components/DonghuaAdmin";
+import DonghuaCatalogAdmin from "@/components/DonghuaCatalogAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1979,6 +1980,7 @@ export default function AdminPage() {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="donghua" className="gap-1.5 text-xs sm:text-sm"><Tv size={14} /> Donghua</TabsTrigger>
+                <TabsTrigger value="catalog" className="gap-1.5 text-xs sm:text-sm"><Tv size={14} /> Catalog</TabsTrigger>
               </TabsList>
             </div>
 
@@ -2045,6 +2047,9 @@ export default function AdminPage() {
             </TabsContent>
             <TabsContent value="donghua">
               <DonghuaAdmin />
+            </TabsContent>
+            <TabsContent value="catalog">
+              <DonghuaCatalogAdmin />
             </TabsContent>
           </Tabs>
         </motion.div>

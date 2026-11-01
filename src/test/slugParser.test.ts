@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parseWatchSlug, buildWatchUrl, buildCanonicalWatchUrl } from "@/lib/slugParser";
+import type { DonghuaSeries } from "@/data/donghuaData";
 
 describe("parseWatchSlug", () => {
   it("resolves exact series ID without episode", () => {
@@ -27,6 +28,24 @@ describe("parseWatchSlug", () => {
       donghuaId: "renegade-immortal",
       episodeNumber: null,
       isEpisode: false,
+    });
+  });
+
+  it("resolves series added to the managed catalog", () => {
+    const managedSeries: DonghuaSeries = {
+      id: "new-donghua-feature-film",
+      title: "New Donghua Feature Film",
+      searchQuery: "New Donghua Feature Film",
+      anilistSearch: "New Donghua Feature Film",
+      jikanSearch: "New Donghua Feature Film",
+      nextEpisodeSlug: "new-donghua-feature-film",
+      thumbnail: "https://example.com/film.jpg",
+    };
+
+    expect(parseWatchSlug("new-donghua-feature-film-episode-1", [managedSeries])).toEqual({
+      donghuaId: "new-donghua-feature-film",
+      episodeNumber: 1,
+      isEpisode: true,
     });
   });
 
@@ -112,4 +131,3 @@ describe("buildWatchUrl & buildCanonicalWatchUrl", () => {
     );
   });
 });
-

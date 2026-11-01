@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Volume2, ExternalLink } from "lucide-react";
-import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { useState } from "react";
 import { proxyImageUrl } from "@/lib/utils";
 
@@ -9,7 +9,8 @@ interface SeriesGridProps {
 }
 
 export function SeriesGrid({ currentSeriesId }: SeriesGridProps) {
-  const otherSeries = DONGHUA_SERIES.filter(s => s.id !== currentSeriesId);
+  const { series: donghuaSeries } = useDonghuaCatalog();
+  const otherSeries = donghuaSeries.filter(s => s.id !== currentSeriesId);
   const [brokenThumbs, setBrokenThumbs] = useState<Record<string, boolean>>({});
 
   return (

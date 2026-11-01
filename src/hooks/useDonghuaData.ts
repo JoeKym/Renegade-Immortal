@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { DONGHUA_SERIES, DonghuaSeries } from "@/data/donghuaData";
+import { DonghuaSeries } from "@/data/donghuaData";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
 import { proxyImageUrl } from "@/lib/utils";
 import { shouldShowReleaseCountdown } from "@/lib/donghuaStatus";
 import { getNextReleaseInfo, getAutoReleasedEpisodes } from "@/lib/releaseSchedule";
@@ -147,10 +148,12 @@ function releasedFromAni(m: Pick<AniListData, "nextAiringEpisode" | "episodes">)
 
 /** Local placeholder used when every external source fails. */
 function buildFallbackProfile(series: DonghuaSeries): AniListData {
+  const isFeature = series.statusTag?.toLowerCase().includes("movie") ||
+    series.statusTag?.toLowerCase().includes("special");
   return {
     id: 0,
     title: { romaji: series.title, english: series.title, native: "" },
-    episodes: series.knownTotalEpisodes || FALLBACK_TOTAL_EPISODES,
+    episodes: series.knownTotalEpisodes || (isFeature ? 1 : FALLBACK_TOTAL_EPISODES),
     nextAiringEpisode: null,
     status: series.statusTag?.toLowerCase().includes("completed") ? "FINISHED" : "RELEASING",
     averageScore: null,
@@ -301,12 +304,13 @@ async function fetchNextEpisode(
 /* -------------------------------------------------------------------------- */
 
 export function useDonghuaData(seriesId: string | undefined) {
+  const { series: donghuaSeries } = useDonghuaCatalog();
   const [aniData, setAniData] = useState<AniListData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState("");
 
-  const series = useMemo(() => DONGHUA_SERIES.find((d) => d.id === seriesId), [seriesId]);
+  const series = useMemo(() => donghuaSeries.find((d) => d.id === seriesId), [donghuaSeries, seriesId]);
 
   /* ----------------------------- Data fetching ----------------------------- */
   useEffect(() => {

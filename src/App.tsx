@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { AuthProvider } from "@/components/AuthProvider";
 import { TranslationProvider } from "@/contexts/TranslationContext";
 import { HelmetProvider } from "react-helmet-async";
+import { DonghuaCatalogProvider } from "@/contexts/DonghuaCatalogContext";
 import { DONGHUA_SERIES } from "@/data/donghuaData";
 import { syncAllSeriesReleaseMetadata } from "@/services/releaseMetadata";
 import Index from "./pages/Index";
@@ -71,6 +72,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <DonghuaCatalogProvider>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/characters" element={<Characters />} />
@@ -115,6 +117,7 @@ const App = () => {
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </DonghuaCatalogProvider>
               </BrowserRouter>
             </AuthProvider>
           </TooltipProvider>
