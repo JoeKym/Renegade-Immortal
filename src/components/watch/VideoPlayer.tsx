@@ -87,7 +87,8 @@ export function VideoPlayer({
   const [showSources, setShowSources] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const fetchControllerRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
+  const preferredServerRef = useRef<VideoServerName | null>(null);
   const isServerAvailable = useCallback((serverName: VideoServerName) =>
     availableServers.includes(serverName) &&
     (serverEpisodeCounts?.[serverName] === undefined || episode <= serverEpisodeCounts[serverName]),
@@ -95,10 +96,7 @@ export function VideoPlayer({
   const firstAvailableServer = SERVERS.findIndex((server) => isServerAvailable(server.name));
 
   const fetchEmbed = useCallback(async (serverIndex: number) => {
-    if (fetchControllerRef.current) {
-      fetchControllerRef.current.abort();
-    }
-    fetchControllerRef.current = new AbortController();
+    const requestId = ++requestIdRef.current;
 
     setLoadState("loading");
     setEmbedUrl(null);
@@ -115,6 +113,8 @@ export function VideoPlayer({
         body: { episode, server: server.name, donghuaSlug, serverSlugs, seriesTitle },
       });
 
+      if (requestId !== requestIdRef.current) return;
+
       if (!error && data?.success && data?.embedUrl) {
         setEmbedUrl(data.embedUrl);
         setLoadState("loading");
@@ -129,6 +129,7 @@ export function VideoPlayer({
       setLoadState("playing");
       setServerStatuses((prev) => ({ ...prev, [server.name]: "ok" }));
     } catch (e) {
+      if (requestId !== requestIdRef.current) return;
       console.warn(`Server ${server.name} error fallback:`, e);
       const direct = server.directUrl(episode, resolveServerSlug(server.name, donghuaSlug, serverSlugs));
       setEmbedUrl(direct);
@@ -140,14 +141,19 @@ export function VideoPlayer({
   useEffect(() => {
     setServerStatuses({});
     setEmbedUrl(null);
-    if (firstAvailableServer < 0) setLoadState("error");
-    else fetchEmbed(firstAvailableServer);
+    const preferredServerIndex = preferredServerRef.current
+      ? SERVERS.findIndex((server) => server.name === preferredServerRef.current && isServerAvailable(server.name))
+      : -1;
+    const serverIndex = preferredServerIndex >= 0 ? preferredServerIndex : firstAvailableServer;
+    if (serverIndex < 0) setLoadState("error");
+    else fetchEmbed(serverIndex);
     return () => {
-      fetchControllerRef.current?.abort();
+      requestIdRef.current += 1;
     };
-  }, [episode, donghuaSlug, serverSlugs, availableServers, serverEpisodeCounts, fetchEmbed, firstAvailableServer]);
+  }, [episode, donghuaSlug, serverSlugs, availableServers, serverEpisodeCounts, fetchEmbed, firstAvailableServer, isServerAvailable]);
 
   const handleServerClick = (index: number) => {
+    preferredServerRef.current = SERVERS[index].name;
     setServerStatuses((prev) => {
       const copy = { ...prev };
       delete copy[SERVERS[index].name];
@@ -162,7 +168,9 @@ export function VideoPlayer({
 
   const handleRetry = () => {
     setServerStatuses({});
-    if (firstAvailableServer >= 0) fetchEmbed(firstAvailableServer);
+    const currentServer = SERVERS[activeServer];
+    if (currentServer && isServerAvailable(currentServer.name)) fetchEmbed(activeServer);
+    else if (firstAvailableServer >= 0) fetchEmbed(firstAvailableServer);
   };
 
   const toggleFullscreen = () => {
