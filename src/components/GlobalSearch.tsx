@@ -2,28 +2,10 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Fuse from "fuse.js";
-import { searchableData, type SearchResult } from "@/data/searchData";
+import type { SearchResult } from "@/data/searchData";
+import { createSiteSearch } from "@/lib/searchIndex";
+import { useSearchableData } from "@/hooks/useSearchableData";
 import { useSearchTracking } from "@/services/searchTracking";
-
-const fuse = new Fuse(searchableData, {
-  keys: [
-    { name: "title", weight: 3 },
-    { name: "keywords", weight: 2.5 },
-    { name: "tags", weight: 2 },
-    { name: "category", weight: 1.5 },
-    { name: "realm", weight: 1.2 },
-    { name: "alignment", weight: 1.2 },
-    { name: "description", weight: 1 },
-  ],
-  threshold: 0.42,
-  includeScore: true,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  isCaseSensitive: false,
-  findAllMatches: true,
-  useExtendedSearch: true,
-});
 
 interface GlobalSearchProps {
   open: boolean;
@@ -33,13 +15,15 @@ interface GlobalSearchProps {
 export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const searchableData = useSearchableData(open);
+  const fuse = useMemo(() => createSiteSearch(searchableData), [searchableData]);
   const { trackSearchQuery, trackResultClick } = useSearchTracking();
   const trackedQueries = useRef<Set<string>>(new Set());
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
     return fuse.search(query).slice(0, 12).map((r) => r.item);
-  }, [query]);
+  }, [query, fuse]);
 
   // Track search query (debounced - only track when results change and query is stable)
   const handleQueryChange = useCallback((newQuery: string) => {
@@ -55,7 +39,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         trackSearchQuery(normalizedQuery, searchResults.length, "global");
       }
     }
-  }, [trackSearchQuery]);
+  }, [fuse, trackSearchQuery]);
 
   const handleSelect = useCallback((result: SearchResult, index: number) => {
     // Track the click

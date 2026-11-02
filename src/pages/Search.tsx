@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import Fuse from "fuse.js";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import {
@@ -17,7 +16,9 @@ import {
   Layers,
   Compass
 } from "lucide-react";
-import { searchableData, type SearchResult } from "@/data/searchData";
+import type { SearchResult } from "@/data/searchData";
+import { createSiteSearch } from "@/lib/searchIndex";
+import { useSearchableData } from "@/hooks/useSearchableData";
 import { toast } from "sonner";
 
 const categories = [
@@ -38,6 +39,7 @@ const categories = [
   "Guide",
   "Page",
   "Series",
+  "News",
 ];
 
 const popularSearches = [
@@ -77,28 +79,11 @@ const categoryBadgeStyles: Record<string, string> = {
   News: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
 };
 
-const fuse = new Fuse(searchableData, {
-  keys: [
-    { name: "title", weight: 3 },
-    { name: "keywords", weight: 2.5 },
-    { name: "tags", weight: 2 },
-    { name: "category", weight: 1.5 },
-    { name: "realm", weight: 1.2 },
-    { name: "alignment", weight: 1.2 },
-    { name: "description", weight: 1 },
-  ],
-  threshold: 0.42,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  includeScore: true,
-  isCaseSensitive: false,
-  findAllMatches: true,
-  useExtendedSearch: true,
-});
-
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const searchableData = useSearchableData();
+  const fuse = useMemo(() => createSiteSearch(searchableData), [searchableData]);
   const initialQuery = searchParams.get("q") ?? "";
   const initialCat = searchParams.get("cat") ?? "All";
 
@@ -160,7 +145,7 @@ export default function SearchPage() {
     const elapsed = Math.round(performance.now() - startTime);
     setSearchTimeMs(elapsed);
     return matches;
-  }, [query]);
+  }, [query, fuse]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};

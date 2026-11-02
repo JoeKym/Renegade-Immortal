@@ -756,5 +756,5 @@ export const searchableData: SearchResult[] = [
   { title: "Cosmic Locations & Sects", category: "Page", description: "Explore planets, star domains, and ancient tombs", path: "/locations" },
   { title: "Community Hub & Groups", category: "Page", description: "Join fan groups, post discussions, and connect with cultivators", path: "/communities" },
   { title: "News & Social Feed", category: "Page", description: "Latest announcements, YouTube recaps, and social media updates", path: "/feed" },
-  { title: "Site Search Engine", category: "Search", description: "Search across all characters, daos, realms, lore, multiverse, episodes, artifacts, locations, communities, and guides", path: "/search" }
+  { title: "Site Search Engine", category: "Page", description: "Search across all characters, daos, realms, lore, multiverse, episodes, artifacts, locations, communities, and guides", path: "/search" }
 ];
