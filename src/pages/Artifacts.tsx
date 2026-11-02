@@ -5,7 +5,12 @@ import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Search, Sword, Wand2, ScrollText } from "lucide-react";
 import { useLoreContent } from "@/contexts/LoreContentContext";
-import { isArtifactPayload, mergeLoreContent } from "@/lib/loreContent";
+import {
+  getDistinctLoreArcs,
+  getLoreStoryArcs,
+  isArtifactPayload,
+  mergeLoreContent,
+} from "@/lib/loreContent";
 
 export interface ArtifactItem {
   name: string;

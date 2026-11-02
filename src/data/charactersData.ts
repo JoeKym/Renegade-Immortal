@@ -795,19 +795,9 @@ const rawCharacters: Character[] = [
 
   // ── RIVALS & MINOR CHARACTERS ──
   {
-    name: "Eternal Night",
-    race: "Human",
-    alignment: "Rival",
-    subtitle: "Darkness Cultivator",
-    description: "A dark, mysterious cultivator whose encounters pushed Wang Lin to sharpen his combat mastery.",
-    tags: ["Darkness Dao"],
-    status: "Active",
-    cultivationRealm: "Third Step",
-  },
-  {
     name: "Ma Liang",
     race: "Human",
-    alignment: "Rival",
+    alignment: "Ally",
     subtitle: "Deceased Cultivator of Sea of Devils",
     description: "A weak cultivator killed by Ge Yang. Wang Lin assumed his identity in the Sea of Devils, making the name 'Ma Liang' legendary alongside Li Muwan.",
     tags: ["Identity Stolen", "Sea of Devils"],
@@ -891,16 +881,6 @@ const rawCharacters: Character[] = [
     status: "Active",
     cultivationRealm: "Ascendant Equivalent",
     image: thunderToadImg,
-  },
-  {
-    name: "Brilliant Void",
-    race: "Spirit Beast",
-    alignment: "Servant",
-    subtitle: "Spatial Void Creature",
-    description: "A rare spirit creature capable of spatial manipulation and void travel.",
-    tags: ["Void Power", "Spatial Travel"],
-    status: "Active",
-    cultivationRealm: "Ascendant Equivalent",
   },
 
   // ── ANCIENT CELESTIAL FIGURES ──
