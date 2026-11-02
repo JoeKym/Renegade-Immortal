@@ -85,7 +85,7 @@ const socialLinks: SocialLink[] = [
   { name: "Facebook", url: "https://www.facebook.com/ky.money223", svgSrc: facebookIcon },
   { name: "Twitter / X", url: "https://x.com/JoeKym07", svgSrc: twitterIcon },
   { name: "TikTok", url: "https://www.tiktok.com/@joekym07", svgSrc: tiktokIcon },
-  { name: "YouTube", url: "https://www.youtube.com/@%E3%82%B8%E3%83%A7%E3%83%BC%E3%82%AD%E3%83%A0", svgSrc: youtubeIcon },
+  { name: "YouTube", url: "http://www.youtube.com/@qiaojin07", svgSrc: youtubeIcon },
   { name: "Spotify", url: "https://open.spotify.com/user/3175pawgep7gxnrd6ve5vkdfmpdy?si=0aef054eb4ef4f9a", svgSrc: spotifyIcon },
   { name: "Pinterest", url: "https://www.pinterest.com/Joekym07", svgSrc: pinterestIcon },
   { name: "GitHub", url: "https://github.com/JoeKym", svgSrc: githubIcon },
