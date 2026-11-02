@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { useDonghuaCatalog } from "@/contexts/DonghuaCatalogContext";
+import type { Json } from "@/integrations/supabase/types";
+import { getNextReleaseInfo } from "@/lib/releaseSchedule";
 import {
   ensureDonghuaProgress,
   getDonghuaStats,
@@ -16,13 +20,15 @@ import {
 import { Loader2, Tv, BookOpen, RefreshCw, Sparkles } from "lucide-react";
 
 const DEFAULT_PROGRESS = {
-  currentEpisode: 160,
+  currentEpisode: 165,
   totalEpisodes: 433,
   currentChapter: 795,
   totalChapters: 2137,
 };
 
 export default function DonghuaAdmin() {
+  const { user } = useAuth();
+  const { series: catalogSeries, refresh: refreshCatalog } = useDonghuaCatalog();
   const [stats, setStats] = useState<{
     currentEpisode: number;
     totalEpisodes: number;
@@ -107,7 +113,34 @@ export default function DonghuaAdmin() {
         current_chapter: formData.currentChapter,
         total_chapters: formData.totalChapters,
       };
+
+      const currentSeries = catalogSeries.find((series) => series.id === "renegade-immortal");
+      if (!currentSeries) throw new Error("Renegade Immortal is missing from the donghua catalog");
+
+      const now = new Date();
+      const updatedAt = now.toISOString();
+      const nextRelease = getNextReleaseInfo(currentSeries, now);
+      const anchorDate = nextRelease.showCountdown
+        ? new Date(nextRelease.nextAiringDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        : updatedAt;
+      const updatedSeries = {
+        ...currentSeries,
+        knownTotalEpisodes: progressData.current_episode,
+        episodesSeason: `Episodes 1–${progressData.current_episode}+ | Ongoing`,
+        anchorEpisode: progressData.current_episode,
+        anchorDate,
+      };
+      const { error: catalogError } = await supabase.from("donghua_catalog").upsert({
+        id: currentSeries.id,
+        payload: updatedSeries as unknown as Json,
+        is_published: true,
+        updated_by: user?.id ?? null,
+        updated_at: updatedAt,
+      });
+      if (catalogError) throw catalogError;
+
       await updateDonghuaProgress(progressData);
+      await refreshCatalog();
       toast.success("Progress updated successfully");
       fetchData();
     } catch (error) {

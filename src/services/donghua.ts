@@ -39,7 +39,7 @@ const STORAGE_ARCS_KEY = "admin_donghua_arcs";
 
 const DEFAULT_PROGRESS_DATA: DonghuaProgress = {
   id: "default-progress",
-  current_episode: 160,
+  current_episode: 165,
   total_episodes: 433,
   current_chapter: 795,
   total_chapters: 2137,
