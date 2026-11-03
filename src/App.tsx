@@ -68,22 +68,17 @@ function RouteFallback() {
 
 const App = () => {
   useEffect(() => {
-    const idle =
-      "requestIdleCallback" in window
-        ? window.requestIdleCallback(() => {
-            syncAllSeriesReleaseMetadata(DONGHUA_SERIES).catch(() => {});
-          })
-        : window.setTimeout(() => {
-            syncAllSeriesReleaseMetadata(DONGHUA_SERIES).catch(() => {});
-          }, 2000);
-
-    return () => {
-      if (typeof idle === "number" && "cancelIdleCallback" in window) {
-        window.cancelIdleCallback(idle);
-      } else {
-        window.clearTimeout(idle as number);
-      }
+    const sync = () => {
+      syncAllSeriesReleaseMetadata(DONGHUA_SERIES).catch(() => {});
     };
+
+    if (typeof window.requestIdleCallback === "function") {
+      const idleId = window.requestIdleCallback(sync);
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(sync, 2000);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   return (
@@ -95,7 +90,7 @@ const App = () => {
               <AuthProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
+              <BrowserRouter future={{ v7_startTransition: true }}>
                 <DonghuaCatalogProvider>
                 <LoreContentProvider>
                 <Suspense fallback={<RouteFallback />}>

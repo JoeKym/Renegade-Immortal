@@ -26,31 +26,42 @@ import emailIcon from "@/assets/socials/email.svg";
 
 import { MaintenanceAnimation } from "./MaintenanceAnimation";
 
-/** Lightweight ambient loop (~1.8MB). Avoid the old 43MB clip on every page. */
-const BG_VIDEO_SRC = "/videos/background.mp4";
+/** Same ambient clip as the original, re-encoded for the web (muted, so no audio track). */
+const BG_VIDEO_SRC = "/videos/renegadeimmortal_bg_web.mp4";
 
+let bgVideoEnabled = false;
+
+/** Starts the background video only after the page has loaded, so it never competes with first paint. */
 function useDeferredBackgroundVideo() {
-  const [src, setSrc] = useState<string | null>(null);
+  const [src, setSrc] = useState<string | null>(() => (bgVideoEnabled ? BG_VIDEO_SRC : null));
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const smallScreen = window.matchMedia("(max-width: 768px)").matches;
-    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    if (reduceMotion || smallScreen || saveData) return;
+    if (bgVideoEnabled) return;
 
     let idleId: number | undefined;
     let timeoutId: number | undefined;
 
-    const enable = () => setSrc(BG_VIDEO_SRC);
+    const enable = () => {
+      bgVideoEnabled = true;
+      setSrc(BG_VIDEO_SRC);
+    };
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(enable, { timeout: 2500 });
+      } else {
+        timeoutId = window.setTimeout(enable, 1500);
+      }
+    };
 
-    if ("requestIdleCallback" in window) {
-      idleId = window.requestIdleCallback(enable, { timeout: 2500 });
+    if (document.readyState === "complete") {
+      schedule();
     } else {
-      timeoutId = window.setTimeout(enable, 1500);
+      window.addEventListener("load", schedule, { once: true });
     }
 
     return () => {
-      if (idleId !== undefined && "cancelIdleCallback" in window) {
+      window.removeEventListener("load", schedule);
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(idleId);
       }
       if (timeoutId !== undefined) window.clearTimeout(timeoutId);
@@ -131,6 +142,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { isAdmin } = useAdminCheck();
   const { maintenance, maintenanceEta } = useMaintenanceMode();
+  const bgVideoSrc = useDeferredBackgroundVideo();
 
   useEffect(() => {
     let sessionId = sessionStorage.getItem("pv_session");
@@ -152,15 +164,17 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed inset-0 z-0 h-full w-full object-cover opacity-[0.08] pointer-events-none"
-      >
-        <source src="/videos/renegadeimmortal_bg.mp4" type="video/mp4" />
-      </video>
+      {bgVideoSrc && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="fixed inset-0 z-0 h-full w-full object-cover opacity-[0.08] pointer-events-none"
+        >
+          <source src={bgVideoSrc} type="video/mp4" />
+        </video>
+      )}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/90 via-background/95 to-background pointer-events-none" />
 
       <Navbar />

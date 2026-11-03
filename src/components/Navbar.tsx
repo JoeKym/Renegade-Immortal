@@ -1,8 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, lazy, Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Scroll, Swords, Users, Clock, Globe, BookOpen, Tv, Sparkles, Map, Shield, HelpCircle, ChevronDown, Rss, MessageCircle, UsersRound, Settings, Bot, Newspaper, Play, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GlobalSearch } from "./GlobalSearch";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { MessagesNavLink } from "./MessagesNavLink";
@@ -14,6 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const loadGlobalSearch = () => import("./GlobalSearch");
+const GlobalSearch = lazy(() => loadGlobalSearch().then((m) => ({ default: m.GlobalSearch })));
 
 const mainNav = [
   { path: "/", labelKey: "nav.home", icon: Scroll },
@@ -130,6 +132,7 @@ export function Navbar() {
   const { t } = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchMounted, setSearchMounted] = useState(false);
   const location = useLocation();
 
   return (
@@ -207,7 +210,7 @@ export function Navbar() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <button type="button" aria-label="Open site search" onClick={() => setSearchOpen(true)} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-primary">
+            <button type="button" aria-label="Open site search" onClick={() => { setSearchMounted(true); setSearchOpen(true); }} onMouseEnter={loadGlobalSearch} onFocus={loadGlobalSearch} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-primary">
               <Search size={18} />
             </button>
             <ThemeToggle />
@@ -251,7 +254,11 @@ export function Navbar() {
         </AnimatePresence>
       </nav>
 
-      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      {searchMounted && (
+        <Suspense fallback={null}>
+          <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }
