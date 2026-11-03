@@ -572,7 +572,7 @@ export default function Messages() {
                 <h1 className="text-3xl font-heading font-bold text-foreground">Messages</h1>
               </div>
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.location.href = '/groups'}>
-                <Users size={14} /> Group Chats
+                <Users size={14} /> Peak Chats
               </Button>
             </div>
 

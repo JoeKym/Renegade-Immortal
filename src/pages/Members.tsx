@@ -68,7 +68,7 @@ export default function MembersPage() {
   return (
     <Layout>
       <PageHero
-        title="Community"
+        title="Sect Disciples"
         subtitle="Fellow cultivators who walk the path of the Renegade Immortal"
       />
 

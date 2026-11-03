@@ -13,7 +13,7 @@ export interface SearchResult {
     | "Artifact"
     | "Technique"
     | "Location"
-    | "Community"
+    | "Sect"
     | "Account"
     | "Guide"
     | "Page"
@@ -675,38 +675,38 @@ export const searchableData: SearchResult[] = [
     tags: ["supreme-realm", "continent"]
   },
 
-  // COMMUNITIES, GROUPS & ACCOUNTS
+  // SECTS, PEAKS & ACCOUNTS
   {
     title: "Cultivators Union",
-    category: "Community",
-    description: "Primary fan discussion group for Renegade Immortal novel chapters, donghua episodes, and lore theories.",
+    category: "Sect",
+    description: "Primary fan sect for Renegade Immortal novel chapters, donghua episodes, and lore theories.",
     path: "/communities",
-    keywords: ["cultivators union", "fan hub", "renegade immortal forum", "discussion group"],
-    tags: ["community", "discussion"]
+    keywords: ["cultivators union", "fan hub", "renegade immortal forum", "discussion sect"],
+    tags: ["sect", "discussion"]
   },
   {
     title: "Dao of Slaughter Guild",
-    category: "Community",
-    description: "Community power-scaling guild dedicated to analyzing combat feats, 14 Essences, and realm battles.",
+    category: "Sect",
+    description: "Sect power-scaling guild dedicated to analyzing combat feats, 14 Essences, and realm battles.",
     path: "/communities",
     keywords: ["dao of slaughter guild", "power scaling", "feat analysis", "battle debates"],
-    tags: ["community", "power-scaling"]
+    tags: ["sect", "power-scaling"]
   },
   {
     title: "Er Gen Multiverse Guild",
-    category: "Community",
-    description: "Group exploring crossover lore between Xian Ni, ISSTH, AWE, Pursuit of the Truth, and Beyond the Timescape.",
+    category: "Sect",
+    description: "Sect exploring crossover lore between Xian Ni, ISSTH, AWE, Pursuit of the Truth, and Beyond the Timescape.",
     path: "/communities",
     keywords: ["er gen multiverse guild", "crossover guild", "issth fans", "multiverse lore"],
-    tags: ["community", "multiverse"]
+    tags: ["sect", "multiverse"]
   },
   {
-    title: "Community Member Profiles",
+    title: "Sect Disciple Profiles",
     category: "Account",
-    description: "Directory of registered members, top cultivators, and community contributors on the site.",
+    description: "Directory of registered disciples, top cultivators, and sect contributors on the site.",
     path: "/members",
-    keywords: ["user profiles", "members", "account directory", "cultivators"],
-    tags: ["accounts", "members"]
+    keywords: ["disciple profiles", "disciples", "account directory", "cultivators"],
+    tags: ["accounts", "disciples"]
   },
 
   // GUIDES & FAQs
@@ -754,7 +754,7 @@ export const searchableData: SearchResult[] = [
   { title: "Donghua Release & Stream Hub", category: "Page", description: "Watch episodes, track release schedules, and stream donghua", path: "/watch" },
   { title: "Artifacts & Techniques Catalog", category: "Page", description: "Browse divine treasures, soul flags, and celestial spells", path: "/artifacts" },
   { title: "Cosmic Locations & Sects", category: "Page", description: "Explore planets, star domains, and ancient tombs", path: "/locations" },
-  { title: "Community Hub & Groups", category: "Page", description: "Join fan groups, post discussions, and connect with cultivators", path: "/communities" },
+  { title: "Sect Hub & Peaks", category: "Page", description: "Join fan sects, post discussions, and connect with cultivators", path: "/communities" },
   { title: "News & Social Feed", category: "Page", description: "Latest announcements, YouTube recaps, and social media updates", path: "/feed" },
-  { title: "Site Search Engine", category: "Page", description: "Search across all characters, daos, realms, lore, multiverse, episodes, artifacts, locations, communities, and guides", path: "/search" }
+  { title: "Site Search Engine", category: "Page", description: "Search across all characters, daos, realms, lore, multiverse, episodes, artifacts, locations, sects, and guides", path: "/search" }
 ];

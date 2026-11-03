@@ -22,11 +22,11 @@ const COMMUNITY_CATEGORIES = ["general", "lore discussion", "fan art", "theories
 
 const GENERAL_GUIDELINES = [
   "Be respectful to all cultivators — no harassment, hate speech, or personal attacks.",
-  "Keep discussions relevant to Renegade Immortal or the community's topic.",
+  "Keep discussions relevant to Renegade Immortal or the sect's topic.",
   "No spam, self-promotion, or off-topic content without permission.",
   "Spoilers must be clearly marked — respect others' reading progress.",
   "Do not share pirated content or links to unofficial translations.",
-  "Leaders are responsible for moderating their communities fairly.",
+  "Sect Masters are responsible for moderating their sects fairly.",
   "Violations may result in warnings, suspensions, or permanent bans.",
 ];
 
@@ -158,7 +158,7 @@ export default function CommunitiesPage() {
       .single();
 
     if (error || !communityData) {
-      toast.error("Failed to create community");
+      toast.error("Failed to create sect");
     } else {
       const { error: memberError } = await supabase.from("community_members").insert({
         community_id: communityData.id,
@@ -167,9 +167,9 @@ export default function CommunitiesPage() {
       });
 
       if (memberError) {
-        toast.error("Community created, but failed to establish leadership membership.");
+        toast.error("Sect created, but failed to establish Sect Master membership.");
       } else {
-        toast.success("Community created! You are the leader.");
+        toast.success("Sect founded! You are the Sect Master.");
       }
 
       setNewName("");
@@ -201,7 +201,7 @@ export default function CommunitiesPage() {
   return (
     <Layout>
       <PageHero
-        title="Community"
+        title="Sects"
         subtitle="Join clans, browse cultivators, and forge your path together"
       />
 
@@ -209,10 +209,10 @@ export default function CommunitiesPage() {
         <Tabs defaultValue="communities" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="communities" className="gap-1.5">
-              <Users size={14} /> Communities
+              <Users size={14} /> Sects
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5">
-              <Users size={14} /> Members
+              <Users size={14} /> Disciples
             </TabsTrigger>
           </TabsList>
 
@@ -222,7 +222,7 @@ export default function CommunitiesPage() {
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search communities..."
+                  placeholder="Search sects..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9"
@@ -237,14 +237,14 @@ export default function CommunitiesPage() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle className="font-heading">Create a Community</DialogTitle>
+                      <DialogTitle className="font-heading">Found a Sect</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 mt-4">
                       {/* General Guidelines */}
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
                         <div className="flex items-center gap-2 text-sm font-heading text-primary">
                           <ScrollText size={16} />
-                          Community Guidelines
+                          Sect Guidelines
                         </div>
                         <ul className="text-xs text-muted-foreground space-y-1.5 list-disc pl-4">
                           {GENERAL_GUIDELINES.map((g, i) => (
@@ -258,13 +258,13 @@ export default function CommunitiesPage() {
                             onCheckedChange={(v) => setGuidelinesAccepted(v === true)}
                           />
                           <label htmlFor="accept-guidelines" className="text-xs font-body text-foreground cursor-pointer">
-                            I have read and agree to the community guidelines
+                            I have read and agree to the sect guidelines
                           </label>
                         </div>
                       </div>
 
                       <Input
-                        placeholder="Community name (2-100 chars)"
+                        placeholder="Sect name (2-100 chars)"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value.slice(0, 100))}
                         disabled={!guidelinesAccepted}
@@ -290,7 +290,7 @@ export default function CommunitiesPage() {
                         </Select>
                       </div>
                       <Button onClick={handleCreate} disabled={!newName.trim() || creating || !guidelinesAccepted} className="w-full gradient-gold text-primary-foreground">
-                        {creating ? "Creating..." : "Create Community"}
+                        {creating ? "Creating..." : "Found Sect"}
                       </Button>
                     </div>
                   </DialogContent>
@@ -323,11 +323,11 @@ export default function CommunitiesPage() {
             </div>
 
             {loading ? (
-              <p className="text-center text-muted-foreground font-body animate-pulse">Loading communities...</p>
+              <p className="text-center text-muted-foreground font-body animate-pulse">Loading sects...</p>
             ) : filtered.length === 0 ? (
               <div className="text-center py-16">
                 <Users size={48} className="mx-auto text-muted-foreground/30 mb-4" />
-                <p className="text-muted-foreground font-body">No communities found. Be the first to create one!</p>
+                <p className="text-muted-foreground font-body">No sects found. Be the first to found one!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

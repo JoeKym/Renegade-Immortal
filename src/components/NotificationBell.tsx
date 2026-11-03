@@ -108,7 +108,7 @@ export function NotificationBell() {
       user_id: user.id,
       role: "member",
     });
-    if (error) { toast.error("Failed to join community"); return; }
+    if (error) { toast.error("Failed to join sect"); return; }
     setInvites(prev => prev.filter(i => i.id !== invite.id));
     toast.success(`Joined ${invite.community_name}!`);
   };
@@ -162,7 +162,7 @@ export function NotificationBell() {
                 {invites.map((inv) => (
                   <div key={`inv-${inv.id}`} className="px-3 py-2.5 border-b border-border/50 bg-primary/5">
                     <div className="flex justify-between items-start">
-                      <span className="font-heading text-xs text-foreground">Community Invite</span>
+                      <span className="font-heading text-xs text-foreground">Sect Invite</span>
                       <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{timeAgo(inv.created_at)}</span>
                     </div>
                     <p className="text-xs font-body text-muted-foreground mt-0.5">

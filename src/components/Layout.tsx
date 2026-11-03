@@ -210,7 +210,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <div>
               <p className="mb-2 font-heading text-base font-semibold tracking-wide text-primary md:text-lg">仙逆 <span className="text-muted-foreground/60">·</span> Renegade Immortal</p>
               <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-              A fan-made reference, donghua release tracker, and community for Er Gen’s Renegade Immortal
+              A fan-made reference, donghua release tracker, and sect hub for Er Gen’s Renegade Immortal
               </p>
             </div>
             <p className="text-xs text-muted-foreground/75">Explore the world. Follow the story. Find your Dao.</p>
@@ -241,11 +241,11 @@ export function Layout({ children }: { children: ReactNode }) {
             </section>
 
             <section>
-              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Community</h3>
-              <nav aria-label="Community links" className="flex flex-col gap-2.5 text-sm">
-                <Link to="/communities" className="text-muted-foreground hover:text-primary transition-colors">Communities</Link>
-                <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Community Feed</Link>
-                <Link to="/members" className="text-muted-foreground hover:text-primary transition-colors">Members</Link>
+              <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Sects</h3>
+              <nav aria-label="Sect links" className="flex flex-col gap-2.5 text-sm">
+                <Link to="/communities" className="text-muted-foreground hover:text-primary transition-colors">Sects</Link>
+                <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Sect Feed</Link>
+                <Link to="/members" className="text-muted-foreground hover:text-primary transition-colors">Disciples</Link>
                 <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Support</Link>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
               </nav>

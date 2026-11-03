@@ -34,7 +34,7 @@ const categories = [
   "Artifact",
   "Technique",
   "Location",
-  "Community",
+  "Sect",
   "Account",
   "Guide",
   "Page",
@@ -71,7 +71,7 @@ const categoryBadgeStyles: Record<string, string> = {
   Artifact: "bg-rose-500/20 text-rose-400 border-rose-500/30",
   Technique: "bg-red-500/20 text-red-400 border-red-500/30",
   Location: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
-  Community: "bg-gold-500/20 text-amber-300 border-amber-400/30",
+  Sect: "bg-gold-500/20 text-amber-300 border-amber-400/30",
   Account: "bg-teal-500/20 text-teal-400 border-teal-500/30",
   Guide: "bg-pink-500/20 text-pink-400 border-pink-500/30",
   Page: "bg-slate-500/20 text-slate-300 border-slate-500/30",
@@ -209,7 +209,7 @@ export default function SearchPage() {
     <Layout>
       <PageHero
         title="Site-Wide Search Engine"
-        subtitle="Search all Renegade Immortal lore, characters, daos, essences, cultivation realms, timeline, donghua episodes, artifacts, locations, communities & guides."
+        subtitle="Search all Renegade Immortal lore, characters, daos, essences, cultivation realms, timeline, donghua episodes, artifacts, locations, sects & guides."
       />
 
       <section className="py-10">

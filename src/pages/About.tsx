@@ -21,7 +21,7 @@ const features = [
   { icon: Clock, label: "Release Timeline", desc: "Current tracked series, episode progress, and release dates.", path: "/donghua-release-timeline" },
   { icon: Play, label: "Watch", desc: "Stream all released episodes directly inside the site.", path: "/watch" },
   { icon: Scroll, label: "Lore", desc: "Deep-dives into cultivation systems, factions, and in-universe history.", path: "/lore" },
-  { icon: Users, label: "Community", desc: "Join fan communities, post theories, and chat with other readers.", path: "/communities" },
+  { icon: Users, label: "Sects", desc: "Join fan sects, post theories, and chat with other readers.", path: "/communities" },
 ];
 
 export default function About() {
@@ -43,7 +43,7 @@ export default function About() {
     <Layout>
       <PageHero 
         title="About Renegade Immortal"
-        subtitle="An independent fan reference and community for Er Gen’s Renegade Immortal (仙逆), its donghua adaptation, characters, and lore."
+        subtitle="An independent fan reference and sect for Er Gen’s Renegade Immortal (仙逆), its donghua adaptation, characters, and lore."
       />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">

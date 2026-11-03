@@ -96,7 +96,7 @@ export function CommunityDiscovery() {
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-heading text-2xl text-primary tracking-wider">Active Communities</h2>
+          <h2 className="font-heading text-2xl text-primary tracking-wider">Active Sects</h2>
           <Link
             to="/communities"
             className="flex items-center gap-1 text-sm font-body text-muted-foreground hover:text-primary transition-colors"
@@ -111,7 +111,7 @@ export function CommunityDiscovery() {
             <div className="relative w-full sm:w-64">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search communities..."
+                placeholder="Search sects..."
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 className="pl-9 h-9 text-sm bg-background"
@@ -148,7 +148,7 @@ export function CommunityDiscovery() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8 font-body">No communities match your filter.</p>
+          <p className="text-center text-sm text-muted-foreground py-8 font-body">No sects match your filter.</p>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {filtered.map((c, i) => (

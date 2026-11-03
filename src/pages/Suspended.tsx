@@ -105,7 +105,7 @@ export default function Suspended() {
           </h1>
           <p className="text-muted-foreground font-body">
             {isBanned
-              ? "Your account has been permanently banned due to severe violations of our community guidelines."
+              ? "Your account has been permanently banned due to severe violations of our sect guidelines."
               : `Your account has been temporarily suspended. ${expiresDate ? `Your suspension expires on ${expiresDate}.` : ""}`}
           </p>
         </div>

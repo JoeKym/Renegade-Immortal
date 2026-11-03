@@ -127,7 +127,7 @@ export function ForwardMessageModal({ open, onClose, messageContent, imageUrl, u
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="font-heading text-sm text-foreground truncate">{t.name}</p>
-                <p className="text-[10px] text-muted-foreground">{t.type === "group" ? "Group" : "Direct Message"}</p>
+                <p className="text-[10px] text-muted-foreground">{t.type === "group" ? "Peak" : "Direct Message"}</p>
               </div>
               <Send size={14} className="text-muted-foreground shrink-0" />
             </button>

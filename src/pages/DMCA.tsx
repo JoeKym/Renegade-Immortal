@@ -16,7 +16,7 @@ export default function DMCA() {
           <p>
             This page describes how to contact the site about a copyright concern. It is not legal
             advice and does not determine whether a particular use is authorized. Renegade Immortal
-            is an unofficial fan site. It contains original reference and community material, and
+            is an unofficial fan site. It contains original reference and sect material, and
             may link to or embed third-party media pages. We do not operate or control those
             external services.
           </p>

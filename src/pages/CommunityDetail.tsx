@@ -58,7 +58,7 @@ export default function CommunityDetail() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const [community, setCommunity] = useState<Community | null>(null);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [disciples, setMembers] = useState<Member[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [profiles, setProfiles] = useState<Record<string, { display_name: string; avatar_url: string | null; username: string | null }>>({});
@@ -90,13 +90,13 @@ export default function CommunityDetail() {
     "self-promotion": { label: "Self-Promotion", severity: "minor", template: "This user is promoting external content without permission, violating guideline #3." },
     spoiler: { label: "Spoiler", severity: "minor", template: "This user posted unmarked spoilers, violating guideline #4 (spoilers must be clearly marked)." },
     pirac: { label: "Piracy", severity: "moderate", template: "This user shared links to pirated/unofficial content, violating guideline #5." },
-    harass: { label: "Harassment", severity: "severe", template: "This user is engaging in harassment and personal attacks against community members, violating guideline #1." },
-    bully: { label: "Bullying", severity: "severe", template: "This user is bullying and targeting other members, violating guideline #1." },
-    "hate speech": { label: "Hate Speech", severity: "severe", template: "This user posted hate speech targeting members based on identity, violating guideline #1." },
-    slur: { label: "Slurs", severity: "severe", template: "This user used discriminatory slurs against community members, violating guideline #1." },
-    threat: { label: "Threats", severity: "severe", template: "This user made explicit threats against community members — immediate action required. Violates guideline #1." },
-    flood: { label: "Flooding", severity: "minor", template: "This user is flooding the chat with repeated messages, disrupting other members, violating guideline #3." },
-    "off-topic": { label: "Off-Topic", severity: "minor", template: "This user consistently posts content unrelated to the community's topic, violating guideline #2." },
+    harass: { label: "Harassment", severity: "severe", template: "This user is engaging in harassment and personal attacks against sect disciples, violating guideline #1." },
+    bully: { label: "Bullying", severity: "severe", template: "This user is bullying and targeting other disciples, violating guideline #1." },
+    "hate speech": { label: "Hate Speech", severity: "severe", template: "This user posted hate speech targeting disciples based on identity, violating guideline #1." },
+    slur: { label: "Slurs", severity: "severe", template: "This user used discriminatory slurs against sect disciples, violating guideline #1." },
+    threat: { label: "Threats", severity: "severe", template: "This user made explicit threats against sect disciples — immediate action required. Violates guideline #1." },
+    flood: { label: "Flooding", severity: "minor", template: "This user is flooding the chat with repeated messages, disrupting other disciples, violating guideline #3." },
+    "off-topic": { label: "Off-Topic", severity: "minor", template: "This user consistently posts content unrelated to the sect's topic, violating guideline #2." },
   };
 
   const detectViolations = (text: string) => {
@@ -199,13 +199,13 @@ export default function CommunityDetail() {
     if (!user || !id) return;
     const { error } = await supabase.from("community_members").insert({ community_id: id, user_id: user.id, role: "member" });
     if (error) toast.error("Failed to join");
-    else { toast.success("Joined community!"); fetchAll(); }
+    else { toast.success("Joined the sect!"); fetchAll(); }
   };
 
   const handleLeave = async () => {
     if (!user || !id) return;
     await supabase.from("community_members").delete().eq("community_id", id).eq("user_id", user.id);
-    toast.success("Left community");
+    toast.success("Left the sect");
     setMyRole(null);
     fetchAll();
   };
@@ -270,13 +270,13 @@ export default function CommunityDetail() {
 
   const handlePromote = async (userId: string, newRole: string) => {
     await supabase.from("community_members").update({ role: newRole }).eq("community_id", id).eq("user_id", userId);
-    toast.success(`Role updated to ${newRole}`);
+    toast.success(`Role updated to ${newRole === "leader" ? "Sect Master" : newRole === "elder" ? "Elder" : "Disciple"}`);
     fetchAll();
   };
 
   const handleKick = async (userId: string) => {
     await supabase.from("community_members").delete().eq("community_id", id).eq("user_id", userId);
-    toast.success("Member removed");
+    toast.success("Disciple removed");
     fetchAll();
   };
 
@@ -295,7 +295,7 @@ export default function CommunityDetail() {
     const { error: updateError } = await supabase.from("communities").update({ avatar_url: avatarUrl }).eq("id", id);
     if (updateError) { toast.error("Failed to update avatar"); } else {
       setCommunity({ ...community, avatar_url: avatarUrl });
-      toast.success("Community avatar updated!");
+      toast.success("Sect emblem updated!");
     }
     setUploadingAvatar(false);
   };
@@ -310,7 +310,7 @@ export default function CommunityDetail() {
       .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`)
       .limit(10);
     if (data) {
-      const memberIds = new Set(members.map(m => m.user_id));
+      const memberIds = new Set(disciples.map(m => m.user_id));
       setInviteResults(data.filter(p => !memberIds.has(p.user_id)));
     }
   };
@@ -349,7 +349,7 @@ export default function CommunityDetail() {
       });
     }
 
-    toast.success("Report submitted. A leader/admin will review it.");
+    toast.success("Report submitted. A Sect Master or Ancestor will review it.");
     setReportOpen(false);
     setReportReason("");
     setReportUserId(null);
@@ -358,10 +358,10 @@ export default function CommunityDetail() {
   // Delete community (creator only)
   const handleDeleteCommunity = async () => {
     if (!user || !id || !community) return;
-    if (!window.confirm(`Permanently delete "${community.name}"? This cannot be undone. All members, posts and messages will be lost.`)) return;
+    if (!window.confirm(`Disband "${community.name}"? This cannot be undone. All disciples, posts and messages will be lost.`)) return;
     const { error } = await supabase.from("communities").delete().eq("id", id);
-    if (error) { toast.error("Failed to delete community"); return; }
-    toast.success("Community deleted.");
+    if (error) { toast.error("Failed to delete sect"); return; }
+    toast.success("Sect deleted.");
     navigate("/communities");
   };
 
@@ -390,9 +390,9 @@ export default function CommunityDetail() {
   };
 
   const roleBadge = (role: string) => {
-    if (role === "leader") return <Badge variant="outline" className="text-[10px] border-primary/50 text-primary bg-primary/10">Leader</Badge>;
+    if (role === "leader") return <Badge variant="outline" className="text-[10px] border-primary/50 text-primary bg-primary/10">Sect Master</Badge>;
     if (role === "elder") return <Badge variant="outline" className="text-[10px] border-accent/50 text-accent bg-accent/10">Elder</Badge>;
-    return <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">Member</Badge>;
+    return <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">Disciple</Badge>;
   };
 
   if (loading) {
@@ -400,7 +400,7 @@ export default function CommunityDetail() {
   }
 
   if (!community) {
-    return <Layout><div className="min-h-[70vh] flex flex-col items-center justify-center gap-4"><p className="text-muted-foreground">Community not found</p><Link to="/communities" className="text-primary hover:underline">Back to communities</Link></div></Layout>;
+    return <Layout><div className="min-h-[70vh] flex flex-col items-center justify-center gap-4"><p className="text-muted-foreground">Sect not found</p><Link to="/communities" className="text-primary hover:underline">Back to sects</Link></div></Layout>;
   }
 
   return (
@@ -408,7 +408,7 @@ export default function CommunityDetail() {
       <div className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to="/communities" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
-            <ArrowLeft size={14} /> Back to Communities
+            <ArrowLeft size={14} /> Back to Sects
           </Link>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -441,7 +441,7 @@ export default function CommunityDetail() {
                   {community.description && <p className="text-sm text-muted-foreground font-body mt-1">{community.description}</p>}
                   <div className="flex items-center gap-3 mt-3 flex-wrap">
                     <Badge variant="outline" className="border-primary/20 text-primary/60">
-                      <Users size={12} className="mr-1" /> {members.length} members
+                      <Users size={12} className="mr-1" /> {disciples.length} disciples
                     </Badge>
                     {community.category !== "general" && (
                       <Badge variant="outline" className="border-border text-muted-foreground capitalize text-[10px]">
@@ -461,7 +461,7 @@ export default function CommunityDetail() {
                   )}
                   {user && community && user.id === community.created_by && (
                     <Button onClick={handleDeleteCommunity} variant="destructive" size="sm" className="gap-1">
-                      <Trash2 size={12} /> Delete Community
+                      <Trash2 size={12} /> Disband Sect
                     </Button>
                   )}
                   {isMember && (
@@ -510,7 +510,7 @@ export default function CommunityDetail() {
               <div className="gradient-card border border-border rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-heading text-sm text-primary flex items-center gap-1.5">
-                    <ScrollText size={14} /> Community Guidelines
+                    <ScrollText size={14} /> Sect Guidelines
                   </h3>
                   {(isLeader || isAdmin) && (
                     <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setEditingGuidelines(!editingGuidelines)}>
@@ -524,13 +524,13 @@ export default function CommunityDetail() {
                       value={guidelinesText}
                       onChange={e => setGuidelinesText(e.target.value.slice(0, 2000))}
                       rows={5}
-                      placeholder="Set rules for your community (max 2000 chars)..."
+                      placeholder="Set rules for your sect (max 2000 chars)..."
                     />
                     <Button size="sm" onClick={handleSaveGuidelines} className="gradient-gold text-primary-foreground">Save Guidelines</Button>
                   </div>
                 ) : (
                   <div className="text-xs font-body text-muted-foreground whitespace-pre-wrap">
-                    {community.guidelines || "No guidelines set yet. Leaders can add community rules here."}
+                    {community.guidelines || "No guidelines set yet. Sect Masters can add sect rules here."}
                   </div>
                 )}
                 <p className="text-[10px] text-muted-foreground/50 mt-2 flex items-center gap-1">
@@ -544,7 +544,7 @@ export default function CommunityDetail() {
               <TabsList className="bg-muted/50">
                 <TabsTrigger value="feed" className="gap-1.5"><FileText size={14} /> Feed</TabsTrigger>
                 {isMember && <TabsTrigger value="chat" className="gap-1.5"><MessageCircle size={14} /> Chat</TabsTrigger>}
-                <TabsTrigger value="members" className="gap-1.5"><Users size={14} /> Members</TabsTrigger>
+                <TabsTrigger value="disciples" className="gap-1.5"><Users size={14} /> Disciples</TabsTrigger>
               </TabsList>
 
               {/* Feed */}
@@ -552,7 +552,7 @@ export default function CommunityDetail() {
                 {isMember && (
                   <div className="gradient-card border border-border rounded-lg p-4">
                     <Textarea
-                      placeholder="Share something with the community..."
+                      placeholder="Share something with the sect..."
                       value={postContent}
                       onChange={(e) => setPostContent(e.target.value.slice(0, 2000))}
                       rows={3}
@@ -659,9 +659,9 @@ export default function CommunityDetail() {
               )}
 
               {/* Members */}
-              <TabsContent value="members">
+              <TabsContent value="disciples">
                 <div className="gradient-card border border-border rounded-lg p-4 space-y-3">
-                  {members.map((m) => {
+                  {disciples.map((m) => {
                     const p = getProfile(m.user_id);
                     return (
                       <div key={m.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
@@ -677,7 +677,7 @@ export default function CommunityDetail() {
                           )}
                         </div>
                         {roleBadge(m.role)}
-                        {/* Report button for other members */}
+                        {/* Report button for other disciples */}
                         {isMember && user && m.user_id !== user.id && (
                           <Button
                             variant="ghost"
@@ -692,7 +692,7 @@ export default function CommunityDetail() {
                           <div className="flex gap-1">
                             {m.role === "member" && (
                               <Button variant="ghost" size="sm" onClick={() => handlePromote(m.user_id, "elder")} className="text-xs h-7 px-2">
-                                <Shield size={10} className="mr-1" /> Elder
+                                <Shield size={10} className="mr-1" /> Promote to Elder
                               </Button>
                             )}
                             {m.role === "elder" && (
@@ -725,7 +725,7 @@ export default function CommunityDetail() {
           </DialogHeader>
           <div className="space-y-3 mt-2">
             <p className="text-xs text-muted-foreground font-body">
-              Describe the guideline violation. Reports are reviewed by community leaders and admins.
+              Describe the guideline violation. Reports are reviewed by Sect Masters and Ancestors.
             </p>
 
             {/* AI Suggestion Chips */}

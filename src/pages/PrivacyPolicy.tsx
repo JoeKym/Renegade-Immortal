@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
         >
           <p className="text-muted-foreground">
             This policy explains what information Renegade Immortal may process when you browse the
-            site, create an account, or participate in community features. It is a plain-language
+            site, create an account, or participate in sect features. It is a plain-language
             summary, not legal advice.
           </p>
 
@@ -31,8 +31,8 @@ export default function PrivacyPolicy() {
                 to provide, including a display name, avatar, and bio.
               </li>
               <li>
-                <strong>Community activity:</strong> content and information you submit through
-                posts, comments, messages, groups, reports, and feedback features may be stored and
+                <strong>Sect activity:</strong> content and information you submit through
+                posts, comments, messages, peaks, reports, and feedback features may be stored and
                 shown to the people those features are designed to reach.
               </li>
               <li>
@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="font-heading text-lg text-foreground mb-2">2. How information is used</h2>
             <p>
-              Information is used to provide accounts, profiles, messaging and community tools;
+              Information is used to provide accounts, profiles, messaging and sect tools;
               remember preferences; maintain release and reading trackers; respond to support,
               copyright, and safety requests; prevent abuse; and understand site usage. Public
               profile details and content are visible according to the relevant feature and its
@@ -76,7 +76,7 @@ export default function PrivacyPolicy() {
             <p>
               We do not sell personal information. Information may be processed by service
               providers that help operate the site, disclosed when reasonably necessary to address
-              security or legal requests, or made visible through the community features you use.
+              security or legal requests, or made visible through the sect features you use.
               Information is retained for as long as needed to provide the feature, maintain site
               records, address safety matters, or meet applicable obligations. Exact retention
               periods may depend on the service and record.

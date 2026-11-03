@@ -293,7 +293,7 @@ export default function GroupMessages() {
     const { error } = await supabase.from("group_chats" as any).insert(newGroup as any);
     
     if (error) { 
-      console.error("Create group error:", error);
+      console.error("Create peak error:", error);
       toast.error(`Failed to create group: ${error.message || 'Unknown error'}`); 
       return; 
     }
@@ -311,7 +311,7 @@ export default function GroupMessages() {
     setCreateGroupOpen(false); 
     setNewGroupName(""); 
     setNewGroupDesc(""); 
-    toast.success("Group created!");
+    toast.success("Peak created!");
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -348,20 +348,20 @@ export default function GroupMessages() {
   const handleAddMember = async (targetUserId: string) => {
     if (!activeGroup) return;
     const { error } = await supabase.from("group_members" as any).insert({ group_id: activeGroup, user_id: targetUserId, role: "member" } as any);
-    if (error) { toast.error("Failed to add member"); return; }
-    toast.success("Member added"); setMemberSearch(""); setMemberSearchResults([]);
+    if (error) { toast.error("Failed to add disciple"); return; }
+    toast.success("Disciple added"); setMemberSearch(""); setMemberSearchResults([]);
   };
 
   const handleRemoveMember = async (targetUserId: string) => {
     if (!activeGroup) return;
     await supabase.from("group_members" as any).delete().eq("group_id", activeGroup).eq("user_id", targetUserId);
-    toast.success("Member removed");
+    toast.success("Disciple removed");
   };
 
   const handleLeaveGroup = async () => {
     if (!activeGroup || !user) return;
     await supabase.from("group_members" as any).delete().eq("group_id", activeGroup).eq("user_id", user.id);
-    setGroups(prev => prev.filter(g => g.id !== activeGroup)); setActiveGroup(null); toast.success("Left group");
+    setGroups(prev => prev.filter(g => g.id !== activeGroup)); setActiveGroup(null); toast.success("Left peak");
   };
 
   const handleToggleMute = async () => {
@@ -378,7 +378,7 @@ export default function GroupMessages() {
     await supabase.from("group_chats" as any).delete().eq("id", deleteGroupTarget);
     setGroups(prev => prev.filter(g => g.id !== deleteGroupTarget));
     if (activeGroup === deleteGroupTarget) { setActiveGroup(null); setMessages([]); }
-    setDeleteGroupTarget(null); toast.success("Group deleted");
+    setDeleteGroupTarget(null); toast.success("Peak disbanded");
   };
 
   const handlePinMessage = async (msgId: string) => {
@@ -443,7 +443,7 @@ export default function GroupMessages() {
       <Layout>
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 py-20">
           <Users className="h-12 w-12 text-muted-foreground/30" />
-          <p className="text-muted-foreground font-body">Please sign in to use group messages.</p>
+          <p className="text-muted-foreground font-body">Please sign in to use peak messages.</p>
         </div>
       </Layout>
     );
@@ -457,10 +457,10 @@ export default function GroupMessages() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Users className="h-7 w-7 text-primary" />
-                <h1 className="text-3xl font-heading font-bold text-foreground">Group Chats</h1>
+                <h1 className="text-3xl font-heading font-bold text-foreground">Peak Chats</h1>
               </div>
               <Button onClick={() => setCreateGroupOpen(true)} size="sm" className="gap-1.5">
-                <Plus size={14} /> New Group
+                <Plus size={14} /> New Peak
               </Button>
             </div>
 
@@ -472,8 +472,8 @@ export default function GroupMessages() {
                     <p className="text-center text-muted-foreground text-xs py-8 animate-pulse">Loading...</p>
                   ) : groups.length === 0 ? (
                     <div className="text-center py-8 px-4">
-                      <p className="text-muted-foreground text-xs">No groups yet.</p>
-                      <p className="text-muted-foreground/60 text-[10px] mt-1">Create a group to start chatting.</p>
+                      <p className="text-muted-foreground text-xs">No peaks yet.</p>
+                      <p className="text-muted-foreground/60 text-[10px] mt-1">Create a peak to start chatting.</p>
                     </div>
                   ) : (
                     groups.map(g => (
@@ -485,7 +485,7 @@ export default function GroupMessages() {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="font-heading text-sm text-foreground truncate">{g.name}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{g.description || "Group chat"}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{g.description || "Peak chat"}</p>
                         </div>
                       </button>
                     ))
@@ -505,7 +505,7 @@ export default function GroupMessages() {
                 {!activeGroup ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
                     <Users className="h-12 w-12 text-muted-foreground/20 mb-3" />
-                    <p className="text-muted-foreground font-body text-sm">Select a group or create a new one</p>
+                    <p className="text-muted-foreground font-body text-sm">Select a peak or create a new one</p>
                   </div>
                 ) : (
                   <>
@@ -527,20 +527,20 @@ export default function GroupMessages() {
                           <button className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"><MoreVertical size={16} /></button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {isAdmin && <DropdownMenuItem onClick={() => setAddMemberOpen(true)} className="cursor-pointer"><UserPlus size={14} className="mr-2" />Add Members</DropdownMenuItem>}
-                          {isAdmin && <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="cursor-pointer"><Settings size={14} className="mr-2" />Group Settings</DropdownMenuItem>}
+                          {isAdmin && <DropdownMenuItem onClick={() => setAddMemberOpen(true)} className="cursor-pointer"><UserPlus size={14} className="mr-2" />Add Disciples</DropdownMenuItem>}
+                          {isAdmin && <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="cursor-pointer"><Settings size={14} className="mr-2" />Peak Settings</DropdownMenuItem>}
                           <DropdownMenuItem onClick={() => setShowGallery(true)} className="cursor-pointer"><Image size={14} className="mr-2" />Shared Media</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setShowPinned(!showPinned)} className="cursor-pointer"><Pin size={14} className="mr-2" />{showPinned ? "Hide" : "View"} Pinned Messages</DropdownMenuItem>
                           <DropdownMenuItem onClick={handleToggleMute} className="cursor-pointer">
                             {myMembership?.is_muted ? <Volume2 size={14} className="mr-2" /> : <VolumeX size={14} className="mr-2" />}
-                            {myMembership?.is_muted ? "Unmute Group" : "Mute Group"}
+                            {myMembership?.is_muted ? "Unmute Peak" : "Mute Peak"}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => { const next = !globalMute; setGlobalMute(next); localStorage.setItem("group-global-mute", String(next)); }} className="cursor-pointer">
                             <BellOff size={14} className="mr-2" />{globalMute ? "Enable All Sounds" : "Mute All Sounds"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive focus:text-destructive cursor-pointer"><LogOut size={14} className="mr-2" />Leave Group</DropdownMenuItem>
-                          {isAdmin && <DropdownMenuItem onClick={() => setDeleteGroupTarget(activeGroup)} className="text-destructive focus:text-destructive cursor-pointer"><Trash2 size={14} className="mr-2" />Delete Group</DropdownMenuItem>}
+                          <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive focus:text-destructive cursor-pointer"><LogOut size={14} className="mr-2" />Leave Peak</DropdownMenuItem>
+                          {isAdmin && <DropdownMenuItem onClick={() => setDeleteGroupTarget(activeGroup)} className="text-destructive focus:text-destructive cursor-pointer"><Trash2 size={14} className="mr-2" />Delete Peak</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -738,9 +738,9 @@ export default function GroupMessages() {
       {/* Create group modal */}
       <Dialog open={createGroupOpen} onOpenChange={setCreateGroupOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="font-heading">Create Group</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-heading">Create Peak</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input value={newGroupName} onChange={e => setNewGroupName(e.target.value)} placeholder="Group name" maxLength={50} />
+            <Input value={newGroupName} onChange={e => setNewGroupName(e.target.value)} placeholder="Peak name" maxLength={50} />
             <Textarea value={newGroupDesc} onChange={e => setNewGroupDesc(e.target.value)} placeholder="Description (optional)" maxLength={200} rows={2} />
           </div>
           <DialogFooter><Button onClick={handleCreateGroup} disabled={!newGroupName.trim()}>Create</Button></DialogFooter>
@@ -750,7 +750,7 @@ export default function GroupMessages() {
       {/* Add member modal */}
       <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="font-heading">Add Members</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-heading">Add Disciples</DialogTitle></DialogHeader>
           <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input value={memberSearch} onChange={e => searchMembers(e.target.value)} placeholder="Search users..." className="pl-9" />
@@ -768,7 +768,7 @@ export default function GroupMessages() {
             ))}
           </div>
           <div className="border-t border-border pt-2 mt-2">
-            <p className="text-xs text-muted-foreground mb-2">Current Members ({members.length})</p>
+            <p className="text-xs text-muted-foreground mb-2">Current Disciples ({members.length})</p>
             <div className="max-h-32 overflow-y-auto space-y-1">
               {members.map(m => (
                 <div key={m.id} className="flex items-center gap-2 p-1.5 rounded text-xs">
@@ -790,9 +790,9 @@ export default function GroupMessages() {
       {/* Settings modal */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="font-heading">Group Settings</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-heading">Peak Settings</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input defaultValue={activeGroupData?.name} placeholder="Group name"
+            <Input defaultValue={activeGroupData?.name} placeholder="Peak name"
               onBlur={async (e) => {
                 if (e.target.value.trim() && activeGroup) {
                   await supabase.from("group_chats" as any).update({ name: e.target.value.trim() } as any).eq("id", activeGroup);
@@ -814,8 +814,8 @@ export default function GroupMessages() {
       <AlertDialog open={!!deleteGroupTarget} onOpenChange={o => !o && setDeleteGroupTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading">Delete Group</AlertDialogTitle>
-            <AlertDialogDescription className="font-body">This will permanently delete this group and all messages. This cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle className="font-heading">Delete Peak</AlertDialogTitle>
+            <AlertDialogDescription className="font-body">This will permanently delete this peak and all messages. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
