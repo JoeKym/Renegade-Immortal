@@ -76,14 +76,14 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
         </div>
         <div className="relative z-10 text-center px-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.2 }}>
+          <div>
             <h1 className="font-heading text-5xl md:text-8xl font-bold text-primary tracking-[0.15em] mb-2">仙逆</h1>
             <p className="font-heading text-2xl md:text-4xl text-foreground tracking-[0.2em] uppercase mb-6">Renegade Immortal</p>
-          </motion.div>
-          <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-body text-lg md:text-xl text-foreground/70 max-w-xl mx-auto mb-10">
+          </div>
+          <p className="font-body text-lg md:text-xl text-foreground/70 max-w-xl mx-auto mb-10">
             {t("home.description")}
-          </motion.p>
-          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.8 }} className="flex flex-wrap justify-center gap-4">
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
             <Link to="/guide" className="px-6 py-3 rounded-md gradient-gold font-heading text-sm tracking-wider text-primary-foreground hover:opacity-90 transition-opacity">
               {t("guide.beginners")}
             </Link>
@@ -93,7 +93,7 @@ const Index = () => {
             <Link to="/daos" className="px-6 py-3 rounded-md border border-border font-heading text-sm tracking-wider text-foreground hover:border-primary/30 transition-colors">
               {t("world.daos")}
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
