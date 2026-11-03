@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { MessageReactions } from "@/components/messages/MessageReactions";
@@ -62,6 +64,38 @@ interface GroupMember { id: string; group_id: string; user_id: string; role: str
 interface GroupMessage { id: string; group_id: string; sender_id: string; content: string; image_url: string | null; audio_url: string | null; reply_to_id: string | null; edited_at: string | null; created_at: string; }
 interface ProfileInfo { user_id: string; display_name: string; avatar_url: string | null; username: string | null; }
 interface Reaction { id: string; message_id: string; user_id: string; emoji: string; }
+
+// Xianxia peak hierarchy — lower level = more authority.
+const PEAK_ROLES: { value: string; label: string }[] = [
+  { value: "peak_master", label: "Peak Master" },
+  { value: "grand_elder", label: "Grand Elder" },
+  { value: "hall_elder", label: "Hall Elder" },
+  { value: "instructional_elder", label: "Core Elder" },
+  { value: "outer_elder", label: "Outer Elder" },
+  { value: "legacy_disciple", label: "Legacy Disciple" },
+  { value: "core_disciple", label: "Core Disciple" },
+  { value: "inner_disciple", label: "Inner Disciple" },
+  { value: "outer_disciple", label: "Outer Disciple" },
+  { value: "servant", label: "Servant" },
+];
+
+function peakLevel(role: string): number {
+  const i = PEAK_ROLES.findIndex(r => r.value === role);
+  if (i >= 0) return i + 1;
+  if (role === "admin") return 1;   // legacy creator rank
+  return 8;                          // legacy member / unknown
+}
+
+const peakRoleLabel = (role: string) => PEAK_ROLES.find(r => r.value === role)?.label
+  || (role === "admin" ? "Peak Master" : "Inner Disciple");
+
+function peakRoleBadge(role: string) {
+  const lv = peakLevel(role);
+  if (lv === 1) return <span className="flex items-center gap-0.5 text-[9px] font-heading text-amber-500"><Crown size={12} />Peak Master</span>;
+  if (lv === 2) return <Badge variant="outline" className="text-[8px] border-primary/50 text-primary bg-primary/10">Grand Elder</Badge>;
+  if (lv <= 5) return <Badge variant="outline" className="text-[8px] border-accent/50 text-accent bg-accent/10">{peakRoleLabel(role)}</Badge>;
+  return <Badge variant="outline" className="text-[8px] border-muted-foreground/30 text-muted-foreground">{peakRoleLabel(role)}</Badge>;
+}
 
 export default function GroupMessages() {
   const { user } = useAuth();
@@ -347,7 +381,7 @@ export default function GroupMessages() {
 
   const handleAddMember = async (targetUserId: string) => {
     if (!activeGroup) return;
-    const { error } = await supabase.from("group_members" as any).insert({ group_id: activeGroup, user_id: targetUserId, role: "member" } as any);
+    const { error } = await supabase.from("group_members" as any).insert({ group_id: activeGroup, user_id: targetUserId, role: "inner_disciple" } as any);
     if (error) { toast.error("Failed to add disciple"); return; }
     toast.success("Disciple added"); setMemberSearch(""); setMemberSearchResults([]);
   };
@@ -356,6 +390,14 @@ export default function GroupMessages() {
     if (!activeGroup) return;
     await supabase.from("group_members" as any).delete().eq("group_id", activeGroup).eq("user_id", targetUserId);
     toast.success("Disciple removed");
+  };
+
+  const handleSetRole = async (targetUserId: string, newRole: string) => {
+    if (!activeGroup) return;
+    const { error } = await supabase.from("group_members" as any).update({ role: newRole } as any).eq("group_id", activeGroup).eq("user_id", targetUserId);
+    if (error) { toast.error("Failed to assign role"); return; }
+    setMembers(prev => prev.map(m => m.user_id === targetUserId ? { ...m, role: newRole } : m));
+    toast.success(`Assigned ${peakRoleLabel(newRole)}`);
   };
 
   const handleLeaveGroup = async () => {
@@ -436,7 +478,11 @@ export default function GroupMessages() {
 
   const activeGroupData = groups.find(g => g.id === activeGroup);
   const myMembership = members.find(m => m.user_id === user?.id);
-  const isAdmin = myMembership?.role === "admin";
+  const myLevel = myMembership ? peakLevel(myMembership.role) : 99;
+  const isPeakMaster = myLevel === 1;
+  const canManageMembers = myLevel <= 2;
+  const canModerate = myLevel <= 5;
+  const sortedMembers = [...members].sort((a, b) => peakLevel(a.role) - peakLevel(b.role) || a.joined_at.localeCompare(b.joined_at));
 
   if (!user) {
     return (
@@ -527,8 +573,8 @@ export default function GroupMessages() {
                           <button className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-colors"><MoreVertical size={16} /></button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {isAdmin && <DropdownMenuItem onClick={() => setAddMemberOpen(true)} className="cursor-pointer"><UserPlus size={14} className="mr-2" />Add Disciples</DropdownMenuItem>}
-                          {isAdmin && <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="cursor-pointer"><Settings size={14} className="mr-2" />Peak Settings</DropdownMenuItem>}
+                          {canManageMembers && <DropdownMenuItem onClick={() => setAddMemberOpen(true)} className="cursor-pointer"><UserPlus size={14} className="mr-2" />Add Disciples</DropdownMenuItem>}
+                          {isPeakMaster && <DropdownMenuItem onClick={() => setSettingsOpen(true)} className="cursor-pointer"><Settings size={14} className="mr-2" />Peak Settings</DropdownMenuItem>}
                           <DropdownMenuItem onClick={() => setShowGallery(true)} className="cursor-pointer"><Image size={14} className="mr-2" />Shared Media</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setShowPinned(!showPinned)} className="cursor-pointer"><Pin size={14} className="mr-2" />{showPinned ? "Hide" : "View"} Pinned Messages</DropdownMenuItem>
                           <DropdownMenuItem onClick={handleToggleMute} className="cursor-pointer">
@@ -540,7 +586,7 @@ export default function GroupMessages() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive focus:text-destructive cursor-pointer"><LogOut size={14} className="mr-2" />Leave Peak</DropdownMenuItem>
-                          {isAdmin && <DropdownMenuItem onClick={() => setDeleteGroupTarget(activeGroup)} className="text-destructive focus:text-destructive cursor-pointer"><Trash2 size={14} className="mr-2" />Delete Peak</DropdownMenuItem>}
+                          {isPeakMaster && <DropdownMenuItem onClick={() => setDeleteGroupTarget(activeGroup)} className="text-destructive focus:text-destructive cursor-pointer"><Trash2 size={14} className="mr-2" />Delete Peak</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -652,13 +698,15 @@ export default function GroupMessages() {
                                   onReactionChange={() => fetchReactions(messages.map(m => m.id))} isOwnMessage={isMe} />
                                 <button onClick={() => setReplyTo(msg)} className="opacity-0 group-hover/msg:opacity-100 p-1 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-all" title="Reply"><Reply size={12} /></button>
                                 <button onClick={() => setForwardMsg(msg)} className="opacity-0 group-hover/msg:opacity-100 p-1 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-all" title="Forward"><Forward size={12} /></button>
-                                <button onClick={() => handlePinMessage(msg.id)} className={`opacity-0 group-hover/msg:opacity-100 p-1 rounded transition-all hover:bg-muted/50 ${pinnedMsgIds.has(msg.id) ? "text-primary" : "text-muted-foreground hover:text-primary"}`} title={pinnedMsgIds.has(msg.id) ? "Unpin" : "Pin"}>
-                                  {pinnedMsgIds.has(msg.id) ? <PinOff size={12} /> : <Pin size={12} />}
-                                </button>
+                                {canModerate && (
+                                  <button onClick={() => handlePinMessage(msg.id)} className={`opacity-0 group-hover/msg:opacity-100 p-1 rounded transition-all hover:bg-muted/50 ${pinnedMsgIds.has(msg.id) ? "text-primary" : "text-muted-foreground hover:text-primary"}`} title={pinnedMsgIds.has(msg.id) ? "Unpin" : "Pin"}>
+                                    {pinnedMsgIds.has(msg.id) ? <PinOff size={12} /> : <Pin size={12} />}
+                                  </button>
+                                )}
                                 {isMe && !msg.audio_url && (
                                   <button onClick={() => { setEditingMsgId(msg.id); setEditContent(msg.content); }} className="opacity-0 group-hover/msg:opacity-100 p-1 rounded text-muted-foreground hover:text-primary hover:bg-muted/50 transition-all" title="Edit"><Pencil size={12} /></button>
                                 )}
-                                {(isMe || isAdmin) && (
+                                {(isMe || canModerate) && (
                                   <button onClick={() => setDeleteMessageTarget(msg.id)} className="opacity-0 group-hover/msg:opacity-100 p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all" title="Delete message"><Trash2 size={12} /></button>
                                 )}
                               </div>
@@ -770,18 +818,34 @@ export default function GroupMessages() {
           <div className="border-t border-border pt-2 mt-2">
             <p className="text-xs text-muted-foreground mb-2">Current Disciples ({members.length})</p>
             <div className="max-h-32 overflow-y-auto space-y-1">
-              {members.map(m => (
-                <div key={m.id} className="flex items-center gap-2 p-1.5 rounded text-xs">
-                  <Avatar className="h-6 w-6"><AvatarImage src={profiles[m.user_id]?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-[8px]">{(profiles[m.user_id]?.display_name || "?").charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <span className="flex-1 text-foreground">{profiles[m.user_id]?.display_name || "Cultivator"}</span>
-                  {m.role === "admin" && <span className="flex items-center gap-0.5 text-[9px] font-heading text-amber-500"><Crown size={12} />Peak Master</span>}
-                  {isAdmin && m.user_id !== user.id && (
-                    <button onClick={() => handleRemoveMember(m.user_id)} className="p-1 text-muted-foreground hover:text-destructive"><UserMinus size={12} /></button>
-                  )}
-                </div>
-              ))}
+              {sortedMembers.map(m => {
+                const theirLevel = peakLevel(m.role);
+                const outrank = theirLevel > myLevel;
+                return (
+                  <div key={m.id} className="flex items-center gap-2 p-1.5 rounded text-xs">
+                    <Avatar className="h-6 w-6"><AvatarImage src={profiles[m.user_id]?.avatar_url || undefined} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-[8px]">{(profiles[m.user_id]?.display_name || "?").charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <span className="flex-1 text-foreground">{profiles[m.user_id]?.display_name || "Cultivator"}</span>
+                    {peakRoleBadge(m.role)}
+                    {canManageMembers && m.user_id !== user.id && outrank && (
+                      <Select value={m.role} onValueChange={(v) => handleSetRole(m.user_id, v)}>
+                        <SelectTrigger className="h-6 w-[110px] text-[9px] px-1.5">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PEAK_ROLES.filter(r => peakLevel(r.value) > myLevel).map(r => (
+                            <SelectItem key={r.value} value={r.value} className="text-xs">{r.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {canManageMembers && m.user_id !== user.id && outrank && (
+                      <button onClick={() => handleRemoveMember(m.user_id)} className="p-1 text-muted-foreground hover:text-destructive"><UserMinus size={12} /></button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </DialogContent>
