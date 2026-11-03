@@ -98,7 +98,7 @@ export function CommunityDiscovery() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-heading text-2xl text-primary tracking-wider">Active Sects</h2>
           <Link
-            to="/communities"
+            to="/sects"
             className="flex items-center gap-1 text-sm font-body text-muted-foreground hover:text-primary transition-colors"
           >
             View all <ArrowRight size={14} />
@@ -160,7 +160,7 @@ export function CommunityDiscovery() {
                 transition={{ delay: i * 0.05 }}
               >
                 <Link
-                  to={`/communities/${c.id}`}
+                  to={`/sects/${c.id}`}
                   className="block gradient-card border border-border rounded-lg p-5 hover:border-primary/30 transition-all group"
                 >
                   <div className="flex items-center gap-3">

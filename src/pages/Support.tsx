@@ -19,11 +19,11 @@ const faqItems = [
   },
   {
     q: "How do I report a user?",
-    a: "In any sect, click the flag icon next to a disciple's name to submit a report. Sect Masters and Ancestors will review it.",
+    a: "In any sect, click the flag icon next to a disciple's name to submit a report. Sect Masters and the Heavenly Dao will review it.",
   },
   {
     q: "Can I delete my account?",
-    a: "Currently, account deletion is handled by admins. Please contact us via email to request account removal.",
+    a: "Currently, account deletion is handled by the Heavenly Dao. Please contact us via email to request account removal.",
   },
   {
     q: "How do I upload images to posts?",
@@ -45,7 +45,7 @@ export default function Support() {
               <p className="font-heading text-sm text-foreground">Contact Us</p>
               <p className="text-[10px] text-muted-foreground">Send a message</p>
             </Link>
-            <Link to="/communities" className="gradient-card border border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">
+            <Link to="/sects" className="gradient-card border border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">
               <Users className="h-6 w-6 text-primary mx-auto mb-2" />
               <p className="font-heading text-sm text-foreground">Sects</p>
               <p className="text-[10px] text-muted-foreground">Ask fellow cultivators</p>

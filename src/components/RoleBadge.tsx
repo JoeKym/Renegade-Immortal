@@ -9,7 +9,7 @@ export function RoleBadge({ role, size = "sm" }: { role: string; size?: "sm" | "
         className={`border-destructive/50 text-destructive bg-destructive/10 font-heading tracking-wider ${size === "xs" ? "text-[8px] px-1 py-0" : "text-[10px] px-1.5 py-0"}`}
       >
         <Shield size={size === "xs" ? 7 : 8} className="mr-0.5" />
-        Sect Ancestor
+        Heavenly Dao
       </Badge>
     );
   }

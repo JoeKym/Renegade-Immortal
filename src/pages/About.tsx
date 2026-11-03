@@ -21,7 +21,7 @@ const features = [
   { icon: Clock, label: "Release Timeline", desc: "Current tracked series, episode progress, and release dates.", path: "/donghua-release-timeline" },
   { icon: Play, label: "Watch", desc: "Stream all released episodes directly inside the site.", path: "/watch" },
   { icon: Scroll, label: "Lore", desc: "Deep-dives into cultivation systems, factions, and in-universe history.", path: "/lore" },
-  { icon: Users, label: "Sects", desc: "Join fan sects, post theories, and chat with other readers.", path: "/communities" },
+  { icon: Users, label: "Sects", desc: "Join fan sects, post theories, and chat with other readers.", path: "/sects" },
 ];
 
 export default function About() {

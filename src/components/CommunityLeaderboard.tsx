@@ -97,7 +97,7 @@ export function CommunityLeaderboard() {
               transition={{ delay: i * 0.05 }}
             >
               <Link
-                to={`/communities/${entry.id}`}
+                to={`/sects/${entry.id}`}
                 className={`flex items-center gap-4 gradient-card border rounded-lg p-4 hover:border-primary/30 transition-all group ${
                   i === 0 ? "border-primary/40 bg-primary/5" : "border-border"
                 }`}

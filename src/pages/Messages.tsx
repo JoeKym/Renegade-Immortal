@@ -571,7 +571,7 @@ export default function Messages() {
                 <MessageCircle className="h-7 w-7 text-primary" />
                 <h1 className="text-3xl font-heading font-bold text-foreground">Messages</h1>
               </div>
-              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.location.href = '/groups'}>
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.location.href = '/peaks'}>
                 <Users size={14} /> Peak Chats
               </Button>
             </div>

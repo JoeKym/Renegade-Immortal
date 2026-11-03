@@ -65,7 +65,7 @@ export default function Suspended() {
     if (error) {
       toast.error("Failed to submit appeal");
     } else {
-      toast.success("Appeal submitted! The admin will review it.");
+      toast.success("Appeal submitted! The Heavenly Dao will review it.");
       setAppealMsg("");
       // Refresh appeals list
       const { data } = await supabase.from("appeals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5);
@@ -176,7 +176,7 @@ export default function Suspended() {
 
         {/* Contact Info */}
         <div className="bg-muted/50 border border-border rounded-lg p-6 text-left space-y-4">
-          <p className="text-sm font-heading text-foreground">Or contact the administrator directly:</p>
+          <p className="text-sm font-heading text-foreground">Or contact the Heavenly Dao directly:</p>
           <div className="space-y-3">
             <a href="mailto:mail.jkyme@gmail.com" className="flex items-center gap-3 text-sm text-primary hover:text-primary/80 transition-colors font-body">
               <Mail size={16} /> mail.jkyme@gmail.com

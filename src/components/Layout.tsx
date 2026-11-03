@@ -243,9 +243,9 @@ export function Layout({ children }: { children: ReactNode }) {
             <section>
               <h3 className="mb-4 font-heading text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">Sects</h3>
               <nav aria-label="Sect links" className="flex flex-col gap-2.5 text-sm">
-                <Link to="/communities" className="text-muted-foreground hover:text-primary transition-colors">Sects</Link>
+                <Link to="/sects" className="text-muted-foreground hover:text-primary transition-colors">Sects</Link>
                 <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Sect Feed</Link>
-                <Link to="/members" className="text-muted-foreground hover:text-primary transition-colors">Disciples</Link>
+                <Link to="/fellow-daoists" className="text-muted-foreground hover:text-primary transition-colors">Fellow Daoists</Link>
                 <Link to="/support" className="text-muted-foreground hover:text-primary transition-colors">Support</Link>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
               </nav>

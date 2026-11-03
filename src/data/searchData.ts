@@ -680,7 +680,7 @@ export const searchableData: SearchResult[] = [
     title: "Cultivators Union",
     category: "Sect",
     description: "Primary fan sect for Renegade Immortal novel chapters, donghua episodes, and lore theories.",
-    path: "/communities",
+    path: "/sects",
     keywords: ["cultivators union", "fan hub", "renegade immortal forum", "discussion sect"],
     tags: ["sect", "discussion"]
   },
@@ -688,7 +688,7 @@ export const searchableData: SearchResult[] = [
     title: "Dao of Slaughter Guild",
     category: "Sect",
     description: "Sect power-scaling guild dedicated to analyzing combat feats, 14 Essences, and realm battles.",
-    path: "/communities",
+    path: "/sects",
     keywords: ["dao of slaughter guild", "power scaling", "feat analysis", "battle debates"],
     tags: ["sect", "power-scaling"]
   },
@@ -696,15 +696,15 @@ export const searchableData: SearchResult[] = [
     title: "Er Gen Multiverse Guild",
     category: "Sect",
     description: "Sect exploring crossover lore between Xian Ni, ISSTH, AWE, Pursuit of the Truth, and Beyond the Timescape.",
-    path: "/communities",
+    path: "/sects",
     keywords: ["er gen multiverse guild", "crossover guild", "issth fans", "multiverse lore"],
     tags: ["sect", "multiverse"]
   },
   {
-    title: "Sect Disciple Profiles",
+    title: "Fellow Daoist Profiles",
     category: "Account",
-    description: "Directory of registered disciples, top cultivators, and sect contributors on the site.",
-    path: "/members",
+    description: "Directory of registered fellow daoists, top cultivators, and sect contributors on the site.",
+    path: "/fellow-daoists",
     keywords: ["disciple profiles", "disciples", "account directory", "cultivators"],
     tags: ["accounts", "disciples"]
   },
@@ -754,7 +754,7 @@ export const searchableData: SearchResult[] = [
   { title: "Donghua Release & Stream Hub", category: "Page", description: "Watch episodes, track release schedules, and stream donghua", path: "/watch" },
   { title: "Artifacts & Techniques Catalog", category: "Page", description: "Browse divine treasures, soul flags, and celestial spells", path: "/artifacts" },
   { title: "Cosmic Locations & Sects", category: "Page", description: "Explore planets, star domains, and ancient tombs", path: "/locations" },
-  { title: "Sect Hub & Peaks", category: "Page", description: "Join fan sects, post discussions, and connect with cultivators", path: "/communities" },
+  { title: "Sect Hub & Peaks", category: "Page", description: "Join fan sects, post discussions, and connect with cultivators", path: "/sects" },
   { title: "News & Social Feed", category: "Page", description: "Latest announcements, YouTube recaps, and social media updates", path: "/feed" },
   { title: "Site Search Engine", category: "Page", description: "Search across all characters, daos, realms, lore, multiverse, episodes, artifacts, locations, sects, and guides", path: "/search" }
 ];

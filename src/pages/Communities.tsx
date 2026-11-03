@@ -212,7 +212,7 @@ export default function CommunitiesPage() {
               <Users size={14} /> Sects
             </TabsTrigger>
             <TabsTrigger value="members" className="gap-1.5">
-              <Users size={14} /> Disciples
+              <Users size={14} /> Fellow Daoists
             </TabsTrigger>
           </TabsList>
 
@@ -339,7 +339,7 @@ export default function CommunitiesPage() {
                     transition={{ delay: i * 0.05 }}
                   >
                     <Link
-                      to={`/communities/${c.id}`}
+                      to={`/sects/${c.id}`}
                       className="block gradient-card border border-border rounded-lg p-6 hover:border-primary/30 transition-all group"
                     >
                       <div className="flex items-start gap-4">

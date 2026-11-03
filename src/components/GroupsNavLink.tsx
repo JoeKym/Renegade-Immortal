@@ -8,7 +8,7 @@ export function GroupsNavLink({ iconSize = 14 }: { iconSize?: number }) {
   const { user } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
-  const isActive = location.pathname === "/groups";
+  const isActive = location.pathname === "/peaks";
 
   useEffect(() => {
     if (!user) { setUnreadCount(0); return; }
@@ -53,7 +53,7 @@ export function GroupsNavLink({ iconSize = 14 }: { iconSize?: number }) {
   }, [user]);
 
   useEffect(() => {
-    if (!user || location.pathname === "/groups") return;
+    if (!user || location.pathname === "/peaks") return;
     const timer = setTimeout(async () => {
       const { data: memberships } = await supabase
         .from("group_members" as any).select("group_id").eq("user_id", user.id);
@@ -81,7 +81,7 @@ export function GroupsNavLink({ iconSize = 14 }: { iconSize?: number }) {
 
   return (
     <Link
-      to="/groups"
+      to="/peaks"
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-body transition-all duration-300 ${
         isActive ? "text-primary bg-muted" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
       }`}
