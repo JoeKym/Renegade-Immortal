@@ -172,7 +172,7 @@ export default function About() {
           </div>
           <p className="text-muted-foreground font-body leading-relaxed mb-4">
             This wiki was built as a passion project by a fan of Er Gen's works. The goal is simple: give the
-            Renegade Immortal community a useful reference — detailed lore, a character database, release
+            Renegade Immortal sect a useful reference — detailed lore, a character database, release
             tracking for donghua and related movies, episode pages with external video sources, and a place
             to connect with other readers and viewers.
           </p>

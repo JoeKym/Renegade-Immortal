@@ -101,7 +101,7 @@ export const RENEGADE_IMMORTAL_SOCIAL_FEED: SocialFeedItem[] = [
     url: "https://x.com/search?q=Renegade%20Immortal",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx198697-UHaozIRuLiEA.png",
     publishedAt: "2026-08-03T16:00:00Z",
-    tags: ["x", "reaction", "community"],
+    tags: ["x", "reaction", "sect"],
   },
 ];
 

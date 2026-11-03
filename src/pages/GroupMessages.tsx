@@ -294,7 +294,7 @@ export default function GroupMessages() {
     
     if (error) { 
       console.error("Create peak error:", error);
-      toast.error(`Failed to create group: ${error.message || 'Unknown error'}`); 
+      toast.error(`Failed to create peak: ${error.message || 'Unknown error'}`); 
       return; 
     }
     
@@ -518,7 +518,7 @@ export default function GroupMessages() {
                       </Avatar>
                       <div className="flex-1">
                         <p className="font-heading text-sm text-foreground">{activeGroupData?.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{members.length} members</p>
+                        <p className="text-[10px] text-muted-foreground">{members.length} disciples</p>
                       </div>
                       <button onClick={() => { setMsgSearchOpen(!msgSearchOpen); setMsgSearchQuery(""); }}
                         className={`p-1.5 rounded transition-colors ${msgSearchOpen ? "text-primary bg-muted/50" : "text-muted-foreground hover:text-primary hover:bg-muted/50"}`}><Search size={16} /></button>
@@ -753,7 +753,7 @@ export default function GroupMessages() {
           <DialogHeader><DialogTitle className="font-heading">Add Disciples</DialogTitle></DialogHeader>
           <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input value={memberSearch} onChange={e => searchMembers(e.target.value)} placeholder="Search users..." className="pl-9" />
+            <Input value={memberSearch} onChange={e => searchMembers(e.target.value)} placeholder="Search cultivators..." className="pl-9" />
           </div>
           <div className="max-h-40 overflow-y-auto space-y-1">
             {memberSearchResults.map(p => (

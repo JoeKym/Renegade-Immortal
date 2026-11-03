@@ -232,7 +232,7 @@ export default function CommunitiesPage() {
                 <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                   <DialogTrigger asChild>
                     <Button className="gap-2 gradient-gold text-primary-foreground">
-                      <Plus size={16} /> Create Community
+                      <Plus size={16} /> Found a Sect
                     </Button>
                   </DialogTrigger>
                   <DialogContent>

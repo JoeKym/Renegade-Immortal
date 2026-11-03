@@ -868,7 +868,7 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
                     ) : roles[p.user_id] === "moderator" ? (
                       <Badge className="text-[10px] bg-accent text-accent-foreground">Elder</Badge>
                     ) : (
-                      <span className="text-xs text-muted-foreground">User</span>
+                      <span className="text-xs text-muted-foreground">Disciple</span>
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm hidden sm:table-cell">{p.reading_progress || "—"}</TableCell>
@@ -1041,8 +1041,8 @@ function ModerationTab({ suspensions, profiles, sects, onLift, onSuspend, onBan,
     <div className="space-y-6">
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="font-heading text-lg">Suspend / Ban User</CardTitle>
-          <CardDescription>Manually suspend (7 days) or ban a user</CardDescription>
+          <CardTitle className="font-heading text-lg">Suspend / Ban Cultivator</CardTitle>
+          <CardDescription>Manually suspend (7 days) or ban a cultivator</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select value={selectedUserId} onValueChange={setSelectedUserId}>
@@ -1143,7 +1143,7 @@ function ModerationTab({ suspensions, profiles, sects, onLift, onSuspend, onBan,
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
+                    <TableHead>Cultivator</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead className="hidden sm:table-cell">Reason</TableHead>
                     <TableHead className="hidden sm:table-cell">Expires</TableHead>
@@ -1246,7 +1246,7 @@ function AppealsTab({ appeals, profiles, onRespond, onDelete, onLiftSuspension }
 
                   {a.admin_response && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Admin Response:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Ancestor Response:</p>
                       <p className="text-sm text-foreground/80 font-body">{a.admin_response}</p>
                     </div>
                   )}
@@ -1348,7 +1348,7 @@ function SectReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser, onBa
                   <p className="text-sm font-body text-foreground/80 bg-muted/50 rounded p-3">{r.reason}</p>
                   {r.admin_note && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Admin Note:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Ancestor Note:</p>
                       <p className="text-sm text-foreground/80 font-body">{r.admin_note}</p>
                     </div>
                   )}
@@ -1632,7 +1632,7 @@ export default function AdminPage() {
         supabase.from("community_reports").select("*").order("created_at", { ascending: false }),
         supabase.from("reviews").select("*").eq("page_path", "/_contact_inbox").order("created_at", { ascending: false }),
         supabase.from("reviews").select("*").neq("page_path", "/_contact_inbox").order("created_at", { ascending: false }),
-        supabase.from("sects").select("id, name, is_active, category, created_by, created_at").order("created_at", { ascending: false }),
+        supabase.from("communities").select("id, name, is_active, category, created_by, created_at").order("created_at", { ascending: false }),
       ]);
       if (pRes.data) setProfiles(pRes.data as Profile[]);
       if (cRes.data) setComments(cRes.data as Comment[]);
@@ -1654,7 +1654,7 @@ export default function AdminPage() {
       if (rRes.data) {
         const comIds = [...new Set(rRes.data.map((r: any) => r.community_id))];
         if (comIds.length > 0) {
-          const { data: coms } = await supabase.from("sects").select("id, name").in("id", comIds);
+          const { data: coms } = await supabase.from("communities").select("id, name").in("id", comIds);
           const comMap: Record<string, string> = {};
           coms?.forEach((c: any) => { comMap[c.id] = c.name; });
           setReports(rRes.data.map((r: any) => ({ ...r, community_name: comMap[r.community_id] || "Unknown" })));
@@ -1831,14 +1831,14 @@ export default function AdminPage() {
 
   const handleBanCommunity = async (id: string, reason: string) => {
     if (!window.confirm(`Ban this sect? It will be hidden from all users. Reason: ${reason}`)) return;
-    const { error } = await supabase.from("sects").update({ is_active: false }).eq("id", id);
+    const { error } = await supabase.from("communities").update({ is_active: false }).eq("id", id);
     if (error) { toast.error("Failed to ban sect"); return; }
     setAdminSects(prev => prev.map(c => c.id === id ? { ...c, is_active: false } : c));
     toast.success("Sect banned");
   };
 
   const handleRestoreCommunity = async (id: string) => {
-    const { error } = await supabase.from("sects").update({ is_active: true }).eq("id", id);
+    const { error } = await supabase.from("communities").update({ is_active: true }).eq("id", id);
     if (error) { toast.error("Failed to restore sect"); return; }
     setAdminSects(prev => prev.map(c => c.id === id ? { ...c, is_active: true } : c));
     toast.success("Sect restored");

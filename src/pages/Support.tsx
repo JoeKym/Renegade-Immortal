@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const faqItems = [
   {
     q: "How do I found a sect?",
-    a: "Navigate to the Communities page and click 'Found a Sect'. Fill in the name, description, and category to get started.",
+    a: "Navigate to the Sects page and click 'Found a Sect'. Fill in the name, description, and category to get started.",
   },
   {
     q: "How do I change my profile picture?",

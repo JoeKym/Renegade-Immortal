@@ -67,7 +67,7 @@ describe("site search index", () => {
       path: "/artifacts?q=Silver%20Flame%20Art",
     });
     expect(fuse.search("Silver Flame Theory")[0]?.item).toMatchObject({
-      category: "Community",
+      category: "Sect",
       path: "/communities/community-id",
     });
     expect(fuse.search("silver-cultivator")[0]?.item).toMatchObject({
