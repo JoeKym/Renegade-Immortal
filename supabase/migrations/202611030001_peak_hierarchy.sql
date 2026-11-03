@@ -100,14 +100,17 @@ AS $$
 $$;
 
 DROP POLICY IF EXISTS "Admins can update groups" ON public.group_chats;
+DROP POLICY IF EXISTS "Peak masters can update groups" ON public.group_chats;
 CREATE POLICY "Peak masters can update groups" ON public.group_chats FOR UPDATE
   USING (is_peak_master(auth.uid(), id));
 
 DROP POLICY IF EXISTS "Admins can delete groups" ON public.group_chats;
+DROP POLICY IF EXISTS "Peak masters can delete groups" ON public.group_chats;
 CREATE POLICY "Peak masters can delete groups" ON public.group_chats FOR DELETE
   USING (is_peak_master(auth.uid(), id) OR has_role(auth.uid(), 'admin'::app_role));
 
 DROP POLICY IF EXISTS "Admins can add members" ON public.group_members;
+DROP POLICY IF EXISTS "Managers can add members" ON public.group_members;
 CREATE POLICY "Managers can add members" ON public.group_members FOR INSERT
   TO authenticated WITH CHECK (
     is_peak_manager(auth.uid(), group_id) OR
@@ -115,6 +118,7 @@ CREATE POLICY "Managers can add members" ON public.group_members FOR INSERT
   );
 
 DROP POLICY IF EXISTS "Admins can remove members" ON public.group_members;
+DROP POLICY IF EXISTS "Managers can remove lower disciples" ON public.group_members;
 CREATE POLICY "Managers can remove lower disciples" ON public.group_members FOR DELETE
   USING (
     is_peak_manager(auth.uid(), group_id)
@@ -122,6 +126,7 @@ CREATE POLICY "Managers can remove lower disciples" ON public.group_members FOR 
   );
 
 DROP POLICY IF EXISTS "Admins can update member roles" ON public.group_members;
+DROP POLICY IF EXISTS "Managers can assign lower roles" ON public.group_members;
 CREATE POLICY "Managers can assign lower roles" ON public.group_members FOR UPDATE
   USING (
     is_peak_manager(auth.uid(), group_id)
@@ -132,14 +137,17 @@ CREATE POLICY "Managers can assign lower roles" ON public.group_members FOR UPDA
   );
 
 DROP POLICY IF EXISTS "Senders can delete own messages" ON public.group_messages;
+DROP POLICY IF EXISTS "Senders or elders can delete messages" ON public.group_messages;
 CREATE POLICY "Senders or elders can delete messages" ON public.group_messages FOR DELETE
   USING (auth.uid() = sender_id OR is_peak_elder(auth.uid(), group_id));
 
 DROP POLICY IF EXISTS "Group members can pin" ON public.pinned_group_messages;
+DROP POLICY IF EXISTS "Elders can pin" ON public.pinned_group_messages;
 CREATE POLICY "Elders can pin" ON public.pinned_group_messages FOR INSERT
   TO authenticated WITH CHECK (is_peak_elder(auth.uid(), group_id));
 
 DROP POLICY IF EXISTS "Group admins can unpin" ON public.pinned_group_messages;
+DROP POLICY IF EXISTS "Elders can unpin" ON public.pinned_group_messages;
 CREATE POLICY "Elders can unpin" ON public.pinned_group_messages FOR DELETE
   USING (is_peak_elder(auth.uid(), group_id) OR auth.uid() = pinned_by);
 
