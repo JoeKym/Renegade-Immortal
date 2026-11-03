@@ -48,13 +48,17 @@ $$;
 -- Level of a user inside a given sect (NULL = not a member)
 CREATE OR REPLACE FUNCTION public.sect_level(_user_id UUID, _community_id UUID)
 RETURNS INT
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.sect_role_level(role) FROM public.community_members
-  WHERE user_id = _user_id AND community_id = _community_id
+BEGIN
+  RETURN (SELECT public.sect_role_level(role) FROM public.community_members
+          WHERE user_id = _user_id AND community_id = _community_id);
+EXCEPTION WHEN undefined_column OR undefined_table THEN
+  RETURN NULL;
+END;
 $$;
 
 -- Backfill existing members onto the new ranks
@@ -144,6 +148,8 @@ BEGIN
 END;
 $$;
 
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS target_user_id uuid DEFAULT NULL;
+
 -- Join notification trigger: recognise the new top rank
 CREATE OR REPLACE FUNCTION public.notify_community_join()
 RETURNS trigger
@@ -177,10 +183,17 @@ BEGIN
 END;
 $$;
 
--- Reports are reviewed by sect masters and deputy masters
-DROP POLICY IF EXISTS "Leaders can view community reports" ON public.community_reports;
-CREATE POLICY "Managers can view community reports" ON public.community_reports
-  FOR SELECT USING (
-    public.is_sect_manager(auth.uid(), community_id)
-    OR has_role(auth.uid(), 'admin')
-  );
+-- Reports are reviewed by sect masters and deputy masters (only if the table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name = 'community_reports') THEN
+    EXECUTE 'DROP POLICY IF EXISTS "Leaders can view community reports" ON public.community_reports';
+    EXECUTE 'CREATE POLICY "Managers can view community reports" ON public.community_reports
+      FOR SELECT USING (
+        public.is_sect_manager(auth.uid(), community_id)
+        OR has_role(auth.uid(), ''admin'')
+      )';
+  END IF;
+END
+$$;

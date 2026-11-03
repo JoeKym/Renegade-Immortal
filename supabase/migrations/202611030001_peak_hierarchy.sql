@@ -38,13 +38,17 @@ $$;
 -- Level of a user inside a given peak (NULL = not a member)
 CREATE OR REPLACE FUNCTION public.peak_level(_user_id UUID, _group_id UUID)
 RETURNS INT
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.peak_role_level(role) FROM public.group_members
-  WHERE user_id = _user_id AND group_id = _group_id
+BEGIN
+  RETURN (SELECT public.peak_role_level(role) FROM public.group_members
+          WHERE user_id = _user_id AND group_id = _group_id);
+EXCEPTION WHEN undefined_column OR undefined_table THEN
+  RETURN NULL;
+END;
 $$;
 
 -- Backfill existing members onto the new ranks
