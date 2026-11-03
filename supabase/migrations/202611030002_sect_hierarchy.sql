@@ -157,6 +157,12 @@ BEGIN
 END;
 $$;
 
+-- Crown existing sect founders whose role was lower (e.g. sects made before this migration)
+UPDATE public.community_members cm
+SET role = 'sect_master'
+FROM public.communities c
+WHERE cm.community_id = c.id AND cm.user_id = c.created_by AND cm.role <> 'sect_master';
+
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS target_user_id uuid DEFAULT NULL;
 
 -- Join notification trigger: recognise the new top rank
