@@ -238,8 +238,8 @@ export default function Settings() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-foreground font-body">Group chat notification sounds</p>
-                        <p className="text-[10px] text-muted-foreground">Play a sound when receiving group messages</p>
+                        <p className="text-sm text-foreground font-body">Peak chat notification sounds</p>
+                        <p className="text-[10px] text-muted-foreground">Play a sound when receiving peak messages</p>
                       </div>
                       <Switch checked={groupSounds} onCheckedChange={handleGroupSoundsToggle} />
                     </div>

@@ -201,7 +201,7 @@ const LorePage = () => {
           {/* Intro */}
           <div className="gradient-card border border-border rounded-lg p-8 mb-12">
             <p className="font-body text-foreground/80 text-lg leading-relaxed mb-4">
-              The lore of <strong className="text-primary">Xian Ni (Renegade Immortal)</strong> is extensively documented across community hubs and wikis. 
+              The lore of <strong className="text-primary">Xian Ni (Renegade Immortal)</strong> is extensively documented across sect hubs and wikis. 
               This page compiles the major concepts, cosmology, glossary terms, and frequently asked questions from the series' documentation.
             </p>
             <p className="font-body text-foreground/80 leading-relaxed">

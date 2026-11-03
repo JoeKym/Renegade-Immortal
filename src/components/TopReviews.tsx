@@ -80,7 +80,7 @@ export function TopReviews() {
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
           <h2 className="font-heading text-2xl text-primary tracking-wider mb-2">What Cultivators Say</h2>
-          <p className="text-sm text-muted-foreground font-body">Top reviews from our community</p>
+          <p className="text-sm text-muted-foreground font-body">Top reviews from our sect</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

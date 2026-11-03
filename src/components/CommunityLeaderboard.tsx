@@ -123,7 +123,7 @@ export function CommunityLeaderboard() {
                       <MessageSquare size={10} /> {entry.weekly_messages} messages
                     </span>
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Users size={10} /> {entry.new_members} new
+                      <Users size={10} /> {entry.new_members} new disciples
                     </span>
                   </div>
                 </div>

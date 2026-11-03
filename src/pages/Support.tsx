@@ -6,8 +6,8 @@ import { Link } from "react-router-dom";
 
 const faqItems = [
   {
-    q: "How do I create a community?",
-    a: "Navigate to the Communities page and click 'Create Community'. Fill in the name, description, and category to get started.",
+    q: "How do I found a sect?",
+    a: "Navigate to the Sects page and click 'Found a Sect'. Fill in the name, description, and category to get started.",
   },
   {
     q: "How do I change my profile picture?",
@@ -15,11 +15,11 @@ const faqItems = [
   },
   {
     q: "Why was my account suspended?",
-    a: "Accounts can be suspended for violating community guidelines. You can submit an appeal from the Suspended page to request a review.",
+    a: "Accounts can be suspended for violating sect guidelines. You can submit an appeal from the Suspended page to request a review.",
   },
   {
     q: "How do I report a user?",
-    a: "In any community, click the flag icon next to a member's name to submit a report. Leaders and admins will review it.",
+    a: "In any sect, click the flag icon next to a disciple's name to submit a report. Sect Masters and Ancestors will review it.",
   },
   {
     q: "Can I delete my account?",
@@ -27,7 +27,7 @@ const faqItems = [
   },
   {
     q: "How do I upload images to posts?",
-    a: "When creating a post in a community, click the image icon to attach a screenshot or fan art (max 5MB).",
+    a: "When creating a post in a sect, click the image icon to attach a screenshot or fan art (max 5MB).",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function Support() {
             </Link>
             <Link to="/communities" className="gradient-card border border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">
               <Users className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="font-heading text-sm text-foreground">Community</p>
+              <p className="font-heading text-sm text-foreground">Sects</p>
               <p className="text-[10px] text-muted-foreground">Ask fellow cultivators</p>
             </Link>
             <Link to="/guide" className="gradient-card border border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">

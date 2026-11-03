@@ -82,7 +82,7 @@ interface Appeal {
   created_at: string;
 }
 
-interface CommunityReport {
+interface SectReport {
   id: string;
   community_id: string;
   reported_user_id: string;
@@ -796,7 +796,7 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
       if (error) { toast.error("Failed to assign role"); return; }
     }
     setRoles(prev => ({ ...prev, [assignUserId]: assignRole }));
-    toast.success(`Role updated to ${assignRole}`);
+    toast.success(`Role updated to ${assignRole === "moderator" ? "Elder" : "Disciple"}`);
     setAssignUserId("");
   };
 
@@ -811,7 +811,7 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
       <Card className="border-border">
         <CardHeader>
           <CardTitle className="font-heading text-lg">Assign Role</CardTitle>
-          <CardDescription>Grant moderator or user roles to community members</CardDescription>
+          <CardDescription>Grant Elder or Disciple roles to sect disciples</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
@@ -831,8 +831,8 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="moderator">Moderator</SelectItem>
-                  <SelectItem value="user">User (remove role)</SelectItem>
+                  <SelectItem value="moderator">Elder</SelectItem>
+                  <SelectItem value="user">Disciple (remove role)</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleAssignRole} disabled={!assignUserId} className="gap-1">
@@ -864,11 +864,11 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
                   <TableCell className="font-medium text-xs sm:text-sm">{p.display_name}</TableCell>
                   <TableCell>
                     {roles[p.user_id] === "admin" ? (
-                      <Badge variant="destructive" className="text-[10px]">Admin</Badge>
+                      <Badge variant="destructive" className="text-[10px]">Ancestor</Badge>
                     ) : roles[p.user_id] === "moderator" ? (
-                      <Badge className="text-[10px] bg-accent text-accent-foreground">Moderator</Badge>
+                      <Badge className="text-[10px] bg-accent text-accent-foreground">Elder</Badge>
                     ) : (
-                      <span className="text-xs text-muted-foreground">User</span>
+                      <span className="text-xs text-muted-foreground">Disciple</span>
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm hidden sm:table-cell">{p.reading_progress || "—"}</TableCell>
@@ -1017,10 +1017,10 @@ function NotificationsTab({ notifications, onDelete, onSend }: {
   );
 }
 
-function ModerationTab({ suspensions, profiles, communities, onLift, onSuspend, onBan, onBanCommunity, onRestoreCommunity }: {
+function ModerationTab({ suspensions, profiles, sects, onLift, onSuspend, onBan, onBanCommunity, onRestoreCommunity }: {
   suspensions: Suspension[];
   profiles: Profile[];
-  communities: AdminCommunity[];
+  sects: AdminCommunity[];
   onLift: (id: string) => void;
   onSuspend: (userId: string, reason: string) => void;
   onBan: (userId: string, reason: string) => void;
@@ -1041,8 +1041,8 @@ function ModerationTab({ suspensions, profiles, communities, onLift, onSuspend, 
     <div className="space-y-6">
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="font-heading text-lg">Suspend / Ban User</CardTitle>
-          <CardDescription>Manually suspend (7 days) or ban a user</CardDescription>
+          <CardTitle className="font-heading text-lg">Suspend / Ban Cultivator</CardTitle>
+          <CardDescription>Manually suspend (7 days) or ban a cultivator</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select value={selectedUserId} onValueChange={setSelectedUserId}>
@@ -1077,21 +1077,21 @@ function ModerationTab({ suspensions, profiles, communities, onLift, onSuspend, 
         </CardContent>
       </Card>
 
-      {/* Community Ban */}
+      {/* Sect Ban */}
       <Card className="border-border">
         <CardHeader>
           <CardTitle className="font-heading text-lg flex items-center gap-2">
-            <Ban size={16} className="text-destructive" /> Community Management
+            <Ban size={16} className="text-destructive" /> Sect Management
           </CardTitle>
-          <CardDescription>Ban communities that violate platform guidelines</CardDescription>
+          <CardDescription>Ban sects that violate platform guidelines</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select an active community..." />
+              <SelectValue placeholder="Select an active sect..." />
             </SelectTrigger>
             <SelectContent>
-              {communities.filter(c => c.is_active).map((c) => (
+              {sects.filter(c => c.is_active).map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.name} <span className="text-muted-foreground text-xs ml-1 capitalize">({c.category})</span></SelectItem>
               ))}
             </SelectContent>
@@ -1103,14 +1103,14 @@ function ModerationTab({ suspensions, profiles, communities, onLift, onSuspend, 
             disabled={!selectedCommunityId || !communityReason}
             className="gap-2"
           >
-            <Ban size={14} /> Ban Community
+            <Ban size={14} /> Ban Sect
           </Button>
 
-          {/* Banned communities list */}
-          {communities.filter(c => !c.is_active).length > 0 && (
+          {/* Banned sects list */}
+          {sects.filter(c => !c.is_active).length > 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-xs font-heading text-muted-foreground uppercase tracking-wider">Banned Communities ({communities.filter(c => !c.is_active).length})</p>
-              {communities.filter(c => !c.is_active).map(c => (
+              <p className="text-xs font-heading text-muted-foreground uppercase tracking-wider">Banned Sects ({sects.filter(c => !c.is_active).length})</p>
+              {sects.filter(c => !c.is_active).map(c => (
                 <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5">
                   <div>
                     <span className="font-heading text-sm text-foreground">{c.name}</span>
@@ -1143,7 +1143,7 @@ function ModerationTab({ suspensions, profiles, communities, onLift, onSuspend, 
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
+                    <TableHead>Cultivator</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead className="hidden sm:table-cell">Reason</TableHead>
                     <TableHead className="hidden sm:table-cell">Expires</TableHead>
@@ -1246,7 +1246,7 @@ function AppealsTab({ appeals, profiles, onRespond, onDelete, onLiftSuspension }
 
                   {a.admin_response && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Admin Response:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Ancestor Response:</p>
                       <p className="text-sm text-foreground/80 font-body">{a.admin_response}</p>
                     </div>
                   )}
@@ -1296,8 +1296,8 @@ function AppealsTab({ appeals, profiles, onRespond, onDelete, onLiftSuspension }
   );
 }
 
-function CommunityReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser, onBanUser }: {
-  reports: CommunityReport[];
+function SectReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser, onBanUser }: {
+  reports: SectReport[];
   profiles: Profile[];
   onUpdateStatus: (id: string, status: string, note: string) => void;
   onSuspendUser: (userId: string, reason: string) => void;
@@ -1316,12 +1316,12 @@ function CommunityReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser,
         <CardHeader>
           <CardTitle className="font-heading text-lg flex items-center gap-2">
             <Flag size={18} className="text-destructive" />
-            Community Reports ({reports.length})
+            Sect Reports ({reports.length})
             {pendingCount > 0 && (
               <Badge variant="destructive" className="ml-2">{pendingCount} pending</Badge>
             )}
           </CardTitle>
-          <CardDescription>Review reports from community members</CardDescription>
+          <CardDescription>Review reports from sect disciples</CardDescription>
         </CardHeader>
         <CardContent>
           {reports.length === 0 ? (
@@ -1348,7 +1348,7 @@ function CommunityReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser,
                   <p className="text-sm font-body text-foreground/80 bg-muted/50 rounded p-3">{r.reason}</p>
                   {r.admin_note && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Admin Note:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Ancestor Note:</p>
                       <p className="text-sm text-foreground/80 font-body">{r.admin_note}</p>
                     </div>
                   )}
@@ -1376,7 +1376,7 @@ function CommunityReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser,
                         <Button
                           size="sm"
                           onClick={() => {
-                            onSuspendUser(r.reported_user_id, `Community report: ${r.reason}`);
+                            onSuspendUser(r.reported_user_id, `Sect report: ${r.reason}`);
                             onUpdateStatus(r.id, "actioned", notes[r.id] || "User suspended.");
                             setNotes(prev => { const n = { ...prev }; delete n[r.id]; return n; });
                           }}
@@ -1388,7 +1388,7 @@ function CommunityReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser,
                           size="sm"
                           variant="destructive"
                           onClick={() => {
-                            onBanUser(r.reported_user_id, `Community report: ${r.reason}`);
+                            onBanUser(r.reported_user_id, `Sect report: ${r.reason}`);
                             onUpdateStatus(r.id, "actioned", notes[r.id] || "User banned.");
                             setNotes(prev => { const n = { ...prev }; delete n[r.id]; return n; });
                           }}
@@ -1610,10 +1610,10 @@ export default function AdminPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [suspensions, setSuspensions] = useState<Suspension[]>([]);
   const [appeals, setAppeals] = useState<Appeal[]>([]);
-  const [reports, setReports] = useState<CommunityReport[]>([]);
+  const [reports, setReports] = useState<SectReport[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [adminReviews, setAdminReviews] = useState<AdminReview[]>([]);
-  const [adminCommunities, setAdminCommunities] = useState<AdminCommunity[]>([]);
+  const [adminSects, setAdminSects] = useState<AdminCommunity[]>([]);
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(() => localStorage.getItem("maintenance_mode") === "true");
   const [maintenanceEta, setMaintenanceEta] = useState<string>(() => localStorage.getItem("maintenance_eta") || "");
   const [togglingMaintenance, setTogglingMaintenance] = useState(false);
@@ -1650,7 +1650,7 @@ export default function AdminPage() {
       if (aRes.data) setAppeals(aRes.data as Appeal[]);
       if (cmRes.data) setContactMessages((cmRes.data as any[]).map(parseContactReview));
       if (revRes.data) setAdminReviews(revRes.data as AdminReview[]);
-      if (comRes.data) setAdminCommunities(comRes.data as AdminCommunity[]);
+      if (comRes.data) setAdminSects(comRes.data as AdminCommunity[]);
       if (rRes.data) {
         const comIds = [...new Set(rRes.data.map((r: any) => r.community_id))];
         if (comIds.length > 0) {
@@ -1659,7 +1659,7 @@ export default function AdminPage() {
           coms?.forEach((c: any) => { comMap[c.id] = c.name; });
           setReports(rRes.data.map((r: any) => ({ ...r, community_name: comMap[r.community_id] || "Unknown" })));
         } else {
-          setReports(rRes.data as CommunityReport[]);
+          setReports(rRes.data as SectReport[]);
         }
       }
 
@@ -1830,18 +1830,18 @@ export default function AdminPage() {
   };
 
   const handleBanCommunity = async (id: string, reason: string) => {
-    if (!window.confirm(`Ban this community? It will be hidden from all users. Reason: ${reason}`)) return;
+    if (!window.confirm(`Ban this sect? It will be hidden from all users. Reason: ${reason}`)) return;
     const { error } = await supabase.from("communities").update({ is_active: false }).eq("id", id);
-    if (error) { toast.error("Failed to ban community"); return; }
-    setAdminCommunities(prev => prev.map(c => c.id === id ? { ...c, is_active: false } : c));
-    toast.success("Community banned");
+    if (error) { toast.error("Failed to ban sect"); return; }
+    setAdminSects(prev => prev.map(c => c.id === id ? { ...c, is_active: false } : c));
+    toast.success("Sect banned");
   };
 
   const handleRestoreCommunity = async (id: string) => {
     const { error } = await supabase.from("communities").update({ is_active: true }).eq("id", id);
-    if (error) { toast.error("Failed to restore community"); return; }
-    setAdminCommunities(prev => prev.map(c => c.id === id ? { ...c, is_active: true } : c));
-    toast.success("Community restored");
+    if (error) { toast.error("Failed to restore sect"); return; }
+    setAdminSects(prev => prev.map(c => c.id === id ? { ...c, is_active: true } : c));
+    toast.success("Sect restored");
   };
 
   const handleDeleteAllContacts = async () => {
@@ -2002,7 +2002,7 @@ export default function AdminPage() {
               <ModerationTab
                 suspensions={suspensions}
                 profiles={profiles}
-                communities={adminCommunities}
+                sects={adminSects}
                 onLift={handleLiftSuspension}
                 onSuspend={handleSuspendUser}
                 onBan={handleBanUser}
@@ -2020,7 +2020,7 @@ export default function AdminPage() {
               />
             </TabsContent>
             <TabsContent value="reports">
-              <CommunityReportsTab
+              <SectReportsTab
                 reports={reports}
                 profiles={profiles}
                 onUpdateStatus={async (id, status, note) => {

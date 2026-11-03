@@ -174,8 +174,8 @@ export function buildSearchIndex({
     ...communities.map((community): SearchResult => ({
       id: `community:${community.id}`,
       title: community.name,
-      category: "Community",
-      description: community.description || `${community.category} community`,
+      category: "Sect",
+      description: community.description || `${community.category} sect`,
       path: `/communities/${community.id}`,
       keywords: uniqueStrings([community.category]),
     })),

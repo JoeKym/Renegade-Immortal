@@ -17,7 +17,7 @@ export default function TermsOfService() {
           className="max-w-3xl mx-auto gradient-card border border-border rounded-xl p-6 md:p-9 space-y-7 font-body text-foreground/85 text-sm leading-relaxed"
         >
           <p className="text-muted-foreground">
-            These terms describe the basic rules for using this fan-made information and community
+            These terms describe the basic rules for using this fan-made information and sect
             site. They are a plain-language summary, not legal advice. If you do not agree, please
             discontinue use of the site.
           </p>
@@ -26,7 +26,7 @@ export default function TermsOfService() {
             <h2 className="font-heading text-lg text-foreground mb-2">1. Site and third-party material</h2>
             <p>
               Renegade Immortal is an unofficial fan project with reference material, a donghua
-              release tracker, links or embeds to third-party media pages, and community features.
+              release tracker, links or embeds to third-party media pages, and sect features.
               The site is not affiliated with or endorsed by Er Gen, publishers, animation studios,
               distributors, or streaming providers. Their names, works, and marks remain theirs.
               We do not control third-party services, their availability, or their content; use
@@ -45,7 +45,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="font-heading text-lg text-foreground mb-2">3. Community rules</h2>
+            <h2 className="font-heading text-lg text-foreground mb-2">3. Sect rules</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>Do not use the site to violate laws or another person’s rights.</li>
               <li>Do not harass, threaten, impersonate, or target other users.</li>
@@ -80,7 +80,7 @@ export default function TermsOfService() {
             <h2 className="font-heading text-lg text-foreground mb-2">6. Availability and information</h2>
             <p>
               Site content, episode counts, schedules, and links are provided for general
-              informational and fan-community purposes. Schedules and external sources can change
+              informational and fan-sect purposes. Schedules and external sources can change
               without notice, and we cannot guarantee uninterrupted access, accuracy, or
               availability. The site is provided on an “as available” basis to the extent permitted
               by applicable law.

@@ -94,7 +94,7 @@ export function GroupsNavLink({ iconSize = 14 }: { iconSize?: number }) {
           </span>
         )}
       </span>
-      Groups
+      Peaks
     </Link>
   );
 }
