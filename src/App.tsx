@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Suspense, lazy, useEffect } from "react";
 import { AuthProvider } from "@/components/AuthProvider";
@@ -69,7 +69,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "/guide": () => import("./pages/Guide"),
   "/artifacts": () => import("./pages/Artifacts"),
   "/locations": () => import("./pages/Locations"),
-  "/communities": () => import("./pages/Communities"),
+  "/sects": () => import("./pages/Communities"),
   "/feed": () => import("./pages/Feed"),
   "/voidy": () => import("./pages/VoidyChat"),
   "/news": () => import("./pages/News"),
@@ -84,6 +84,11 @@ function prefetchRoute(path: string) {
 }
 
 const queryClient = new QueryClient();
+
+function LegacySectRedirect() {
+  const { id } = useParams();
+  return <Navigate to={id ? `/sects/${id}` : "/sects"} replace />;
+}
 
 function RouteFallback() {
   return (
@@ -168,12 +173,16 @@ const App = () => {
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/suspended" element={<Suspended />} />
-                  <Route path="/members" element={<Members />} />
-                  <Route path="/communities" element={<Communities />} />
-                  <Route path="/communities/:id" element={<CommunityDetail />} />
+                  <Route path="/fellow-daoists" element={<Members />} />
+                  <Route path="/sects" element={<Communities />} />
+                  <Route path="/sects/:id" element={<CommunityDetail />} />
+                  <Route path="/communities" element={<Navigate to="/sects" replace />} />
+                  <Route path="/communities/:id" element={<LegacySectRedirect />} />
                   <Route path="/feed" element={<Feed />} />
+                  <Route path="/members" element={<Navigate to="/fellow-daoists" replace />} />
                   <Route path="/messages" element={<Messages />} />
-                  <Route path="/groups" element={<GroupMessages />} />
+                  <Route path="/peaks" element={<GroupMessages />} />
+                  <Route path="/groups" element={<Navigate to="/peaks" replace />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/support" element={<Support />} />

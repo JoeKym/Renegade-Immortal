@@ -176,7 +176,7 @@ export function buildSearchIndex({
       title: community.name,
       category: "Sect",
       description: community.description || `${community.category} sect`,
-      path: `/communities/${community.id}`,
+      path: `/sects/${community.id}`,
       keywords: uniqueStrings([community.category]),
     })),
     ...profiles.map((profile): SearchResult => ({

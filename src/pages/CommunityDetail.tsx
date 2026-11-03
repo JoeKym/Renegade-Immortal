@@ -349,7 +349,7 @@ export default function CommunityDetail() {
       });
     }
 
-    toast.success("Report submitted. A Sect Master or Ancestor will review it.");
+    toast.success("Report submitted. A Sect Master or the Heavenly Dao will review it.");
     setReportOpen(false);
     setReportReason("");
     setReportUserId(null);
@@ -362,7 +362,7 @@ export default function CommunityDetail() {
     const { error } = await supabase.from("communities").delete().eq("id", id);
     if (error) { toast.error("Failed to delete sect"); return; }
     toast.success("Sect deleted.");
-    navigate("/communities");
+    navigate("/sects");
   };
 
   // Save guidelines
@@ -400,14 +400,14 @@ export default function CommunityDetail() {
   }
 
   if (!community) {
-    return <Layout><div className="min-h-[70vh] flex flex-col items-center justify-center gap-4"><p className="text-muted-foreground">Sect not found</p><Link to="/communities" className="text-primary hover:underline">Back to sects</Link></div></Layout>;
+    return <Layout><div className="min-h-[70vh] flex flex-col items-center justify-center gap-4"><p className="text-muted-foreground">Sect not found</p><Link to="/sects" className="text-primary hover:underline">Back to sects</Link></div></Layout>;
   }
 
   return (
     <Layout>
       <div className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <Link to="/communities" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
+          <Link to="/sects" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
             <ArrowLeft size={14} /> Back to Sects
           </Link>
 
@@ -725,7 +725,7 @@ export default function CommunityDetail() {
           </DialogHeader>
           <div className="space-y-3 mt-2">
             <p className="text-xs text-muted-foreground font-body">
-              Describe the guideline violation. Reports are reviewed by Sect Masters and Ancestors.
+              Describe the guideline violation. Reports are reviewed by Sect Masters and the Heavenly Dao.
             </p>
 
             {/* AI Suggestion Chips */}

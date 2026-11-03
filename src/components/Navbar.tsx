@@ -48,7 +48,7 @@ const moreDropdown = {
   ],
 };
 
-const communityNav = { path: "/communities", labelKey: "nav.community", icon: Users };
+const communityNav = { path: "/sects", labelKey: "nav.community", icon: Users };
 const feedNav = { path: "/feed", labelKey: "nav.feed", icon: Rss };
 const voidyNav = { path: "/voidy", labelKey: "nav.voidy", icon: Bot };
 
@@ -69,10 +69,10 @@ const allNavItems = [
   { path: "/lore", labelKey: "nav.world", icon: BookOpen },
   { path: "/news", labelKey: "nav.news", icon: Newspaper },
   { path: "/watch", labelKey: "nav.watch", icon: Play },
-  { path: "/communities", labelKey: "nav.community", icon: Users },
+  { path: "/sects", labelKey: "nav.community", icon: Users },
   { path: "/feed", labelKey: "nav.feed", icon: Rss },
   { path: "/messages", labelKey: "common.messages", icon: MessageCircle },
-  { path: "/groups", labelKey: "common.groups", icon: UsersRound },
+  { path: "/peaks", labelKey: "common.groups", icon: UsersRound },
   { path: "/voidy", labelKey: "nav.voidy", icon: Bot },
   { path: "/about", labelKey: "footer.about", icon: Info },
   { path: "/settings", labelKey: "settings.title", icon: Settings },
@@ -165,9 +165,9 @@ export function Navbar() {
 
             <Link
               to={communityNav.path}
-              aria-current={location.pathname === communityNav.path || location.pathname.startsWith("/communities") ? "page" : undefined}
+              aria-current={location.pathname === communityNav.path || location.pathname.startsWith("/sects") ? "page" : undefined}
               className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-body transition-colors ${
-                location.pathname === communityNav.path || location.pathname.startsWith("/communities")
+                location.pathname === communityNav.path || location.pathname.startsWith("/sects")
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               }`}

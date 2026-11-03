@@ -864,7 +864,7 @@ function UsersTab({ profiles, onDeleteUser }: { profiles: Profile[]; onDeleteUse
                   <TableCell className="font-medium text-xs sm:text-sm">{p.display_name}</TableCell>
                   <TableCell>
                     {roles[p.user_id] === "admin" ? (
-                      <Badge variant="destructive" className="text-[10px]">Ancestor</Badge>
+                      <Badge variant="destructive" className="text-[10px]">Heavenly Dao</Badge>
                     ) : roles[p.user_id] === "moderator" ? (
                       <Badge className="text-[10px] bg-accent text-accent-foreground">Elder</Badge>
                     ) : (
@@ -1246,7 +1246,7 @@ function AppealsTab({ appeals, profiles, onRespond, onDelete, onLiftSuspension }
 
                   {a.admin_response && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Ancestor Response:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Heavenly Dao Response:</p>
                       <p className="text-sm text-foreground/80 font-body">{a.admin_response}</p>
                     </div>
                   )}
@@ -1348,7 +1348,7 @@ function SectReportsTab({ reports, profiles, onUpdateStatus, onSuspendUser, onBa
                   <p className="text-sm font-body text-foreground/80 bg-muted/50 rounded p-3">{r.reason}</p>
                   {r.admin_note && (
                     <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                      <p className="text-xs font-heading text-primary mb-1">Ancestor Note:</p>
+                      <p className="text-xs font-heading text-primary mb-1">Heavenly Dao Note:</p>
                       <p className="text-sm text-foreground/80 font-body">{r.admin_note}</p>
                     </div>
                   )}

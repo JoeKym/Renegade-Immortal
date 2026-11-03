@@ -776,7 +776,7 @@ export default function GroupMessages() {
                     <AvatarFallback className="bg-primary/10 text-primary text-[8px]">{(profiles[m.user_id]?.display_name || "?").charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="flex-1 text-foreground">{profiles[m.user_id]?.display_name || "Cultivator"}</span>
-                  {m.role === "admin" && <Crown size={12} className="text-amber-500" />}
+                  {m.role === "admin" && <span className="flex items-center gap-0.5 text-[9px] font-heading text-amber-500"><Crown size={12} />Peak Master</span>}
                   {isAdmin && m.user_id !== user.id && (
                     <button onClick={() => handleRemoveMember(m.user_id)} className="p-1 text-muted-foreground hover:text-destructive"><UserMinus size={12} /></button>
                   )}
