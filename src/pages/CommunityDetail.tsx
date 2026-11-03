@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -35,6 +36,32 @@ interface Member {
   avatar_url?: string | null;
   username?: string | null;
 }
+
+// Xianxia sect hierarchy — lower level = more authority.
+const SECT_ROLES: { value: string; label: string }[] = [
+  { value: "sect_master", label: "Sect Master" },
+  { value: "deputy_master", label: "Deputy Sect Master" },
+  { value: "hall_master", label: "Hall Master" },
+  { value: "core_elder", label: "Core Elder" },
+  { value: "inner_elder", label: "Inner Elder" },
+  { value: "outer_elder", label: "Outer Elder" },
+  { value: "legacy_disciple", label: "Successor" },
+  { value: "core_disciple", label: "Core Disciple" },
+  { value: "inner_disciple", label: "Inner Disciple" },
+  { value: "outer_disciple", label: "Outer Disciple" },
+  { value: "servant", label: "Labor Disciple" },
+];
+
+function sectLevel(role: string): number {
+  const i = SECT_ROLES.findIndex(r => r.value === role);
+  if (i >= 0) return i + 1;
+  if (role === "leader") return 1;  // legacy creator rank
+  if (role === "elder") return 4;   // legacy elder rank
+  return 9;                          // legacy member / unknown
+}
+
+const sectRoleLabel = (role: string) => SECT_ROLES.find(r => r.value === role)?.label
+  || (role === "leader" ? "Sect Master" : role === "elder" ? "Core Elder" : "Inner Disciple");
 
 interface Post {
   id: string;
@@ -121,7 +148,11 @@ export default function CommunityDetail() {
   const [guidelinesText, setGuidelinesText] = useState("");
 
   const isMember = myRole !== null;
-  const isLeader = myRole === "leader";
+  const myLevel = myRole ? sectLevel(myRole) : 99;
+  const isSectMaster = myLevel === 1;
+  const canManageMembers = myLevel <= 2 || isAdmin;
+  const canModerate = myLevel <= 6 || isAdmin;
+  const canLead = isSectMaster || isAdmin;
 
   const fetchAll = async () => {
     if (!id) return;
@@ -197,7 +228,7 @@ export default function CommunityDetail() {
 
   const handleJoin = async () => {
     if (!user || !id) return;
-    const { error } = await supabase.from("community_members").insert({ community_id: id, user_id: user.id, role: "member" });
+    const { error } = await supabase.from("community_members").insert({ community_id: id, user_id: user.id, role: "inner_disciple" });
     if (error) toast.error("Failed to join");
     else { toast.success("Joined the sect!"); fetchAll(); }
   };
@@ -270,7 +301,7 @@ export default function CommunityDetail() {
 
   const handlePromote = async (userId: string, newRole: string) => {
     await supabase.from("community_members").update({ role: newRole }).eq("community_id", id).eq("user_id", userId);
-    toast.success(`Role updated to ${newRole === "leader" ? "Sect Master" : newRole === "elder" ? "Elder" : "Disciple"}`);
+    toast.success(`Role updated to ${sectRoleLabel(newRole)}`);
     fetchAll();
   };
 
@@ -390,9 +421,11 @@ export default function CommunityDetail() {
   };
 
   const roleBadge = (role: string) => {
-    if (role === "leader") return <Badge variant="outline" className="text-[10px] border-primary/50 text-primary bg-primary/10">Sect Master</Badge>;
-    if (role === "elder") return <Badge variant="outline" className="text-[10px] border-accent/50 text-accent bg-accent/10">Elder</Badge>;
-    return <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">Disciple</Badge>;
+    const lv = sectLevel(role);
+    if (lv === 1) return <Badge variant="outline" className="text-[10px] border-amber-500/50 text-amber-500 bg-amber-500/10"><Crown size={10} className="mr-0.5" />Sect Master</Badge>;
+    if (lv === 2) return <Badge variant="outline" className="text-[10px] border-primary/50 text-primary bg-primary/10">Deputy Master</Badge>;
+    if (lv <= 6) return <Badge variant="outline" className="text-[10px] border-accent/50 text-accent bg-accent/10">{sectRoleLabel(role)}</Badge>;
+    return <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">{sectRoleLabel(role)}</Badge>;
   };
 
   if (loading) {
@@ -422,7 +455,7 @@ export default function CommunityDetail() {
                       {community.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  {(isLeader || isAdmin) && (
+                  {(canLead) && (
                     <>
                       <button
                         onClick={() => avatarInputRef.current?.click()}
@@ -454,7 +487,7 @@ export default function CommunityDetail() {
                   {!isMember && user && (
                     <Button onClick={handleJoin} size="sm" className="gradient-gold text-primary-foreground">Join</Button>
                   )}
-                  {isMember && !isLeader && (
+                  {isMember && !isSectMaster && (
                     <Button onClick={handleLeave} variant="outline" size="sm" className="gap-1">
                       <LogOut size={12} /> Leave
                     </Button>
@@ -506,13 +539,13 @@ export default function CommunityDetail() {
             </div>
 
             {/* Guidelines */}
-            {(community.guidelines || isLeader || isAdmin) && (
+            {(community.guidelines || canLead) && (
               <div className="gradient-card border border-border rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-heading text-sm text-primary flex items-center gap-1.5">
                     <ScrollText size={14} /> Sect Guidelines
                   </h3>
-                  {(isLeader || isAdmin) && (
+                  {(canLead) && (
                     <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setEditingGuidelines(!editingGuidelines)}>
                       {editingGuidelines ? "Cancel" : "Edit"}
                     </Button>
@@ -688,18 +721,18 @@ export default function CommunityDetail() {
                             <Flag size={10} />
                           </Button>
                         )}
-                        {(isLeader || isAdmin) && m.user_id !== user?.id && (
-                          <div className="flex gap-1">
-                            {m.role === "member" && (
-                              <Button variant="ghost" size="sm" onClick={() => handlePromote(m.user_id, "elder")} className="text-xs h-7 px-2">
-                                <Shield size={10} className="mr-1" /> Promote to Elder
-                              </Button>
-                            )}
-                            {m.role === "elder" && (
-                              <Button variant="ghost" size="sm" onClick={() => handlePromote(m.user_id, "member")} className="text-xs h-7 px-2">
-                                Demote
-                              </Button>
-                            )}
+                        {canManageMembers && m.user_id !== user?.id && sectLevel(m.role) > (isAdmin && !isMember ? 0 : myLevel) && (
+                          <div className="flex gap-1 items-center">
+                            <Select value={m.role} onValueChange={(v) => handlePromote(m.user_id, v)}>
+                              <SelectTrigger className="h-6 w-[130px] text-[10px] px-2">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SECT_ROLES.filter(r => sectLevel(r.value) > (isAdmin && !isMember ? 0 : myLevel)).map(r => (
+                                  <SelectItem key={r.value} value={r.value} className="text-xs">{r.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <Button variant="ghost" size="sm" onClick={() => handleKick(m.user_id)} className="text-xs h-7 px-2 text-destructive hover:text-destructive">
                               <UserMinus size={10} />
                             </Button>

@@ -163,7 +163,7 @@ export default function CommunitiesPage() {
       const { error: memberError } = await supabase.from("community_members").insert({
         community_id: communityData.id,
         user_id: user.id,
-        role: "leader",
+        role: "sect_master",
       });
 
       if (memberError) {
