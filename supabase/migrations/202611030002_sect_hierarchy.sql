@@ -130,12 +130,12 @@ CREATE POLICY "Authors or elders can delete posts" ON public.community_posts FOR
   auth.uid() = author_id OR is_sect_elder(auth.uid(), community_id)
 );
 
-DROP POLICY IF EXISTS "Authors can delete own messages" ON public.community_messages;
-DROP POLICY IF EXISTS "Members can delete own messages" ON public.community_messages;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables
              WHERE table_schema = 'public' AND table_name = 'community_messages') THEN
+    EXECUTE 'DROP POLICY IF EXISTS "Authors can delete own messages" ON public.community_messages';
+    EXECUTE 'DROP POLICY IF EXISTS "Members can delete own messages" ON public.community_messages';
     EXECUTE 'CREATE POLICY "Authors or elders can delete messages" ON public.community_messages FOR DELETE TO authenticated USING (
       auth.uid() = user_id OR is_sect_elder(auth.uid(), community_id)
     )';
