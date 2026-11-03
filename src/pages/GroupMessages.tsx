@@ -98,7 +98,7 @@ function peakRoleBadge(role: string) {
 }
 
 export default function GroupMessages() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [groups, setGroups] = useState<GroupChat[]>([]);
@@ -479,9 +479,9 @@ export default function GroupMessages() {
   const activeGroupData = groups.find(g => g.id === activeGroup);
   const myMembership = members.find(m => m.user_id === user?.id);
   const myLevel = myMembership ? peakLevel(myMembership.role) : 99;
-  const isPeakMaster = myLevel === 1;
-  const canManageMembers = myLevel <= 2;
-  const canModerate = myLevel <= 5;
+  const isPeakMaster = myLevel === 1 || isAdmin;
+  const canManageMembers = myLevel <= 2 || isAdmin;
+  const canModerate = myLevel <= 5 || isAdmin;
   const sortedMembers = [...members].sort((a, b) => peakLevel(a.role) - peakLevel(b.role) || a.joined_at.localeCompare(b.joined_at));
 
   if (!user) {
@@ -820,7 +820,7 @@ export default function GroupMessages() {
             <div className="max-h-32 overflow-y-auto space-y-1">
               {sortedMembers.map(m => {
                 const theirLevel = peakLevel(m.role);
-                const outrank = theirLevel > myLevel;
+                const outrank = isAdmin || theirLevel > myLevel;
                 return (
                   <div key={m.id} className="flex items-center gap-2 p-1.5 rounded text-xs">
                     <Avatar className="h-6 w-6"><AvatarImage src={profiles[m.user_id]?.avatar_url || undefined} />
@@ -828,19 +828,19 @@ export default function GroupMessages() {
                     </Avatar>
                     <span className="flex-1 text-foreground">{profiles[m.user_id]?.display_name || "Cultivator"}</span>
                     {peakRoleBadge(m.role)}
-                    {canManageMembers && m.user_id !== user.id && outrank && (
+                    {canManageMembers && m.user_id !== user.id && (outrank || isAdmin) && (
                       <Select value={m.role} onValueChange={(v) => handleSetRole(m.user_id, v)}>
                         <SelectTrigger className="h-6 w-[110px] text-[9px] px-1.5">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {PEAK_ROLES.filter(r => peakLevel(r.value) > myLevel).map(r => (
+                          {PEAK_ROLES.filter(r => peakLevel(r.value) > (isAdmin ? 0 : myLevel)).map(r => (
                             <SelectItem key={r.value} value={r.value} className="text-xs">{r.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     )}
-                    {canManageMembers && m.user_id !== user.id && outrank && (
+                    {canManageMembers && m.user_id !== user.id && (outrank || isAdmin) && (
                       <button onClick={() => handleRemoveMember(m.user_id)} className="p-1 text-muted-foreground hover:text-destructive"><UserMinus size={12} /></button>
                     )}
                   </div>

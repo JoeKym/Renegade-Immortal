@@ -102,7 +102,7 @@ $$;
 DROP POLICY IF EXISTS "Admins can update groups" ON public.group_chats;
 DROP POLICY IF EXISTS "Peak masters can update groups" ON public.group_chats;
 CREATE POLICY "Peak masters can update groups" ON public.group_chats FOR UPDATE
-  USING (is_peak_master(auth.uid(), id));
+  USING (is_peak_master(auth.uid(), id) OR has_role(auth.uid(), 'admin'::app_role));
 
 DROP POLICY IF EXISTS "Admins can delete groups" ON public.group_chats;
 DROP POLICY IF EXISTS "Peak masters can delete groups" ON public.group_chats;
@@ -114,26 +114,30 @@ DROP POLICY IF EXISTS "Managers can add members" ON public.group_members;
 CREATE POLICY "Managers can add members" ON public.group_members FOR INSERT
   TO authenticated WITH CHECK (
     is_peak_manager(auth.uid(), group_id) OR
-    (SELECT created_by FROM group_chats WHERE id = group_id) = auth.uid()
+    (SELECT created_by FROM group_chats WHERE id = group_id) = auth.uid() OR
+    has_role(auth.uid(), 'admin'::app_role)
   );
 
 DROP POLICY IF EXISTS "Admins can remove members" ON public.group_members;
 DROP POLICY IF EXISTS "Managers can remove lower disciples" ON public.group_members;
 CREATE POLICY "Managers can remove lower disciples" ON public.group_members FOR DELETE
   USING (
-    is_peak_manager(auth.uid(), group_id)
-    AND public.peak_level(user_id, group_id) > public.peak_level(auth.uid(), group_id)
+    (is_peak_manager(auth.uid(), group_id)
+     AND public.peak_level(user_id, group_id) > public.peak_level(auth.uid(), group_id))
+    OR has_role(auth.uid(), 'admin'::app_role)
   );
 
 DROP POLICY IF EXISTS "Admins can update member roles" ON public.group_members;
 DROP POLICY IF EXISTS "Managers can assign lower roles" ON public.group_members;
 CREATE POLICY "Managers can assign lower roles" ON public.group_members FOR UPDATE
   USING (
-    is_peak_manager(auth.uid(), group_id)
-    AND public.peak_level(user_id, group_id) > public.peak_level(auth.uid(), group_id)
+    (is_peak_manager(auth.uid(), group_id)
+     AND public.peak_level(user_id, group_id) > public.peak_level(auth.uid(), group_id))
+    OR has_role(auth.uid(), 'admin'::app_role)
   )
   WITH CHECK (
     public.peak_role_level(role) > public.peak_level(auth.uid(), group_id)
+    OR has_role(auth.uid(), 'admin'::app_role)
   );
 
 DROP POLICY IF EXISTS "Senders can delete own messages" ON public.group_messages;
@@ -150,6 +154,12 @@ DROP POLICY IF EXISTS "Group admins can unpin" ON public.pinned_group_messages;
 DROP POLICY IF EXISTS "Elders can unpin" ON public.pinned_group_messages;
 CREATE POLICY "Elders can unpin" ON public.pinned_group_messages FOR DELETE
   USING (is_peak_elder(auth.uid(), group_id) OR auth.uid() = pinned_by);
+
+-- Crown existing creators whose role was lower (e.g. peaks made before this migration)
+UPDATE public.group_members gm
+SET role = 'peak_master'
+FROM public.group_chats gc
+WHERE gm.group_id = gc.id AND gm.user_id = gc.created_by AND gm.role <> 'peak_master';
 
 -- Creator is crowned Peak Master when a peak is founded
 CREATE OR REPLACE FUNCTION public.auto_add_group_admin()
