@@ -12,11 +12,21 @@ interface GlobalSearchProps {
   onClose: () => void;
 }
 
+const fuseCache = new WeakMap<object, ReturnType<typeof createSiteSearch>>();
+function getFuse(data: ReturnType<typeof useSearchableData>) {
+  let f = fuseCache.get(data);
+  if (!f) {
+    f = createSiteSearch(data);
+    fuseCache.set(data, f);
+  }
+  return f;
+}
+
 export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const searchableData = useSearchableData(open);
-  const fuse = useMemo(() => createSiteSearch(searchableData), [searchableData]);
+  const fuse = useMemo(() => getFuse(searchableData), [searchableData]);
   const { trackSearchQuery, trackResultClick } = useSearchTracking();
   const trackedQueries = useRef<Set<string>>(new Set());
 

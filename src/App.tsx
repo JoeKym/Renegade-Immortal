@@ -56,6 +56,33 @@ const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const SearchPage = lazy(() => import("./pages/Search"));
 const ArcExplorer = lazy(() => import("./pages/ArcExplorer"));
 
+const pageLoaders: Record<string, () => Promise<unknown>> = {
+  "/": () => import("./pages/Index"),
+  "/characters": () => import("./pages/Characters"),
+  "/daos": () => import("./pages/Daos"),
+  "/cultivation": () => import("./pages/Cultivation"),
+  "/timeline": () => import("./pages/Timeline"),
+  "/multiverse": () => import("./pages/Multiverse"),
+  "/donghua": () => import("./pages/Donghua"),
+  "/donghua-release-timeline": () => import("./pages/DonghuaReleaseTimeline"),
+  "/lore": () => import("./pages/Lore"),
+  "/guide": () => import("./pages/Guide"),
+  "/artifacts": () => import("./pages/Artifacts"),
+  "/locations": () => import("./pages/Locations"),
+  "/communities": () => import("./pages/Communities"),
+  "/feed": () => import("./pages/Feed"),
+  "/voidy": () => import("./pages/VoidyChat"),
+  "/news": () => import("./pages/News"),
+  "/watch": () => import("./pages/Watch"),
+  "/about": () => import("./pages/About"),
+  "/search": () => import("./pages/Search"),
+  "/arcs": () => import("./pages/ArcExplorer"),
+};
+
+function prefetchRoute(path: string) {
+  pageLoaders[path]?.();
+}
+
 const queryClient = new QueryClient();
 
 function RouteFallback() {
@@ -67,6 +94,30 @@ function RouteFallback() {
 }
 
 const App = () => {
+  useEffect(() => {
+    // Warm page chunks when a nav link is hovered/focused, and preload the main pages once idle.
+    const onHover = (e: Event) => {
+      const a = (e.target as HTMLElement).closest?.("a[href]");
+      const href = a?.getAttribute("href");
+      if (href?.startsWith("/")) prefetchRoute(href.split("?")[0]);
+    };
+    document.addEventListener("pointerover", onHover);
+    document.addEventListener("focusin", onHover);
+    const warm = () => {
+      for (const path of ["/guide", "/characters", "/daos", "/donghua", "/lore"]) prefetchRoute(path);
+    };
+    const idleId =
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(warm)
+        : window.setTimeout(warm, 3000);
+    return () => {
+      document.removeEventListener("pointerover", onHover);
+      document.removeEventListener("focusin", onHover);
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleId as number);
+      window.clearTimeout(idleId);
+    };
+  }, []);
+
   useEffect(() => {
     const sync = () => {
       syncAllSeriesReleaseMetadata(DONGHUA_SERIES).catch(() => {});

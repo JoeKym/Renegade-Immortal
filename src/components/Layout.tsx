@@ -26,51 +26,6 @@ import emailIcon from "@/assets/socials/email.svg";
 
 import { MaintenanceAnimation } from "./MaintenanceAnimation";
 
-/** Same ambient clip as the original, re-encoded for the web (muted, so no audio track). */
-const BG_VIDEO_SRC = "/videos/renegadeimmortal_bg_web.mp4";
-
-let bgVideoEnabled = false;
-
-/** Starts the background video only after the page has loaded, so it never competes with first paint. */
-function useDeferredBackgroundVideo() {
-  const [src, setSrc] = useState<string | null>(() => (bgVideoEnabled ? BG_VIDEO_SRC : null));
-
-  useEffect(() => {
-    if (bgVideoEnabled) return;
-
-    let idleId: number | undefined;
-    let timeoutId: number | undefined;
-
-    const enable = () => {
-      bgVideoEnabled = true;
-      setSrc(BG_VIDEO_SRC);
-    };
-    const schedule = () => {
-      if (typeof window.requestIdleCallback === "function") {
-        idleId = window.requestIdleCallback(enable, { timeout: 2500 });
-      } else {
-        timeoutId = window.setTimeout(enable, 1500);
-      }
-    };
-
-    if (document.readyState === "complete") {
-      schedule();
-    } else {
-      window.addEventListener("load", schedule, { once: true });
-    }
-
-    return () => {
-      window.removeEventListener("load", schedule);
-      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
-        window.cancelIdleCallback(idleId);
-      }
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-    };
-  }, []);
-
-  return src;
-}
-
 function SvgIcon({ src, className }: { src: string; className?: string }) {
   return <img src={src} alt="" className={className} />;
 }
@@ -142,7 +97,6 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { isAdmin } = useAdminCheck();
   const { maintenance, maintenanceEta } = useMaintenanceMode();
-  const bgVideoSrc = useDeferredBackgroundVideo();
 
   useEffect(() => {
     let sessionId = sessionStorage.getItem("pv_session");
@@ -163,18 +117,6 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Video Background */}
-      {bgVideoSrc && (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="fixed inset-0 z-0 h-full w-full object-cover opacity-[0.08] pointer-events-none"
-        >
-          <source src={bgVideoSrc} type="video/mp4" />
-        </video>
-      )}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/90 via-background/95 to-background pointer-events-none" />
 
       <Navbar />
