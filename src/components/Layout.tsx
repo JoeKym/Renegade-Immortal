@@ -26,6 +26,40 @@ import emailIcon from "@/assets/socials/email.svg";
 
 import { MaintenanceAnimation } from "./MaintenanceAnimation";
 
+/** Lightweight ambient loop (~1.8MB). Avoid the old 43MB clip on every page. */
+const BG_VIDEO_SRC = "/videos/background.mp4";
+
+function useDeferredBackgroundVideo() {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const smallScreen = window.matchMedia("(max-width: 768px)").matches;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    if (reduceMotion || smallScreen || saveData) return;
+
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+
+    const enable = () => setSrc(BG_VIDEO_SRC);
+
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(enable, { timeout: 2500 });
+    } else {
+      timeoutId = window.setTimeout(enable, 1500);
+    }
+
+    return () => {
+      if (idleId !== undefined && "cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  return src;
+}
+
 function SvgIcon({ src, className }: { src: string; className?: string }) {
   return <img src={src} alt="" className={className} />;
 }

@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RoleBadge } from "@/pages/Members";
+import { RoleBadge } from "@/components/RoleBadge";
 
 const COMMUNITY_CATEGORIES = ["general", "lore discussion", "fan art", "theories", "cultivation", "donghua"] as const;
 

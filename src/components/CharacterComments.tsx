@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { RoleBadge } from "@/pages/Members";
+import { RoleBadge } from "@/components/RoleBadge";
 
 interface Comment {
   id: string;

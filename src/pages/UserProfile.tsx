@@ -7,7 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { User, BookOpen, Link2, Calendar, Pencil, UserPlus, UserCheck, Users, MessageCircle, Heart, Settings, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RoleBadge } from "@/pages/Members";
+import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
 import { ShareMenu } from "@/components/ShareMenu";
 import { characters } from "@/data/charactersData";

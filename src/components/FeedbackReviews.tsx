@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { RoleBadge } from "@/pages/Members";
+import { RoleBadge } from "@/components/RoleBadge";
 
 interface Review {
   id: string;

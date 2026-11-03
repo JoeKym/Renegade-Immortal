@@ -4,7 +4,7 @@ import { Star, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RoleBadge } from "@/pages/Members";
+import { RoleBadge } from "@/components/RoleBadge";
 
 interface Review {
   id: string;
